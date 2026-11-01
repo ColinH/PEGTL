@@ -19,7 +19,6 @@
 #include "internal/dummy_guard.hpp"
 #include "internal/enable_control.hpp"
 #include "internal/has_error_message.hpp"
-#include "internal/has_match.hpp"
 #include "internal/rewind_guard.hpp"
 
 #if defined( __cpp_exceptions )
@@ -148,7 +147,7 @@ namespace TAO_PEGTL_NAMESPACE
                 typename... States >
       [[nodiscard]] static bool match( ParseInput& in, States&&... st )
       {
-         if constexpr( internal::has_match< Rule, A, M, Action, Control, ParseInput, States... > ) {
+         if constexpr( requires { Action< Rule >::template match< Rule, A, M, Action, Control >( std::declval< ParseInput& >(), std::declval< States&& >()... ); } ) {
             return Action< Rule >::template match< Rule, A, M, Action, Control >( in, st... );
          }
          else {

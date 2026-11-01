@@ -3,7 +3,6 @@
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
 #include <concepts>
-#include <memory>
 #include <utility>
 
 #include <tao/pegtl/normal.hpp>
@@ -15,16 +14,53 @@
 #include <tao/pegtl/control/internal/remove_first_state.hpp>
 #include <tao/pegtl/control/internal/state_control.hpp>
 #include <tao/pegtl/control/remove_last_states.hpp>
-#include <tao/pegtl/extra/parse_tree.hpp>
+#include <tao/pegtl/internal/apply0_impl.hpp>
+#include <tao/pegtl/internal/apply_impl.hpp>
 #include <tao/pegtl/internal/match_impl.hpp>
-
-#if defined( __cpp_exceptions )
-#include <tao/pegtl/action/internal/builder_utility.hpp>
-#include <tao/pegtl/control/internal/must_if.hpp>
-#endif
 
 namespace TAO_PEGTL_NAMESPACE::constraint_tests
 {
+   struct missing
+   {};
+
+   template< typename Result, bool Noexcept = true >
+   struct callbacks
+   {
+      static Result apply( const int&, int& ) noexcept( Noexcept );
+      static Result apply0( int& ) noexcept( Noexcept );
+   };
+
+   template< typename Action >
+   concept can_apply = requires( const int& in, int& state ) {
+      { internal::apply_impl< Action >::apply( in, state ) } -> std::same_as< bool >;
+   };
+
+   template< typename Action >
+   concept can_apply0 = requires( int& state ) {
+      { internal::apply0_impl< Action >::apply0( state ) } -> std::same_as< bool >;
+   };
+
+   static_assert( can_apply< callbacks< void > > );
+   static_assert( can_apply< callbacks< bool > > );
+   static_assert( !can_apply< callbacks< int > > );
+   static_assert( !can_apply< callbacks< bool& > > );
+   static_assert( !can_apply< missing > );
+   static_assert( can_apply0< callbacks< void > > );
+   static_assert( can_apply0< callbacks< bool > > );
+   static_assert( !can_apply0< callbacks< int > > );
+   static_assert( !can_apply0< callbacks< bool& > > );
+   static_assert( !can_apply0< missing > );
+
+   // Callback arguments remain lvalues even when the adapter receives temporaries.
+   static_assert( requires {
+      internal::apply_impl< callbacks< void > >::apply( 0, 0 );
+      internal::apply0_impl< callbacks< void > >::apply0( 0 );
+   } );
+   static_assert( noexcept( internal::apply_impl< callbacks< void > >::apply( 0, 0 ) ) );
+   static_assert( !noexcept( internal::apply_impl< callbacks< void, false > >::apply( 0, 0 ) ) );
+   static_assert( noexcept( internal::apply0_impl< callbacks< bool > >::apply0( 0 ) ) );
+   static_assert( !noexcept( internal::apply0_impl< callbacks< bool, false > >::apply0( 0 ) ) );
+
    struct input
       : view_input<>
    {
@@ -127,9 +163,6 @@ namespace TAO_PEGTL_NAMESPACE::constraint_tests
       using template_rule::match;
    };
 
-   struct missing
-   {};
-
    template< typename Rule, typename... States >
    concept has_match = requires( input& in, States&... st ) {
       { internal::match_no_control< Rule, apply_mode::enabled, rewind_mode::optional, nothing, normal >( in, st... ) } -> std::same_as< int& >;
@@ -142,85 +175,6 @@ namespace TAO_PEGTL_NAMESPACE::constraint_tests
    static_assert( !has_match< both_rules, int > );
    static_assert( !has_match< missing > );
 
-   struct transform_with_input
-   {
-      static int& transform( const input&, std::unique_ptr< int >&, int& ) noexcept;
-   };
-
-   struct transform_without_input
-   {
-      static int& transform( std::unique_ptr< int >&, int& ) noexcept;
-   };
-
-   struct both_transforms
-      : transform_with_input,
-        transform_without_input
-   {
-      using transform_with_input::transform;
-      using transform_without_input::transform;
-   };
-
-   template< typename Selector >
-   concept has_transform = requires( const input& in, std::unique_ptr< int >& node, int& state ) {
-      { parse_tree::internal::transform< Selector >( in, node, state ) } -> std::same_as< void >;
-   };
-
-   // Transform results are discarded; absence selects the no-op fallback.
-   static_assert( has_transform< transform_with_input > );
-   static_assert( has_transform< transform_without_input > );
-   static_assert( has_transform< missing > );
-   static_assert( !has_transform< both_transforms > );
-
-#if defined( __cpp_exceptions )
-   struct constructed
-   {
-      explicit constructed( int );
-   };
-
-   template< typename T >
-   struct constructor_traits
-   {};
-
-   template< typename T >
-   struct factory_traits
-   {
-      static const T& make( int&& );
-   };
-
-   // The factory retains priority over the constructor and its exact result type.
-   static_assert( std::same_as< decltype( internal::make_multi_impl< factory_traits, constructed >( 0, 1 ) ), const constructed& > );
-   static_assert( std::same_as< decltype( internal::make_multi_impl< constructor_traits, constructed >( 0, 1 ) ), constructed > );
-
-   struct no_message
-   {
-      template< typename Rule >
-      static constexpr const char* message = nullptr;
-   };
-
-   struct with_message
-   {
-      template< typename Rule >
-      static constexpr const char* message = "message";
-   };
-
-   struct override_false
-      : with_message
-   {
-      template< typename Rule >
-      static constexpr bool raise_on_failure = false;
-   };
-
-   struct override_true
-   {
-      template< typename Rule >
-      static constexpr bool raise_on_failure = true;
-   };
-
-   static_assert( !internal::raise_on_failure< no_message, void > );
-   static_assert( internal::raise_on_failure< with_message, void > );
-   static_assert( !internal::raise_on_failure< override_false, void > );
-   static_assert( internal::raise_on_failure< override_true, void > );
-#endif
 }  // namespace TAO_PEGTL_NAMESPACE::constraint_tests
 
 int main()

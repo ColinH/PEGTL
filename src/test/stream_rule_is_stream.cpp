@@ -9,6 +9,11 @@
 
 namespace TAO_PEGTL_NAMESPACE
 {
+   struct ref_qualified_reader
+   {
+      [[nodiscard]] int direct_reader() &&;
+   };
+
    void unit_test()
    {
       verify_meta< is_stream, is_stream >();
@@ -21,6 +26,12 @@ namespace TAO_PEGTL_NAMESPACE
       TAO_PEGTL_TEST_ASSERT( parse< is_stream >( sei ) );
       base_input< void > bi( "abcdefghijklmnopqrstuvwxyz" );
       TAO_PEGTL_TEST_ASSERT( !parse< is_stream >( bi ) );
+
+      // Detection preserves the reader's reference qualifiers and accepts any result type.
+      ref_qualified_reader reader;
+      TAO_PEGTL_TEST_ASSERT( is_stream::match( reader ) );
+      const ref_qualified_reader const_reader;
+      TAO_PEGTL_TEST_ASSERT( !is_stream::match( const_reader ) );
    }
 
 }  // namespace TAO_PEGTL_NAMESPACE

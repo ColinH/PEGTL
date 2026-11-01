@@ -193,14 +193,6 @@ namespace TAO_PEGTL_NAMESPACE::parse_tree
          using type = rotate_states_right_b< 1, state_handler< Rule, is_selected_node< Rule, Selector >, is_leaf< 8, typename Rule::subs_t, Selector > > >;
       };
 
-      template< typename Node, typename Rule, typename Result, typename... States >
-      concept node_has_unwind = requires {
-         { std::declval< Node >().template unwind< Rule >( std::declval< States >()... ) } -> std::same_as< Result >;
-      };
-
-      template< typename Control, typename... States >
-      concept control_has_unwind = TAO_PEGTL_NAMESPACE::internal::has_unwind< Control, void, States... >;
-
       template< typename Node, template< typename... > class Selector, template< typename... > class Control >
       template< typename Rule >
       struct make_control< Node, Selector, Control >::state_handler< Rule, false, true >
@@ -280,11 +272,11 @@ namespace TAO_PEGTL_NAMESPACE::parse_tree
          template< typename ParseInput, typename... States >
          static void unwind( [[maybe_unused]] const ParseInput& in, [[maybe_unused]] state< Node >& state, States&&... st )
          {
-            if constexpr( node_has_unwind< Node, Rule, void, const ParseInput&, States... > ) {
+            if constexpr( requires { { std::declval< Node >().template unwind< Rule >( std::declval< const ParseInput& >(), std::declval< States >()... ) } -> std::same_as< void >; } ) {
                state.back()->template unwind< Rule >( in, st... );
             }
             state.pop_back();
-            if constexpr( control_has_unwind< Control< Rule >, const ParseInput&, States... > ) {
+            if constexpr( TAO_PEGTL_NAMESPACE::internal::has_unwind< Control< Rule >, void, const ParseInput&, States... > ) {
                Control< Rule >::unwind( in, st... );
             }
             TAO_PEGTL_MSVC_IGNORE( st... );

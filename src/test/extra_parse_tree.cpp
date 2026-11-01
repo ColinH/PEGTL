@@ -2,6 +2,9 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
+#include <concepts>
+#include <memory>
+
 #include "test.hpp"
 
 #include <tao/pegtl/extra/parse_tree.hpp>
@@ -91,8 +94,76 @@ namespace TAO_PEGTL_NAMESPACE
       }
    };
 
+   namespace transform_constraints
+   {
+      using input = view_input<>;
+
+      struct missing
+      {};
+
+      struct transform_with_input
+      {
+         static int& transform( const input&, std::unique_ptr< int >&, int& ) noexcept;
+      };
+
+      struct transform_without_input
+      {
+         static int& transform( std::unique_ptr< int >&, int& ) noexcept;
+      };
+
+      struct both_transforms
+         : transform_with_input,
+           transform_without_input
+      {
+         using transform_with_input::transform;
+         using transform_without_input::transform;
+      };
+
+      template< typename Selector >
+      concept has_transform = requires( const input& in, std::unique_ptr< int >& node, int& state ) {
+         { parse_tree::internal::transform< Selector >( in, node, state ) } -> std::same_as< void >;
+      };
+
+      // Transform results are discarded; absence selects the no-op fallback.
+      static_assert( has_transform< transform_with_input > );
+      static_assert( has_transform< transform_without_input > );
+      static_assert( has_transform< missing > );
+      static_assert( !has_transform< both_transforms > );
+   }  // namespace transform_constraints
+
+#if defined( __cpp_exceptions )
+   template< typename Result >
+   struct unwind_node
+      : parse_tree::basic_node< unwind_node< Result >, view_input<>::error_position_t >
+   {
+      template< typename Rule, typename ParseInput >
+      Result unwind( const ParseInput& /*unused*/, int& calls )
+      {
+         ++calls;
+         if constexpr( !std::same_as< Result, void > ) {
+            return false;
+         }
+      }
+   };
+#endif
+
    void unit_test()
    {
+#if defined( __cpp_exceptions )
+      {
+         view_input<> in( "" );
+         int calls = 0;
+         TAO_PEGTL_TEST_THROWS( ( void )parse_tree::parse< must< failure >, unwind_node< void > >( in, calls ) );
+         TAO_PEGTL_TEST_ASSERT( calls > 0 );
+      }
+      {
+         view_input<> in( "" );
+         int calls = 0;
+         TAO_PEGTL_TEST_THROWS( ( void )parse_tree::parse< must< failure >, unwind_node< bool > >( in, calls ) );
+         TAO_PEGTL_TEST_ASSERT( calls == 0 );
+      }
+#endif
+
       {
          text_view_input<> in( "ac" );
          const auto r = parse_tree::parse< D, selector >( in );

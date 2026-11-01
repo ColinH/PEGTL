@@ -15,6 +15,15 @@
 
 namespace TAO_PEGTL_NAMESPACE
 {
+   struct ref_qualified_discard
+   {
+      int inc_rewind_guards() &&;
+   };
+
+   static_assert( internal::has_auto_discard< ref_qualified_discard > );
+   static_assert( !internal::has_auto_discard< ref_qualified_discard& > );
+   static_assert( !internal::has_auto_discard< view_input<> > );
+
    struct rewind_required_marker
    {
       using rule_t = eol_unknown_tag;

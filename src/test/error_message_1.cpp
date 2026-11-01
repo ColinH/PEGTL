@@ -41,6 +41,39 @@ namespace test1
 
 namespace TAO_PEGTL_NAMESPACE
 {
+   namespace policy_constraints
+   {
+      struct no_message
+      {
+         template< typename Rule >
+         static constexpr const char* message = nullptr;
+      };
+
+      struct with_message
+      {
+         template< typename Rule >
+         static constexpr const char* message = "message";
+      };
+
+      struct override_false
+         : with_message
+      {
+         template< typename Rule >
+         static constexpr bool raise_on_failure = false;
+      };
+
+      struct override_true
+      {
+         template< typename Rule >
+         static constexpr bool raise_on_failure = true;
+      };
+
+      static_assert( !internal::raise_on_failure< no_message, void > );
+      static_assert( internal::raise_on_failure< with_message, void > );
+      static_assert( !internal::raise_on_failure< override_false, void > );
+      static_assert( internal::raise_on_failure< override_true, void > );
+   }  // namespace policy_constraints
+
    void unit_test()
    {
       try {

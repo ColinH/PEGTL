@@ -9,7 +9,6 @@
 
 #include "../config.hpp"
 
-#include "has_eol_char_rule.hpp"
 #include "scan_input.hpp"
 #include "text_rule_traits.hpp"
 #include "text_scan_traits.hpp"
@@ -21,7 +20,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
    {
       static_assert( !std::is_same_v< Eol, void > );
 
-      if constexpr( has_eol_char_rule< Eol > ) {
+      if constexpr( requires { typename Eol::eol_char_rule; } ) {
          text_scan_traits< Eol, typename Rule::rule_t >::scan( pos, in );
       }
       else {

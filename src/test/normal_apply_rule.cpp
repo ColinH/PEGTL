@@ -230,6 +230,18 @@ namespace TAO_PEGTL_NAMESPACE
 
    using my_grammar = seq< a, ar, a0, a0r, ab, arb, a0b, a0rb, sor< af, one< 'F' > >, sor< arf, one< 'G' > >, sor< a0f, one< '4' > >, sor< a0rf, one< '5' > >, eof >;
 
+   template< typename Rule >
+   struct match_override
+      : nothing< Rule >
+   {
+      template< typename Matched, apply_mode A, rewind_mode M, template< typename... > class Action, template< typename... > class Control, typename ParseInput >
+      static int match( ParseInput& /*unused*/, int& calls )
+      {
+         ++calls;
+         return 1;
+      }
+   };
+
    void unit_test()
    {
       const std::string str = "ar01AR23FG45";
@@ -238,6 +250,16 @@ namespace TAO_PEGTL_NAMESPACE
       const bool b = parse< my_grammar, my_action >( in );
       TAO_PEGTL_TEST_ASSERT( b );
       TAO_PEGTL_TEST_ASSERT( accumulator == out );
+
+      // A callable action match overrides the rule even when its result is not bool.
+      view_input override_input( "" );
+      int calls = 0;
+      TAO_PEGTL_TEST_ASSERT( parse< failure, match_override >( override_input, calls ) );
+      TAO_PEGTL_TEST_ASSERT( calls == 1 );
+
+      // An incompatible state excludes the override and leaves the rule's failure intact.
+      const int const_state = 0;
+      TAO_PEGTL_TEST_ASSERT( !parse< failure, match_override >( override_input, const_state ) );
    }
 
 }  // namespace TAO_PEGTL_NAMESPACE

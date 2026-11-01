@@ -5,10 +5,10 @@
 #ifndef TAO_PEGTL_STREAM_IS_STREAM_HPP
 #define TAO_PEGTL_STREAM_IS_STREAM_HPP
 
+#include <utility>
+
 #include "../config.hpp"
 #include "../type_list.hpp"
-
-#include "has_direct_reader.hpp"
 
 namespace TAO_PEGTL_NAMESPACE
 {
@@ -20,7 +20,7 @@ namespace TAO_PEGTL_NAMESPACE
       template< typename ParseInput >
       [[nodiscard]] static bool match( ParseInput& /*unused*/ ) noexcept
       {
-         return internal::has_direct_reader< ParseInput >;
+         return requires { std::declval< ParseInput >().direct_reader(); };
       }
    };
 

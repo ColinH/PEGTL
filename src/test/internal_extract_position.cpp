@@ -92,6 +92,16 @@ namespace TAO_PEGTL_NAMESPACE
       }
    };
 
+   struct ref_qualified_position
+   {
+      [[nodiscard]] int current_position() &&;
+   };
+
+   static_assert( !internal::has_current_position< test_type_1 > );
+   static_assert( internal::has_current_position< const test_type_3& > );
+   static_assert( internal::has_current_position< ref_qualified_position > );
+   static_assert( !internal::has_current_position< ref_qualified_position& > );
+
    void unit_test()
    {
       {

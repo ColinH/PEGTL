@@ -10,6 +10,7 @@ int main()
 }
 #else
 
+#include <concepts>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -24,6 +25,28 @@ int main()
 
 namespace TAO_PEGTL_NAMESPACE
 {
+   namespace factory_constraints
+   {
+      struct constructed
+      {
+         explicit constructed( int );
+      };
+
+      template< typename T >
+      struct constructor_traits
+      {};
+
+      template< typename T >
+      struct factory_traits
+      {
+         static const T& make( int&& );
+      };
+
+      // The factory retains priority over the constructor and its exact result type.
+      static_assert( std::same_as< decltype( internal::make_multi_impl< factory_traits, constructed >( 0, 1 ) ), const constructed& > );
+      static_assert( std::same_as< decltype( internal::make_multi_impl< constructor_traits, constructed >( 0, 1 ) ), constructed > );
+   }  // namespace factory_constraints
+
    struct aggregate_entry
    {
       std::string name;

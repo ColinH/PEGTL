@@ -5,11 +5,12 @@
 #ifndef TAO_PEGTL_INTERNAL_BOF_HPP
 #define TAO_PEGTL_INTERNAL_BOF_HPP
 
+#include <utility>
+
 #include "../config.hpp"
 #include "../type_list.hpp"
 
 #include "enable_control.hpp"
-#include "has_start.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
@@ -21,7 +22,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
       template< typename ParseInput >
       [[nodiscard]] static bool match( ParseInput& in ) noexcept
       {
-         if constexpr( has_start< ParseInput > ) {
+         if constexpr( requires { std::declval< ParseInput >().start(); } ) {
             return in.current() == in.start();
          }
          else {

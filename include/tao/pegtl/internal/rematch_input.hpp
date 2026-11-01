@@ -13,7 +13,6 @@
 #include "../parse_error.hpp"
 #endif
 
-#include "has_eol_rule.hpp"
 #include "input_with_fakes.hpp"
 #include "input_with_funcs.hpp"
 #include "rewind_guard.hpp"
@@ -129,7 +128,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
       const data_t* m_end;
    };
 
-   template< typename Guard, typename Input, bool = has_eol_rule< Input > >
+   template< typename Guard, typename Input, bool = requires { typename Input::eol_rule; } >
    struct rematch_input;
 
    template< typename Guard, typename Input >

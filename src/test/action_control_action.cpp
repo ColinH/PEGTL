@@ -139,6 +139,23 @@ namespace TAO_PEGTL_NAMESPACE
          story += 'm';
       }
    };
+
+   template< typename Rule >
+   struct nonvoid_unwind_action
+      : test_action< Rule >
+   {};
+
+   template<>
+   struct nonvoid_unwind_action< second_rule >
+      : test_action< second_rule >
+   {
+      template< typename ParseInput >
+      static bool unwind( const ParseInput& /*unused*/, int /*unused*/ )
+      {
+         story += 'n';
+         return false;
+      }
+   };
 #endif
 
    void unit_test()
@@ -161,6 +178,12 @@ namespace TAO_PEGTL_NAMESPACE
          text_view_input< scan::lf > in( "*" );
          TAO_PEGTL_TEST_THROWS( parse< second_rule, test_action >( in, 42 ) );
          TAO_PEGTL_TEST_ASSERT( story == "jm" );
+      }
+      story.clear();
+      {
+         text_view_input< scan::lf > in( "*" );
+         TAO_PEGTL_TEST_THROWS( parse< second_rule, nonvoid_unwind_action >( in, 42 ) );
+         TAO_PEGTL_TEST_ASSERT( story == "jn" );
       }
 #endif
    }

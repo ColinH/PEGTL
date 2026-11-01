@@ -147,6 +147,7 @@ set(test_sources
   internal_ascii_utility.cpp
   internal_base_inputs.cpp
   internal_char_scan_traits.cpp
+  internal_concepts.cpp
   internal_constexpr.cpp
   internal_constraints.cpp
   internal_copy_input.cpp
