@@ -131,8 +131,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
       // }
 
       template< typename ParseInput, typename Tuple, std::size_t... Is >
-      static auto unwind_impl( const ParseInput& in, const Tuple& t, std::index_sequence< Is... > /*unused*/ )
-         -> std::enable_if_t< internal::has_unwind< Base, void, const ParseInput&, std::tuple_element_t< Shuffle::template value< Is, std::tuple_size_v< Tuple > >, Tuple >... > >
+      static void unwind_impl( const ParseInput& in, const Tuple& t, std::index_sequence< Is... > /*unused*/ )
+         requires internal::has_unwind< Base, void, const ParseInput&, std::tuple_element_t< Shuffle::template value< Is, std::tuple_size_v< Tuple > >, Tuple >... >
       {
          Base::unwind( in, std::get< Shuffle::template value< Is, std::tuple_size_v< Tuple > > >( t )... );
       }
@@ -145,8 +145,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
       }
 
       // template< typename ParseInput, typename State >
-      // static auto unwind( const ParseInput& in, State&& st )
-      //    -> std::enable_if_t< internal::has_unwind< Base, void, const ParseInput&, State > >
+      // static void unwind( const ParseInput& in, State&& st )
+      //    requires internal::has_unwind< Base, void, const ParseInput&, State >
       // {
       //    Base::unwind( in, st );
       // }

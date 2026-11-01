@@ -88,7 +88,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
                 template< typename... > class Control,
                 typename ParseInput,
                 typename... States >
-      [[nodiscard]] static auto match( ParseInput& in, Integral& out, States&&... /*unused*/ ) -> std::enable_if_t< A == apply_mode::enabled, bool >
+      [[nodiscard]] static bool match( ParseInput& in, Integral& out, States&&... /*unused*/ )
+         requires( A == apply_mode::enabled )
       {
          return from_chars_match< from_chars_rule, Over >( in, out, Base );
       }
@@ -107,7 +108,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
                 typename ParseInput,
                 typename Integral,
                 typename... States >
-      [[nodiscard]] static auto match( ParseInput& in, Integral& out, States&&... /*unused*/ ) -> std::enable_if_t< std::is_integral_v< Integral >, bool >
+      [[nodiscard]] static bool match( ParseInput& in, Integral& out, States&&... /*unused*/ )
+         requires std::is_integral_v< Integral >
       {
          return from_chars_match< from_chars_rule, Over >( in, out, Base );
       }
@@ -132,7 +134,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
    struct from_chars_action< void, Base, Over >
    {
       template< typename ActionInput, typename Integral, typename... States >
-      [[nodiscard]] static auto apply( const ActionInput& in, Integral& out, States&&... /*unused*/ ) -> std::enable_if_t< std::is_integral_v< Integral >, bool >
+      [[nodiscard]] static bool apply( const ActionInput& in, Integral& out, States&&... /*unused*/ )
+         requires std::is_integral_v< Integral >
       {
          return from_chars_impl< Over >( in, in.size(), out, Base ) == in.ssize();
       }

@@ -13,6 +13,8 @@
 #include <tao/pegtl/action/control_action.hpp>
 #include <tao/pegtl/extra/parse_tree.hpp>
 
+#include <tao/pegtl/internal/apply0_impl.hpp>
+#include <tao/pegtl/internal/apply_impl.hpp>
 #include <tao/pegtl/internal/has_apply.hpp>
 #include <tao/pegtl/internal/has_apply0.hpp>
 #include <tao/pegtl/internal/has_current_position.hpp>
@@ -81,6 +83,44 @@ namespace TAO_PEGTL_NAMESPACE
    {
       struct missing
       {};
+
+      template< typename Result, bool Noexcept = true >
+      struct callbacks
+      {
+         static Result apply( const int&, int& ) noexcept( Noexcept );
+         static Result apply0( int& ) noexcept( Noexcept );
+      };
+
+      template< typename Action >
+      concept can_apply = requires( const int& in, int& state ) {
+         { internal::apply_impl< Action >::apply( in, state ) } -> std::same_as< bool >;
+      };
+
+      template< typename Action >
+      concept can_apply0 = requires( int& state ) {
+         { internal::apply0_impl< Action >::apply0( state ) } -> std::same_as< bool >;
+      };
+
+      static_assert( can_apply< callbacks< void > > );
+      static_assert( can_apply< callbacks< bool > > );
+      static_assert( !can_apply< callbacks< int > > );
+      static_assert( !can_apply< callbacks< bool& > > );
+      static_assert( !can_apply< missing > );
+      static_assert( can_apply0< callbacks< void > > );
+      static_assert( can_apply0< callbacks< bool > > );
+      static_assert( !can_apply0< callbacks< int > > );
+      static_assert( !can_apply0< callbacks< bool& > > );
+      static_assert( !can_apply0< missing > );
+
+      // Callback arguments remain lvalues even when the adapter receives temporaries.
+      static_assert( requires {
+         internal::apply_impl< callbacks< void > >::apply( 0, 0 );
+         internal::apply0_impl< callbacks< void > >::apply0( 0 );
+      } );
+      static_assert( noexcept( internal::apply_impl< callbacks< void > >::apply( 0, 0 ) ) );
+      static_assert( !noexcept( internal::apply_impl< callbacks< void, false > >::apply( 0, 0 ) ) );
+      static_assert( noexcept( internal::apply0_impl< callbacks< bool > >::apply0( 0 ) ) );
+      static_assert( !noexcept( internal::apply0_impl< callbacks< bool, false > >::apply0( 0 ) ) );
 
       template< typename Result >
       struct hooks

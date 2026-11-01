@@ -5,8 +5,6 @@
 #ifndef TAO_PEGTL_CONTROL_INTERNAL_INPUT_CONTROL_HPP
 #define TAO_PEGTL_CONTROL_INTERNAL_INPUT_CONTROL_HPP
 
-#include <type_traits>
-
 #include "../../config.hpp"
 
 #include "../../internal/has_unwind.hpp"
@@ -75,8 +73,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
       }
 
       template< typename ParseInput, typename... States >
-      static auto unwind( [[maybe_unused]] const ParseInput& in, [[maybe_unused]] States&&... st )
-         -> std::enable_if_t< ParseInput::template enable< Rule > || ( Control< Rule >::enable && internal::has_unwind< Control< Rule >, void, const ParseInput&, States... > ) >
+      static void unwind( [[maybe_unused]] const ParseInput& in, [[maybe_unused]] States&&... st )
+         requires( ParseInput::template enable< Rule > || ( Control< Rule >::enable && internal::has_unwind< Control< Rule >, void, const ParseInput&, States... > ))
       {
          if constexpr( ParseInput::template enable< Rule > ) {
             const_cast< ParseInput& >( in ).template unwind< Rule >( in, st... );

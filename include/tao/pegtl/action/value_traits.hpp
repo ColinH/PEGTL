@@ -12,7 +12,6 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include <type_traits>
 #include <vector>
 
 #include "../config.hpp"
@@ -102,7 +101,8 @@ namespace TAO_PEGTL_NAMESPACE
    {};
 
    template< typename T >
-   struct value_traits< T, std::enable_if_t< internal::is_proper_signed_v< T > > >
+      requires internal::is_proper_signed_v< T >
+   struct value_traits< T >
    {
       template< typename ActionInput >
       [[nodiscard]] static T convert( const ActionInput& in )
@@ -129,7 +129,8 @@ namespace TAO_PEGTL_NAMESPACE
    };
 
    template< typename T >
-   struct value_traits< T, std::enable_if_t< internal::is_proper_unsigned_v< T > > >
+      requires internal::is_proper_unsigned_v< T >
+   struct value_traits< T >
    {
       template< typename ActionInput >
       [[nodiscard]] static T convert( const ActionInput& in )

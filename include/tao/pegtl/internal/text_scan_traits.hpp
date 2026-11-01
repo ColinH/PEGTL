@@ -111,12 +111,14 @@ namespace TAO_PEGTL_NAMESPACE::internal
    {};
 
    template< typename Eol, char... Cs >
-   struct text_scan_traits< Eol, ascii_string< Cs... >, std::enable_if_t< ( !ascii_char_equal< Cs >( get_eol_rule_char_v< typename Eol::eol_char_rule > ) && ... ) > >
+      requires( ( !ascii_char_equal< Cs >( get_eol_rule_char_v< typename Eol::eol_char_rule > ) && ... ) )
+   struct text_scan_traits< Eol, ascii_string< Cs... > >
       : add_column_scan
    {};
 
    template< typename Eol, char... Cs >
-   struct text_scan_traits< Eol, ascii_istring< Cs... >, std::enable_if_t< ( !ascii_ichar_equal< Cs >( get_eol_rule_char_v< typename Eol::eol_char_rule > ) && ... ) > >
+      requires( ( !ascii_ichar_equal< Cs >( get_eol_rule_char_v< typename Eol::eol_char_rule > ) && ... ) )
+   struct text_scan_traits< Eol, ascii_istring< Cs... > >
       : add_column_scan
    {};
 
@@ -131,42 +133,50 @@ namespace TAO_PEGTL_NAMESPACE::internal
    {};
 
    template< typename Eol, typename Peek, Peek::data_t... Cs >
-   struct text_scan_traits< Eol, until< ione< Peek, Cs... > >, std::enable_if_t< ione< Peek, Cs... >::test( get_eol_rule_char_v< typename Eol::eol_char_rule > ) > >
+      requires( ione< Peek, Cs... >::test( get_eol_rule_char_v< typename Eol::eol_char_rule > ) )
+   struct text_scan_traits< Eol, until< ione< Peek, Cs... > > >
       : add_column_scan
    {};
 
    template< typename Eol, typename Peek, Peek::data_t... Cs >
-   struct text_scan_traits< Eol, until< not_ione< Peek, Cs... > >, std::enable_if_t< not_ione< Peek, Cs... >::test( get_eol_rule_char_v< typename Eol::eol_char_rule > ) > >
+      requires( not_ione< Peek, Cs... >::test( get_eol_rule_char_v< typename Eol::eol_char_rule > ) )
+   struct text_scan_traits< Eol, until< not_ione< Peek, Cs... > > >
       : add_column_scan
    {};
 
    template< typename Eol, typename Peek, Peek::data_t... Cs >
-   struct text_scan_traits< Eol, until< not_one< Peek, Cs... > >, std::enable_if_t< not_one< Peek, Cs... >::test( get_eol_rule_char_v< typename Eol::eol_char_rule > ) > >
+      requires( not_one< Peek, Cs... >::test( get_eol_rule_char_v< typename Eol::eol_char_rule > ) )
+   struct text_scan_traits< Eol, until< not_one< Peek, Cs... > > >
       : add_column_scan
    {};
 
    template< typename Eol, typename Peek, Peek::data_t Lo, Peek::data_t Hi >
-   struct text_scan_traits< Eol, until< not_range< Peek, Lo, Hi > >, std::enable_if_t< not_range< Peek, Lo, Hi >::test( get_eol_rule_char_v< typename Eol::eol_char_rule > ) > >
+      requires( not_range< Peek, Lo, Hi >::test( get_eol_rule_char_v< typename Eol::eol_char_rule > ) )
+   struct text_scan_traits< Eol, until< not_range< Peek, Lo, Hi > > >
       : add_column_scan
    {};
 
    template< typename Eol, typename Peek, Peek::data_t... Cs >
-   struct text_scan_traits< Eol, until< not_ranges< Peek, Cs... > >, std::enable_if_t< not_ranges< Peek, Cs... >::test( get_eol_rule_char_v< typename Eol::eol_char_rule > ) > >
+      requires( not_ranges< Peek, Cs... >::test( get_eol_rule_char_v< typename Eol::eol_char_rule > ) )
+   struct text_scan_traits< Eol, until< not_ranges< Peek, Cs... > > >
       : add_column_scan
    {};
 
    template< typename Eol, typename Peek, Peek::data_t... Cs >
-   struct text_scan_traits< Eol, until< one< Peek, Cs... > >, std::enable_if_t< one< Peek, Cs... >::test( get_eol_rule_char_v< typename Eol::eol_char_rule > ) > >
+      requires( one< Peek, Cs... >::test( get_eol_rule_char_v< typename Eol::eol_char_rule > ) )
+   struct text_scan_traits< Eol, until< one< Peek, Cs... > > >
       : add_column_scan
    {};
 
    template< typename Eol, typename Peek, Peek::data_t Lo, Peek::data_t Hi >
-   struct text_scan_traits< Eol, until< range< Peek, Lo, Hi > >, std::enable_if_t< range< Peek, Lo, Hi >::test( get_eol_rule_char_v< typename Eol::eol_char_rule > ) > >
+      requires( range< Peek, Lo, Hi >::test( get_eol_rule_char_v< typename Eol::eol_char_rule > ) )
+   struct text_scan_traits< Eol, until< range< Peek, Lo, Hi > > >
       : add_column_scan
    {};
 
    template< typename Eol, typename Peek, Peek::data_t... Cs >
-   struct text_scan_traits< Eol, until< ranges< Peek, Cs... > >, std::enable_if_t< ranges< Peek, Cs... >::test( get_eol_rule_char_v< typename Eol::eol_char_rule > ) > >
+      requires( ranges< Peek, Cs... >::test( get_eol_rule_char_v< typename Eol::eol_char_rule > ) )
+   struct text_scan_traits< Eol, until< ranges< Peek, Cs... > > >
       : add_column_scan
    {};
 
@@ -176,7 +186,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
    {};
 
    template< typename Eol, typename Cond >
-   struct text_scan_traits< Eol, until< Cond >, std::enable_if_t< !std::is_same_v< Cond, typename Cond::rule_t > > >
+      requires( !std::is_same_v< Cond, typename Cond::rule_t > )
+   struct text_scan_traits< Eol, until< Cond > >
       : text_scan_traits< Eol, until< typename Cond::rule_t > >
    {};
 

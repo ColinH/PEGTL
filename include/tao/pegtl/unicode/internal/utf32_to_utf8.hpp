@@ -5,8 +5,6 @@
 #ifndef TAO_PEGTL_UNICODE_INTERNAL_UTF32_TO_UTF8_HPP
 #define TAO_PEGTL_UNICODE_INTERNAL_UTF32_TO_UTF8_HPP
 
-#include <type_traits>
-
 #include "../../config.hpp"
 
 #include "../../internal/ascii_string.hpp"
@@ -20,27 +18,31 @@ namespace TAO_PEGTL_NAMESPACE::internal
    struct utf32_to_utf8_char;
 
    template< template< char... > class String, char32_t C >
-   struct utf32_to_utf8_char< String, C, std::enable_if_t< has_utf8_length_1( C ) > >
+      requires( has_utf8_length_1( C ) )
+   struct utf32_to_utf8_char< String, C >
    {
       using type = String< static_cast< char >( C ) >;
    };
 
    template< template< char... > class String, char32_t C >
-   struct utf32_to_utf8_char< String, C, std::enable_if_t< has_utf8_length_2( C ) > >
+      requires( has_utf8_length_2( C ) )
+   struct utf32_to_utf8_char< String, C >
    {
       using type = String< utf8_char_1_of_2( C ),
                            utf8_char_2_of_2( C ) >;
    };
 
    template< template< char... > class String, char32_t C >
-   struct utf32_to_utf8_char< String, C, std::enable_if_t< has_utf8_length_3( C ) > >
+      requires( has_utf8_length_3( C ) )
+   struct utf32_to_utf8_char< String, C >
    {
       using type = String< utf8_char_1_of_3( C ),
                            utf8_char_2_of_3( C ),
                            utf8_char_3_of_3( C ) >;
    };
    template< template< char... > class String, char32_t C >
-   struct utf32_to_utf8_char< String, C, std::enable_if_t< has_utf8_length_4( C ) > >
+      requires( has_utf8_length_4( C ) )
+   struct utf32_to_utf8_char< String, C >
    {
       using type = String< utf8_char_1_of_4( C ),
                            utf8_char_2_of_4( C ),

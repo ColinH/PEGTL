@@ -5,8 +5,6 @@
 #ifndef TAO_PEGTL_CONTROL_INTERNAL_REMOVE_FIRST_STATE_HPP
 #define TAO_PEGTL_CONTROL_INTERNAL_REMOVE_FIRST_STATE_HPP
 
-#include <type_traits>
-
 #include "../../apply_mode.hpp"
 #include "../../config.hpp"
 #include "../../rewind_mode.hpp"
@@ -56,8 +54,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
       }
 
       template< typename ParseInput, typename State, typename... States >
-      static auto unwind( const ParseInput& in, State&& /*unused*/, States&&... st )
-         -> std::enable_if_t< internal::has_unwind< Base, void, const ParseInput&, States... > >
+      static void unwind( const ParseInput& in, State&& /*unused*/, States&&... st )
+         requires internal::has_unwind< Base, void, const ParseInput&, States... >
       {
          Base::unwind( in, st... );
       }

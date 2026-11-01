@@ -37,7 +37,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
    };
 
    template< typename C, typename T >
-   struct delivery_traits< T C::*, std::enable_if_t< !std::is_function_v< T > > >
+      requires( !std::is_function_v< T > )
+   struct delivery_traits< T C::* >
       : delivery_traits_base< C, T >
    {};
 

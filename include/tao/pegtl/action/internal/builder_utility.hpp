@@ -374,7 +374,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
       {};
 
       template< typename Rule >
-      struct type< Rule, std::enable_if_t< ( index< Rule > != no_index ) > >
+         requires( index< Rule > != no_index )
+      struct type< Rule >
          : capture_action< std::tuple_element_t< index< Rule >, bindings_t >, Builder, index< Rule > >
       {};
    };

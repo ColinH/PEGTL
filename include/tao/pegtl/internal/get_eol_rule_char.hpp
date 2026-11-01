@@ -26,7 +26,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
    };
 
    template< typename Rule >
-   struct get_eol_rule_char< Rule, std::enable_if_t< !std::is_same_v< Rule, typename Rule::rule_t > > >
+      requires( !std::is_same_v< Rule, typename Rule::rule_t > )
+   struct get_eol_rule_char< Rule >
       : get_eol_rule_char< typename Rule::rule_t >
    {};
 
