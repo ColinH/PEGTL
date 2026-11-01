@@ -197,6 +197,7 @@ set(test_sources
   internal_view_input.cpp
   member_general.cpp
   normal_apply_rule.cpp
+  parse.cpp
   parse_error.cpp
   pegtl_string_t.cpp
   rewind_mode.cpp

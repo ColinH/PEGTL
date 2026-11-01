@@ -19,7 +19,7 @@ int main()
 #else
    const auto const_in = std::move( in );
    // include/tao/pegtl/parse_nested.hpp
-   // static_assert( !std::is_const_v< ParseInput > );
-   return pegtl::parse_nested< pegtl::eof >( ambient, std::move( const_in ) ) ? 0 : 1;
+   // A const lvalue must be rejected even when the rule does not consume input.
+   return pegtl::parse_nested< pegtl::eof >( ambient, const_in ) ? 0 : 1;
 #endif
 }

@@ -291,18 +291,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
       using action = internal::create_action< Object, ObjectAction, Output >;
    };
 
-   template< typename T, typename = void >
-   struct is_binding
-      : std::false_type
-   {};
-
    template< typename T >
-   struct is_binding< T, std::void_t< typename T::rules_t > >
-      : std::true_type
-   {};
-
-   template< typename T >
-   using as_binding_t = std::conditional_t< is_binding< T >::value, T, build_for< T, value_producer< value_traits > > >;
+   using as_binding_t = std::conditional_t< requires { typename T::rules_t; }, T, build_for< T, value_producer< value_traits > > >;
 
    inline constexpr std::size_t no_index = static_cast< std::size_t >( -1 );
 

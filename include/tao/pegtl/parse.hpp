@@ -23,8 +23,8 @@ namespace TAO_PEGTL_NAMESPACE
              typename ParseInput,
              typename... States >
    auto parse( ParseInput&& in, States&&... st )
+      requires( !std::is_const_v< std::remove_reference_t< ParseInput > > )
    {
-      static_assert( !std::is_const_v< ParseInput > );
       return Control< Rule >::template match< A, M, Action, Control >( in, st... );
    }
 
