@@ -16,15 +16,15 @@ namespace TAO_PEGTL_NAMESPACE::internal
       : Base
    {
       template< template< typename... > class Action, typename RewindPosition, typename ParseInput, typename... States >
-      static auto apply( const RewindPosition& begin, const ParseInput& in, States&&... st ) noexcept( noexcept( Base::template apply< Action >( begin, in, std::get< Typed& >( std::tie( st... ) ) ) ) )
-         -> decltype( Base::template apply< Action >( begin, in, std::get< Typed& >( std::tie( st... ) ) ) )
+      static decltype( auto ) apply( const RewindPosition& begin, const ParseInput& in, States&&... st ) noexcept( noexcept( Base::template apply< Action >( begin, in, std::get< Typed& >( std::tie( st... ) ) ) ) )
+         requires requires { Base::template apply< Action >( begin, in, std::get< Typed& >( std::tie( st... ) ) ); }
       {
          return Base::template apply< Action >( begin, in, std::get< Typed& >( std::tie( st... ) ) );
       }
 
       template< template< typename... > class Action, typename ParseInput, typename... States >
-      static auto apply0( const ParseInput& in, States&&... st ) noexcept( noexcept( Base::template apply0< Action >( in, std::get< Typed& >( std::tie( st... ) ) ) ) )
-         -> decltype( Base::template apply0< Action >( in, std::get< Typed& >( std::tie( st... ) ) ) )
+      static decltype( auto ) apply0( const ParseInput& in, States&&... st ) noexcept( noexcept( Base::template apply0< Action >( in, std::get< Typed& >( std::tie( st... ) ) ) ) )
+         requires requires { Base::template apply0< Action >( in, std::get< Typed& >( std::tie( st... ) ) ); }
       {
          return Base::template apply0< Action >( in, std::get< Typed& >( std::tie( st... ) ) );
       }

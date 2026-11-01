@@ -21,8 +21,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
              template< typename... > class Control,
              typename ParseInput,
              typename... States >
-   [[nodiscard]] static auto match_no_control( ParseInput& in, States&&... st )
-      -> decltype( Rule::template match< A, M, Action, Control >( in, st... ) )
+   [[nodiscard]] static decltype( auto ) match_no_control( ParseInput& in, States&&... st )
+      requires requires { Rule::template match< A, M, Action, Control >( in, st... ); }
    {
       return Rule::template match< A, M, Action, Control >( in, st... );
    }
@@ -34,8 +34,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
              template< typename... > class Control,
              typename ParseInput,
              typename... States >
-   [[nodiscard]] static auto match_no_control( ParseInput& in, States&&... /*unused*/ )
-      -> decltype( Rule::match( in ) )
+   [[nodiscard]] static decltype( auto ) match_no_control( ParseInput& in, States&&... /*unused*/ )
+      requires requires { Rule::match( in ); }
    {
       return Rule::match( in );
    }

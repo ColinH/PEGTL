@@ -86,8 +86,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
       }
 
       template< template< typename... > class Action, typename RewindPosition, typename ParseInput, typename... States >
-      static auto apply( const RewindPosition& begin, const ParseInput& in, States&&... st )
-         -> decltype( Control< Rule >::template apply< Action >( begin, in, st... ) )
+      static decltype( auto ) apply( const RewindPosition& begin, const ParseInput& in, States&&... st )
+         requires requires { Control< Rule >::template apply< Action >( begin, in, st... ); }
       {
          if constexpr( ParseInput::template enable< Rule > ) {
             const_cast< ParseInput& >( in ).template apply< Rule >( in, st... );
@@ -96,8 +96,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
       }
 
       template< template< typename... > class Action, typename ParseInput, typename... States >
-      static auto apply0( const ParseInput& in, States&&... st )
-         -> decltype( Control< Rule >::template apply0< Action >( in, st... ) )
+      static decltype( auto ) apply0( const ParseInput& in, States&&... st )
+         requires requires { Control< Rule >::template apply0< Action >( in, st... ); }
       {
          if constexpr( ParseInput::template enable< Rule > ) {
             const_cast< ParseInput& >( in ).template apply0< Rule >( in, st... );

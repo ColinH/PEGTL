@@ -76,7 +76,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
    };
 
    template< template< typename... > class Traits, typename T, typename... Args >
-   [[nodiscard]] auto make_multi_impl( int /*unused*/, Args&&... args ) -> decltype( Traits< T >::make( std::forward< Args >( args )... ) )
+   [[nodiscard]] decltype( auto ) make_multi_impl( int /*unused*/, Args&&... args )
+      requires requires { Traits< T >::make( std::forward< Args >( args )... ); }
    {
       return Traits< T >::make( std::forward< Args >( args )... );
    }

@@ -155,15 +155,15 @@ namespace TAO_PEGTL_NAMESPACE::parse_tree
       {}
 
       template< typename Selector, typename ParseInput, typename Node, typename... States >
-      auto transform( const ParseInput& in, std::unique_ptr< Node >& n, States&&... st ) noexcept( noexcept( Selector::transform( in, n, st... ) ) )
-         -> decltype( (void)Selector::transform( in, n, st... ) )
+      void transform( const ParseInput& in, std::unique_ptr< Node >& n, States&&... st ) noexcept( noexcept( Selector::transform( in, n, st... ) ) )
+         requires requires { Selector::transform( in, n, st... ); }
       {
          Selector::transform( in, n, st... );
       }
 
       template< typename Selector, typename ParseInput, typename Node, typename... States >
-      auto transform( const ParseInput& /*unused*/, std::unique_ptr< Node >& n, States&&... st ) noexcept( noexcept( Selector::transform( n, st... ) ) )
-         -> decltype( (void)Selector::transform( n, st... ) )
+      void transform( const ParseInput& /*unused*/, std::unique_ptr< Node >& n, States&&... st ) noexcept( noexcept( Selector::transform( n, st... ) ) )
+         requires requires { Selector::transform( n, st... ); }
       {
          Selector::transform( n, st... );
       }

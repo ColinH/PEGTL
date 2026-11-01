@@ -148,6 +148,7 @@ set(test_sources
   internal_base_inputs.cpp
   internal_char_scan_traits.cpp
   internal_constexpr.cpp
+  internal_constraints.cpp
   internal_copy_input.cpp
   internal_data_and_size.cpp
   internal_endian.cpp

@@ -5,8 +5,6 @@
 #ifndef TAO_PEGTL_CONTROL_INTERNAL_MUST_IF_HPP
 #define TAO_PEGTL_CONTROL_INTERNAL_MUST_IF_HPP
 
-#include <type_traits>
-
 #if !defined( __cpp_exceptions )
 #error "Exception support required for tao/pegtl/control/internal/must_if.hpp"
 #else
@@ -23,7 +21,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
    inline constexpr bool raise_on_failure = ( Errors::template message< Rule > != nullptr );
 
    template< typename Errors, typename Rule >
-   inline constexpr bool raise_on_failure< Errors, Rule, std::void_t< decltype( Errors::template raise_on_failure< Rule > ) > > = Errors::template raise_on_failure< Rule >;
+      requires requires { Errors::template raise_on_failure< Rule >; }
+   inline constexpr bool raise_on_failure< Errors, Rule > = Errors::template raise_on_failure< Rule >;
 
    template< typename Errors, bool RequireMessage, template< typename... > class Control, typename Rule >
    struct must_if
