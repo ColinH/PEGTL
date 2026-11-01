@@ -5,6 +5,7 @@
 #ifndef TAO_PEGTL_POSITION_WITH_SOURCE_HPP
 #define TAO_PEGTL_POSITION_WITH_SOURCE_HPP
 
+#include <concepts>
 #include <ostream>
 #include <type_traits>
 #include <utility>
@@ -30,14 +31,17 @@ namespace TAO_PEGTL_NAMESPACE
       // position_with_source& operator=( const position_with_source& ) = default;
 
       explicit position_with_source( Source&& s )
+         requires std::constructible_from< Position >
          : source( std::move( s ) )
       {}
 
       explicit position_with_source( const Source& s )
+         requires std::constructible_from< Source, const Source& > && std::constructible_from< Position >
          : source( s )
       {}
 
       template< typename S, typename P >
+         requires std::constructible_from< Source, S > && std::constructible_from< Position, P >
       position_with_source( S&& s, P&& p )
          : Position( std::forward< P >( p ) ),
            source( std::forward< S >( s ) )

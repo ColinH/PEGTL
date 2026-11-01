@@ -6,6 +6,7 @@
 #define TAO_PEGTL_INTERNAL_TEXT_INPUT_WITH_SOURCE_HPP
 
 #include <algorithm>
+#include <concepts>
 #include <cstddef>
 #include <type_traits>
 #include <utility>
@@ -51,6 +52,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
       static_assert( std::is_same_v< InputSource, ErrorSource >, "TODO?" );
 
       template< typename S, typename... Ts >
+         requires( !std::same_as< text_input_with_source, std::remove_cvref_t< S > > ) && std::constructible_from< error_position_t, S > && std::constructible_from< Input, Ts... >
       explicit text_input_with_source( S&& s, Ts&&... ts )
          : Input( std::forward< Ts >( ts )... ),
            m_position( std::forward< S >( s ) )

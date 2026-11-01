@@ -132,6 +132,7 @@ set(test_sources
   include.cpp
   input_action_input.cpp
   input_argv_input.cpp
+  input_constructors.cpp
   input_file_input.cpp
   input_mmap_input.cpp
   input_read_input.cpp
@@ -262,6 +263,7 @@ set(test_sources
   stream_analyze_traits.cpp
   stream_alloc_buffer.cpp
   stream_array_buffer.cpp
+  stream_constructors.cpp
   stream_cstream_input.cpp
   stream_cstring_input.cpp
   stream_discard_input.cpp

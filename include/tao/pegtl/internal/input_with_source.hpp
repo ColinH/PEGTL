@@ -5,6 +5,8 @@
 #ifndef TAO_PEGTL_INTERNAL_INPUT_WITH_SOURCE_HPP
 #define TAO_PEGTL_INTERNAL_INPUT_WITH_SOURCE_HPP
 
+#include <concepts>
+#include <type_traits>
 #include <utility>
 
 #include "../config.hpp"
@@ -31,6 +33,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
 #endif
 
       template< typename S, typename... Ts >
+         requires( !std::same_as< input_with_source, std::remove_cvref_t< S > > ) && std::constructible_from< InputSource, S > && std::constructible_from< Input, Ts... >
       explicit input_with_source( S&& s, Ts&&... ts )
          : Input( std::forward< Ts >( ts )... ),
            m_source( std::forward< S >( s ) )

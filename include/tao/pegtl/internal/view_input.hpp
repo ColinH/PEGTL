@@ -47,25 +47,19 @@ namespace TAO_PEGTL_NAMESPACE::internal
       view_input( const std::string&& ) = delete;
 
       explicit view_input( std::string& data ) noexcept
+         requires( sizeof( data_t ) == 1 && is_simple_type_v< data_t > )
          : view_input( const_cast< const std::string& >( data ) )
-      {
-         static_assert( sizeof( data_t ) == 1 );
-         static_assert( is_simple_type_v< data_t > );
-      }
+      {}
 
       explicit view_input( const std::string& data ) noexcept
+         requires( sizeof( data_t ) == 1 && is_simple_type_v< data_t > )
          : view_input( reinterpret_cast< const data_t* >( data.data() ), data.size() )
-      {
-         static_assert( sizeof( data_t ) == 1 );
-         static_assert( is_simple_type_v< data_t > );
-      }
+      {}
 
       explicit view_input( const std::string_view data ) noexcept
+         requires( sizeof( data_t ) == 1 && is_simple_type_v< data_t > )
          : view_input( reinterpret_cast< const data_t* >( data.data() ), data.size() )
-      {
-         static_assert( sizeof( data_t ) == 1 );
-         static_assert( is_simple_type_v< data_t > );
-      }
+      {}
 
       view_input( std::vector< data_t >&& ) = delete;
       view_input( const std::vector< data_t >&& ) = delete;
@@ -79,12 +73,10 @@ namespace TAO_PEGTL_NAMESPACE::internal
       {}
 
       template< std::size_t N >
+         requires( sizeof( data_t ) == 1 && is_simple_type_v< data_t > )
       explicit view_input( const char ( &l )[ N ] ) noexcept
          : view_input( reinterpret_cast< const data_t* >( l ), N - 1 )
-      {
-         static_assert( sizeof( data_t ) == 1 );
-         static_assert( is_simple_type_v< data_t > );
-      }
+      {}
 
       template< std::size_t Size >
       explicit view_input( const std::array< data_t, Size >& a ) noexcept

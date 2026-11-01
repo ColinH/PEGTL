@@ -5,6 +5,7 @@
 #ifndef TAO_PEGTL_INPUT_WITH_OFFSET_HPP
 #define TAO_PEGTL_INPUT_WITH_OFFSET_HPP
 
+#include <concepts>
 #include <utility>
 
 #include "config.hpp"
@@ -29,12 +30,14 @@ namespace TAO_PEGTL_NAMESPACE
 #endif
 
       template< typename... Ts >
+         requires std::constructible_from< Input, Ts... >
       explicit input_with_offset( offset_position_t&& s, Ts&&... ts )
          : Input( std::forward< Ts >( ts )... ),
            m_offset( std::move( s ) )
       {}
 
       template< typename... Ts >
+         requires std::constructible_from< Input, Ts... >
       explicit input_with_offset( const offset_position_t& s, Ts&&... ts )
          : Input( std::forward< Ts >( ts )... ),
            m_offset( s )
