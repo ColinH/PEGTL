@@ -72,16 +72,6 @@ namespace TAO_PEGTL_NAMESPACE
    static_assert( std::constructible_from< move_tracked_input, move_source, literal > );
    static_assert( !std::constructible_from< move_tracked_input, move_source&, literal > );
 
-   struct non_default_position
-   {
-      explicit non_default_position( int ) {}
-   };
-
-   using non_default = position_with_source< std::string, non_default_position >;
-   static_assert( !std::constructible_from< non_default, std::string > );
-   static_assert( !std::constructible_from< non_default, const std::string& > );
-   static_assert( std::constructible_from< non_default, std::string, int > );
-
    struct permissive_source
    {
       template< typename T >

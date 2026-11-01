@@ -369,7 +369,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
       template< typename Rule >
       static constexpr std::size_t index = binding_index< Rule, Bindings... >::value;
 
-      template< typename Rule, typename = void >
+      template< typename Rule >
       struct type
          : std::conditional_t< std::is_same_v< Rule, Main >, nothing< Rule >, Action< Rule > >
       {};

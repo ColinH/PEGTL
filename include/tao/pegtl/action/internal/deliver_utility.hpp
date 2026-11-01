@@ -15,7 +15,7 @@
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-   template< typename T, typename = void >
+   template< typename T >
    struct delivery_traits;
 
    template< typename C, typename... Ts >

@@ -21,15 +21,13 @@
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-   template< typename Eol, typename = void, typename = void >
+   template< typename Eol, typename = void >
    struct lazy_scan_traits;
 
    template< typename Eol, typename Peek >
       requires( !std::is_same_v< void, Peek > )
    struct lazy_scan_traits< Eol, Peek >
    {
-      static_assert( !std::is_same_v< Peek, void > );
-
       template< typename Position, typename Data >
       static void scan( Position& pos, scan_input< Data >& in )
       {
@@ -103,19 +101,13 @@ namespace TAO_PEGTL_NAMESPACE::internal
    };
 
    template< typename Eol >
-      requires( std::is_same_v< Eol, typename Eol::rule_t > && has_eol_lazy_peek< Eol > )
-   struct lazy_scan_traits< Eol >
-      : lazy_scan_traits< Eol, typename Eol::eol_lazy_peek >
-   {};
-
-   template< typename Eol >
       requires( !std::is_same_v< Eol, typename Eol::rule_t > && !has_eol_lazy_peek< Eol > )
    struct lazy_scan_traits< Eol >
       : lazy_scan_traits< typename Eol::rule_t, void >
    {};
 
    template< typename Eol >
-      requires( !std::is_same_v< Eol, typename Eol::rule_t > && has_eol_lazy_peek< Eol > )
+      requires has_eol_lazy_peek< Eol >
    struct lazy_scan_traits< Eol >
       : lazy_scan_traits< typename Eol::rule_t, typename Eol::eol_lazy_peek >
    {};

@@ -17,7 +17,7 @@
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-   template< typename Errors, typename Rule, typename = void >
+   template< typename Errors, typename Rule >
    inline constexpr bool raise_on_failure = ( Errors::template message< Rule > != nullptr );
 
    template< typename Errors, typename Rule >

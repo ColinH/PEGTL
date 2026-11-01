@@ -34,7 +34,7 @@
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-   template< typename Eol, typename Rule, typename = void >
+   template< typename Eol, typename Rule >
    struct text_scan_traits;
 
    template< typename Eol >
@@ -191,7 +191,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
       : text_scan_traits< Eol, until< typename Cond::rule_t > >
    {};
 
-   template< typename Eol, typename Rule, typename >
+   template< typename Eol, typename Rule >
    struct text_scan_traits
       : lazy_scan_traits< typename Eol::eol_char_rule >
    {

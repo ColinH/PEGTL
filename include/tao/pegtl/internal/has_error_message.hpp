@@ -13,9 +13,7 @@
 namespace TAO_PEGTL_NAMESPACE::internal
 {
    template< typename Rule, typename Result = const char* >
-   concept has_error_message = requires {
-      requires std::same_as< std::decay_t< decltype( Rule::error_message ) >, Result >;
-   };
+   concept has_error_message = std::same_as< std::decay_t< decltype( Rule::error_message ) >, Result >;
 
 }  // namespace TAO_PEGTL_NAMESPACE::internal
 

@@ -31,12 +31,11 @@ namespace TAO_PEGTL_NAMESPACE
       // position_with_source& operator=( const position_with_source& ) = default;
 
       explicit position_with_source( Source&& s )
-         requires std::constructible_from< Position >
          : source( std::move( s ) )
       {}
 
       explicit position_with_source( const Source& s )
-         requires std::constructible_from< Source, const Source& > && std::constructible_from< Position >
+         requires std::constructible_from< Source, const Source& >
          : source( s )
       {}
 

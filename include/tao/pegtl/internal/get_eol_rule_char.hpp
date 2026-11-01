@@ -13,7 +13,7 @@
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-   template< typename T, typename = void >
+   template< typename T >
    struct get_eol_rule_char
    {
       static constexpr bool value = false;

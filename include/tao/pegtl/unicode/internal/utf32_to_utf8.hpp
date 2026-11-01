@@ -14,7 +14,7 @@
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-   template< template< char... > class String, char32_t C, typename = void >
+   template< template< char... > class String, char32_t C >
    struct utf32_to_utf8_char;
 
    template< template< char... > class String, char32_t C >

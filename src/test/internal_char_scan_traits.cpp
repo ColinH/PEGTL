@@ -30,6 +30,12 @@ namespace TAO_PEGTL_NAMESPACE
       : internal::one< fake_char_peek, '\n' >
    {};
 
+   struct self_lazy_lf
+      : ascii::lazy::lf
+   {
+      using rule_t = self_lazy_lf;
+   };
+
    std::size_t ui = 0;
    std::array< std::size_t, 5 > ua = { 1, 1, 1, 1, 2 };
 
@@ -73,6 +79,14 @@ namespace TAO_PEGTL_NAMESPACE
          text_position pos;
          internal::scan_input< char > in( s );
          internal::lazy_scan_traits< ascii::lazy::lf, void >::scan( pos, in );
+         TAO_PEGTL_TEST_ASSERT( pos.line == 3 );
+         TAO_PEGTL_TEST_ASSERT( pos.column == 5 );
+         TAO_PEGTL_TEST_ASSERT( pos.count == 12 );
+      }
+      {
+         text_position pos;
+         internal::scan_input< char > in( s );
+         internal::lazy_scan_traits< self_lazy_lf >::scan( pos, in );
          TAO_PEGTL_TEST_ASSERT( pos.line == 3 );
          TAO_PEGTL_TEST_ASSERT( pos.column == 5 );
          TAO_PEGTL_TEST_ASSERT( pos.count == 12 );

@@ -65,16 +65,18 @@ namespace TAO_PEGTL_NAMESPACE::internal
       // [[nodiscard]] std::span< data_t > span() const noexcept  // TODO: With C++20.
 
       [[nodiscard]] std::string string() const
-         requires( sizeof( data_t ) == 1 ) && requires( const Input& in ) {
-            std::string( static_cast< const char* >( in.current() ), in.size() );
+         requires requires( const Input& in ) {
+            static_cast< const char* >( in.current() );
+            in.size();
          }
       {
          return std::string( static_cast< const char* >( this->current() ), this->size() );
       }
 
       [[nodiscard]] std::string_view string_view() const noexcept
-         requires( sizeof( data_t ) == 1 ) && requires( const Input& in ) {
-            std::string_view( static_cast< const char* >( in.current() ), in.size() );
+         requires requires( const Input& in ) {
+            static_cast< const char* >( in.current() );
+            in.size();
          }
       {
          return std::string_view( static_cast< const char* >( this->current() ), this->size() );
@@ -82,7 +84,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
 
       [[nodiscard]] std::vector< data_t > vector() const
          requires( std::is_same_v< data_t, std::remove_cv_t< data_t > > && std::is_copy_constructible_v< data_t > ) && requires( const Input& in ) {
-            std::vector< data_t >( in.current(), in.current() + in.size() );
+            in.size();
          }
       {
          return std::vector< data_t >( this->current(), this->current() + this->size() );
@@ -92,7 +94,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
 
       template< typename Position >
       [[nodiscard]] std::string_view line_view_at( const Position& pos )
-         requires( sizeof( data_t ) == 1 ) && requires( Input& in ) {
+         requires requires( Input& in ) {
             static_cast< const char* >( in.begin_of_line( pos ) );
             static_cast< const char* >( in.end_of_line_or_file( pos ) );
          }

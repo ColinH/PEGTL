@@ -15,7 +15,7 @@
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-   template< typename T, T, typename = void >
+   template< typename T, T >
    struct peek_member_impl;
 
    // For data members of type 'T' or 'const T'.
@@ -37,7 +37,6 @@ namespace TAO_PEGTL_NAMESPACE::internal
    // For data members of type 'T*' or 'const T*' -- will this case ever be used?
 
    template< typename C, typename T, T* C::* P >
-      requires std::is_member_object_pointer_v< T * C::* >
    struct peek_member_impl< T * C::*, P >
    {
       using data_t = std::decay_t< T >;
@@ -53,7 +52,6 @@ namespace TAO_PEGTL_NAMESPACE::internal
    // For data members of type 'T* const' or 'const T* const' -- will this case ever be used?
 
    template< typename C, typename T, T* const C::*const P >
-      requires std::is_member_object_pointer_v< T* const C::* >
    struct peek_member_impl< T* const C::*, P >
    {
       using data_t = std::decay_t< T >;
