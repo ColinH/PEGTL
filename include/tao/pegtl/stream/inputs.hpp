@@ -39,8 +39,8 @@ namespace TAO_PEGTL_NAMESPACE
    using alloc_cstring_input = stream_input< alloc_cstring_buffer, Eol, InputSource, ErrorSource >;
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
    using alloc_istream_input = stream_input< alloc_istream_buffer, Eol, InputSource, ErrorSource >;
-   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
-   using alloc_iterator_input = stream_input< alloc_iterator_buffer< InputIterator >, Eol, InputSource, ErrorSource >;
+   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, typename Sentinel = InputIterator >
+   using alloc_iterator_input = stream_input< alloc_iterator_buffer< InputIterator, Sentinel >, Eol, InputSource, ErrorSource >;
 
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, std::size_t BufferSize = default_buffer_size, std::size_t ChunkSize = default_chunk_size >
    using array_cstream_input = stream_input< array_cstream_buffer< BufferSize, ChunkSize >, Eol, InputSource, ErrorSource >;
@@ -48,8 +48,8 @@ namespace TAO_PEGTL_NAMESPACE
    using array_cstring_input = stream_input< array_cstring_buffer< BufferSize, ChunkSize >, Eol, InputSource, ErrorSource >;
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, std::size_t BufferSize = default_buffer_size, std::size_t ChunkSize = default_chunk_size >
    using array_istream_input = stream_input< array_istream_buffer< BufferSize, ChunkSize >, Eol, InputSource, ErrorSource >;
-   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, std::size_t BufferSize = default_buffer_size, std::size_t ChunkSize = default_chunk_size >
-   using array_iterator_input = stream_input< array_iterator_buffer< InputIterator, BufferSize, ChunkSize >, Eol, InputSource, ErrorSource >;
+   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, std::size_t BufferSize = default_buffer_size, std::size_t ChunkSize = default_chunk_size, typename Sentinel = InputIterator >
+   using array_iterator_input = stream_input< array_iterator_buffer< InputIterator, BufferSize, ChunkSize, Sentinel >, Eol, InputSource, ErrorSource >;
 
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
    using other_cstream_input = stream_input< other_cstream_buffer, Eol, InputSource, ErrorSource >;
@@ -57,8 +57,8 @@ namespace TAO_PEGTL_NAMESPACE
    using other_cstring_input = stream_input< other_cstring_buffer, Eol, InputSource, ErrorSource >;
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
    using other_istream_input = stream_input< other_istream_buffer, Eol, InputSource, ErrorSource >;
-   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
-   using other_iterator_input = stream_input< other_iterator_buffer< InputIterator >, Eol, InputSource, ErrorSource >;
+   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, typename Sentinel = InputIterator >
+   using other_iterator_input = stream_input< other_iterator_buffer< InputIterator, Sentinel >, Eol, InputSource, ErrorSource >;
 
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
    using alloc_cstream_auto_input = stream_auto_input< alloc_cstream_buffer, Eol, InputSource, ErrorSource >;
@@ -66,8 +66,8 @@ namespace TAO_PEGTL_NAMESPACE
    using alloc_cstring_auto_input = stream_auto_input< alloc_cstring_buffer, Eol, InputSource, ErrorSource >;
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
    using alloc_istream_auto_input = stream_auto_input< alloc_istream_buffer, Eol, InputSource, ErrorSource >;
-   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
-   using alloc_iterator_auto_input = stream_auto_input< alloc_iterator_buffer< InputIterator >, Eol, InputSource, ErrorSource >;
+   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, typename Sentinel = InputIterator >
+   using alloc_iterator_auto_input = stream_auto_input< alloc_iterator_buffer< InputIterator, Sentinel >, Eol, InputSource, ErrorSource >;
 
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, std::size_t BufferSize = default_buffer_size, std::size_t ChunkSize = default_chunk_size >
    using array_cstream_auto_input = stream_auto_input< array_cstream_buffer< BufferSize, ChunkSize >, Eol, InputSource, ErrorSource >;
@@ -75,8 +75,8 @@ namespace TAO_PEGTL_NAMESPACE
    using array_cstring_auto_input = stream_auto_input< array_cstring_buffer< BufferSize, ChunkSize >, Eol, InputSource, ErrorSource >;
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, std::size_t BufferSize = default_buffer_size, std::size_t ChunkSize = default_chunk_size >
    using array_istream_auto_input = stream_auto_input< array_istream_buffer< BufferSize, ChunkSize >, Eol, InputSource, ErrorSource >;
-   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, std::size_t BufferSize = default_buffer_size, std::size_t ChunkSize = default_chunk_size >
-   using array_iterator_auto_input = stream_auto_input< array_iterator_buffer< InputIterator, BufferSize, ChunkSize >, Eol, InputSource, ErrorSource >;
+   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, std::size_t BufferSize = default_buffer_size, std::size_t ChunkSize = default_chunk_size, typename Sentinel = InputIterator >
+   using array_iterator_auto_input = stream_auto_input< array_iterator_buffer< InputIterator, BufferSize, ChunkSize, Sentinel >, Eol, InputSource, ErrorSource >;
 
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
    using other_cstream_auto_input = stream_auto_input< other_cstream_buffer, Eol, InputSource, ErrorSource >;
@@ -84,8 +84,8 @@ namespace TAO_PEGTL_NAMESPACE
    using other_cstring_auto_input = stream_auto_input< other_cstring_buffer, Eol, InputSource, ErrorSource >;
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
    using other_istream_auto_input = stream_auto_input< other_istream_buffer, Eol, InputSource, ErrorSource >;
-   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
-   using other_iterator_auto_input = stream_auto_input< other_iterator_buffer< InputIterator >, Eol, InputSource, ErrorSource >;
+   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, typename Sentinel = InputIterator >
+   using other_iterator_auto_input = stream_auto_input< other_iterator_buffer< InputIterator, Sentinel >, Eol, InputSource, ErrorSource >;
 
    template< typename Buffer, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
    using text_stream_input = internal::input_with_funcs< internal::text_stream_input_with_source< Buffer, Eol, InputSource, ErrorSource > >;
@@ -98,8 +98,8 @@ namespace TAO_PEGTL_NAMESPACE
    using alloc_text_cstring_input = text_stream_input< alloc_cstring_buffer, Eol, InputSource, ErrorSource >;
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
    using alloc_text_istream_input = text_stream_input< alloc_istream_buffer, Eol, InputSource, ErrorSource >;
-   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
-   using alloc_text_iterator_input = text_stream_input< alloc_iterator_buffer< InputIterator >, Eol, InputSource, ErrorSource >;
+   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, typename Sentinel = InputIterator >
+   using alloc_text_iterator_input = text_stream_input< alloc_iterator_buffer< InputIterator, Sentinel >, Eol, InputSource, ErrorSource >;
 
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, std::size_t BufferSize = default_buffer_size, std::size_t ChunkSize = default_chunk_size >
    using array_text_cstream_input = text_stream_input< array_cstream_buffer< BufferSize, ChunkSize >, Eol, InputSource, ErrorSource >;
@@ -107,8 +107,8 @@ namespace TAO_PEGTL_NAMESPACE
    using array_text_cstring_input = text_stream_input< array_cstring_buffer< BufferSize, ChunkSize >, Eol, InputSource, ErrorSource >;
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, std::size_t BufferSize = default_buffer_size, std::size_t ChunkSize = default_chunk_size >
    using array_text_istream_input = text_stream_input< array_istream_buffer< BufferSize, ChunkSize >, Eol, InputSource, ErrorSource >;
-   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, std::size_t BufferSize = default_buffer_size, std::size_t ChunkSize = default_chunk_size >
-   using array_text_iterator_input = text_stream_input< array_iterator_buffer< InputIterator, BufferSize, ChunkSize >, Eol, InputSource, ErrorSource >;
+   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, std::size_t BufferSize = default_buffer_size, std::size_t ChunkSize = default_chunk_size, typename Sentinel = InputIterator >
+   using array_text_iterator_input = text_stream_input< array_iterator_buffer< InputIterator, BufferSize, ChunkSize, Sentinel >, Eol, InputSource, ErrorSource >;
 
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
    using other_text_cstream_input = text_stream_input< other_cstream_buffer, Eol, InputSource, ErrorSource >;
@@ -116,8 +116,8 @@ namespace TAO_PEGTL_NAMESPACE
    using other_text_cstring_input = text_stream_input< other_cstring_buffer, Eol, InputSource, ErrorSource >;
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
    using other_text_istream_input = text_stream_input< other_istream_buffer, Eol, InputSource, ErrorSource >;
-   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
-   using other_text_iterator_input = text_stream_input< other_iterator_buffer< InputIterator >, Eol, InputSource, ErrorSource >;
+   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, typename Sentinel = InputIterator >
+   using other_text_iterator_input = text_stream_input< other_iterator_buffer< InputIterator, Sentinel >, Eol, InputSource, ErrorSource >;
 
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
    using alloc_text_cstream_auto_input = text_stream_auto_input< alloc_cstream_buffer, Eol, InputSource, ErrorSource >;
@@ -125,8 +125,8 @@ namespace TAO_PEGTL_NAMESPACE
    using alloc_text_cstring_auto_input = text_stream_auto_input< alloc_cstring_buffer, Eol, InputSource, ErrorSource >;
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
    using alloc_text_istream_auto_input = text_stream_auto_input< alloc_istream_buffer, Eol, InputSource, ErrorSource >;
-   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
-   using alloc_text_iterator_auto_input = text_stream_auto_input< alloc_iterator_buffer< InputIterator >, Eol, InputSource, ErrorSource >;
+   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, typename Sentinel = InputIterator >
+   using alloc_text_iterator_auto_input = text_stream_auto_input< alloc_iterator_buffer< InputIterator, Sentinel >, Eol, InputSource, ErrorSource >;
 
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, std::size_t BufferSize = default_buffer_size, std::size_t ChunkSize = default_chunk_size >
    using array_text_cstream_auto_input = text_stream_auto_input< array_cstream_buffer< BufferSize, ChunkSize >, Eol, InputSource, ErrorSource >;
@@ -134,8 +134,8 @@ namespace TAO_PEGTL_NAMESPACE
    using array_text_cstring_auto_input = text_stream_auto_input< array_cstring_buffer< BufferSize, ChunkSize >, Eol, InputSource, ErrorSource >;
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, std::size_t BufferSize = default_buffer_size, std::size_t ChunkSize = default_chunk_size >
    using array_text_istream_auto_input = text_stream_auto_input< array_istream_buffer< BufferSize, ChunkSize >, Eol, InputSource, ErrorSource >;
-   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, std::size_t BufferSize = default_buffer_size, std::size_t ChunkSize = default_chunk_size >
-   using array_text_iterator_auto_input = text_stream_auto_input< array_iterator_buffer< InputIterator, BufferSize, ChunkSize >, Eol, InputSource, ErrorSource >;
+   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, std::size_t BufferSize = default_buffer_size, std::size_t ChunkSize = default_chunk_size, typename Sentinel = InputIterator >
+   using array_text_iterator_auto_input = text_stream_auto_input< array_iterator_buffer< InputIterator, BufferSize, ChunkSize, Sentinel >, Eol, InputSource, ErrorSource >;
 
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
    using other_text_cstream_auto_input = text_stream_auto_input< other_cstream_buffer, Eol, InputSource, ErrorSource >;
@@ -143,8 +143,8 @@ namespace TAO_PEGTL_NAMESPACE
    using other_text_cstring_auto_input = text_stream_auto_input< other_cstring_buffer, Eol, InputSource, ErrorSource >;
    template< typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
    using other_text_istream_auto_input = text_stream_auto_input< other_istream_buffer, Eol, InputSource, ErrorSource >;
-   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource >
-   using other_text_iterator_auto_input = text_stream_auto_input< other_iterator_buffer< InputIterator >, Eol, InputSource, ErrorSource >;
+   template< typename InputIterator, typename Eol = tao_stream_eol, typename InputSource = void, typename ErrorSource = InputSource, typename Sentinel = InputIterator >
+   using other_text_iterator_auto_input = text_stream_auto_input< other_iterator_buffer< InputIterator, Sentinel >, Eol, InputSource, ErrorSource >;
 
 }  // namespace TAO_PEGTL_NAMESPACE
 

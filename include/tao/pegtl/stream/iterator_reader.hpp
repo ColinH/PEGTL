@@ -6,18 +6,21 @@
 #define TAO_PEGTL_STREAM_ITERATOR_READER_HPP
 
 #include <cstddef>
+#include <iterator>
+#include <utility>
 
 #include "../config.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-   template< typename InputIterator >
+   template< std::input_iterator InputIterator, std::sentinel_for< InputIterator > Sentinel = InputIterator >
+      requires std::indirectly_copyable< InputIterator, char* >
    class iterator_reader
    {
    public:
-      iterator_reader( const InputIterator& begin, const InputIterator& end )
-         : m_run( begin ),
-           m_end( end )
+      iterator_reader( InputIterator begin, Sentinel end )
+         : m_run( std::move( begin ) ),
+           m_end( std::move( end ) )
       {}
 
       [[nodiscard]] std::size_t read( char* buffer, const std::size_t length )
@@ -25,14 +28,15 @@ namespace TAO_PEGTL_NAMESPACE::internal
          std::size_t done = 0;
 
          while( ( m_run != m_end ) && ( done < length ) ) {
-            buffer[ done++ ] = *m_run++;
+            buffer[ done++ ] = *m_run;
+            ++m_run;
          }
          return done;
       }
 
    protected:
       InputIterator m_run;
-      InputIterator m_end;
+      Sentinel m_end;
    };
 
 }  // namespace TAO_PEGTL_NAMESPACE::internal
