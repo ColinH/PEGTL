@@ -108,11 +108,17 @@ namespace TAO_PEGTL_NAMESPACE::internal
       }
 
       [[nodiscard]] decltype( auto ) direct_source() const noexcept
+         requires requires( Input& in ) {
+            in.direct_source();
+         }
       {
          return m_input.direct_source();
       }
 
       [[nodiscard]] decltype( auto ) direct_position() const noexcept
+         requires requires( Input& in ) {
+            in.direct_position();
+         }
       {
          return m_input.direct_position();
       }

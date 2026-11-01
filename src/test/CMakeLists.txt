@@ -157,6 +157,7 @@ set(test_sources
   internal_file_input.cpp
   internal_file_mapper.cpp
   internal_get_eol_rule_char.cpp
+  internal_input_with_funcs.cpp
   internal_inputs_lines.cpp
   internal_integer_bswap.cpp
   internal_integer_size.cpp

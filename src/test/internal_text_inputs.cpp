@@ -7,6 +7,16 @@
 
 namespace TAO_PEGTL_NAMESPACE
 {
+   template< typename Input >
+   concept has_end_of_line = requires( const Input& in, const typename Input::error_position_t& pos ) {
+      in.end_of_line_or_file( pos );
+   };
+
+   static_assert( has_end_of_line< text_view_input< scan::lf > > );
+   static_assert( has_end_of_line< text_view_input< scan::lf, char, std::string > > );
+   static_assert( !has_end_of_line< text_view_input< scan::lf, char32_t > > );
+   static_assert( !has_end_of_line< text_view_input< scan::lf, char32_t, std::string > > );
+
    void test_01_text()
    {
       using input_0 = text_view_input< scan::lf >;
