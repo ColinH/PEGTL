@@ -5,18 +5,17 @@
 #ifndef TAO_PEGTL_INTERNAL_HAS_APPLY0_HPP
 #define TAO_PEGTL_INTERNAL_HAS_APPLY0_HPP
 
-#include <type_traits>
+#include <concepts>
 #include <utility>
 
 #include "../config.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-   template< typename, typename, template< typename... > class, typename... >
-   inline constexpr bool has_apply0 = false;
-
-   template< typename Control, template< typename... > class Action, typename... States >
-   inline constexpr bool has_apply0< Control, decltype( Control::template apply0< Action >( std::declval< States >()... ) ), Action, States... > = true;
+   template< typename Control, typename Result, template< typename... > class Action, typename... States >
+   concept has_apply0 = requires {
+      { Control::template apply0< Action >( std::declval< States >()... ) } -> std::same_as< Result >;
+   };
 
 }  // namespace TAO_PEGTL_NAMESPACE::internal
 

@@ -5,17 +5,17 @@
 #ifndef TAO_PEGTL_INTERNAL_HAS_ERROR_MESSAGE_HPP
 #define TAO_PEGTL_INTERNAL_HAS_ERROR_MESSAGE_HPP
 
+#include <concepts>
 #include <type_traits>
 
 #include "../config.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-   template< typename Rule, typename = const char* >
-   inline constexpr bool has_error_message = false;
-
-   template< typename Rule >
-   inline constexpr bool has_error_message< Rule, std::decay_t< decltype( Rule::error_message ) > > = true;
+   template< typename Rule, typename Result = const char* >
+   concept has_error_message = requires {
+      requires std::same_as< std::decay_t< decltype( Rule::error_message ) >, Result >;
+   };
 
 }  // namespace TAO_PEGTL_NAMESPACE::internal
 

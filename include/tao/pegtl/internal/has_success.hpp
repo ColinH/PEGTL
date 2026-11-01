@@ -5,17 +5,17 @@
 #ifndef TAO_PEGTL_INTERNAL_HAS_SUCCESS_HPP
 #define TAO_PEGTL_INTERNAL_HAS_SUCCESS_HPP
 
+#include <concepts>
 #include <utility>
 
 #include "../config.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-   template< typename... >
-   inline constexpr bool has_success = false;
-
-   template< typename State, typename... Ts >
-   inline constexpr bool has_success< State, decltype( std::declval< State >().success( std::declval< Ts >()... ) ), Ts... > = true;
+   template< typename State, typename Result, typename... Ts >
+   concept has_success = requires {
+      { std::declval< State >().success( std::declval< Ts >()... ) } -> std::same_as< Result >;
+   };
 
 }  // namespace TAO_PEGTL_NAMESPACE::internal
 

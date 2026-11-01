@@ -5,20 +5,12 @@
 #ifndef TAO_PEGTL_INTERNAL_HAS_EOL_RULE_HPP
 #define TAO_PEGTL_INTERNAL_HAS_EOL_RULE_HPP
 
-#include <type_traits>
-
 #include "../config.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
    template< typename T >
-   using has_eol_rule_impl = T::eol_rule;
-
-   template< typename, typename = void >
-   inline constexpr bool has_eol_rule = false;
-
-   template< typename T >
-   inline constexpr bool has_eol_rule< T, std::void_t< has_eol_rule_impl< T > > > = true;
+   concept has_eol_rule = requires { typename T::eol_rule; };
 
 }  // namespace TAO_PEGTL_NAMESPACE::internal
 

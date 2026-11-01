@@ -6,6 +6,7 @@
 #define TAO_PEGTL_EXTRA_PARSE_TREE_HPP
 
 #include <cassert>
+#include <concepts>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -192,18 +193,13 @@ namespace TAO_PEGTL_NAMESPACE::parse_tree
          using type = rotate_states_right_b< 1, state_handler< Rule, is_selected_node< Rule, Selector >, is_leaf< 8, typename Rule::subs_t, Selector > > >;
       };
 
-      template< typename, typename, typename... >
-      inline constexpr bool node_has_unwind = false;
-
-      template< typename Node, typename Rule, typename... States >
-      inline constexpr bool node_has_unwind< Node,
-                                             Rule,
-                                             decltype( std::declval< Node >().template unwind< Rule >( std::declval< States >()... ) ),
-                                             States... >
-         = true;
+      template< typename Node, typename Rule, typename Result, typename... States >
+      concept node_has_unwind = requires {
+         { std::declval< Node >().template unwind< Rule >( std::declval< States >()... ) } -> std::same_as< Result >;
+      };
 
       template< typename Control, typename... States >
-      inline constexpr bool control_has_unwind = TAO_PEGTL_NAMESPACE::internal::has_unwind< Control, void, States... >;
+      concept control_has_unwind = TAO_PEGTL_NAMESPACE::internal::has_unwind< Control, void, States... >;
 
       template< typename Node, template< typename... > class Selector, template< typename... > class Control >
       template< typename Rule >

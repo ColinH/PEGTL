@@ -17,11 +17,10 @@ namespace TAO_PEGTL_NAMESPACE
 {
    namespace internal
    {
-      template< typename, typename Rule, template< typename... > class Action, typename ParseInput, typename... States >
-      inline constexpr bool action_has_unwind = false;
-
       template< typename Rule, template< typename... > class Action, typename ParseInput, typename... States >
-      inline constexpr bool action_has_unwind< decltype( (void)Action< Rule >::unwind( std::declval< const ParseInput& >(), std::declval< States&& >()... ) ), Rule, Action, ParseInput, States... > = true;
+      concept action_has_unwind = requires {
+         Action< Rule >::unwind( std::declval< const ParseInput& >(), std::declval< States&& >()... );
+      };
 
    }  // namespace internal
 
@@ -38,7 +37,7 @@ namespace TAO_PEGTL_NAMESPACE
       [[nodiscard]] static bool match( ParseInput& in, States&&... st )
       {
 #if defined( __cpp_exceptions )
-         if constexpr( internal::action_has_unwind< void, Rule, Action, ParseInput, States... > ) {
+         if constexpr( internal::action_has_unwind< Rule, Action, ParseInput, States... > ) {
             try {
                return control_action::match_impl< Rule, A, M, Action, Control >( in, st... );
             }

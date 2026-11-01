@@ -11,13 +11,10 @@
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-   template< typename, typename = void >
-   inline constexpr bool has_direct_reader = false;
-
    template< typename C >
-   inline constexpr bool has_direct_reader< C, decltype( (void)std::declval< C >().direct_reader(), void() ) > = true;
-
-   // The (void) is to shut up a warning from GCC 9 and 10 about the return value of the nodiscard-function direct_reader() being ignored.
+   concept has_direct_reader = requires {
+      std::declval< C >().direct_reader();
+   };
 
 }  // namespace TAO_PEGTL_NAMESPACE::internal
 

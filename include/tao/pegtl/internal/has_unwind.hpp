@@ -5,17 +5,17 @@
 #ifndef TAO_PEGTL_INTERNAL_HAS_UNWIND_HPP
 #define TAO_PEGTL_INTERNAL_HAS_UNWIND_HPP
 
+#include <concepts>
 #include <utility>
 
 #include "../config.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-   template< typename, typename... >
-   inline constexpr bool has_unwind = false;
-
-   template< typename C, typename... S >
-   inline constexpr bool has_unwind< C, decltype( C::unwind( std::declval< S >()... ) ), S... > = true;
+   template< typename C, typename Result, typename... S >
+   concept has_unwind = requires {
+      { C::unwind( std::declval< S >()... ) } -> std::same_as< Result >;
+   };
 
 }  // namespace TAO_PEGTL_NAMESPACE::internal
 

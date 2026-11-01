@@ -11,11 +11,8 @@
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-   template< typename Input, typename = void >
-   inline constexpr bool has_start = false;
-
    template< typename Input >
-   inline constexpr bool has_start< Input, decltype( (void)std::declval< Input >().start() ) > = true;
+   concept has_start = requires { std::declval< Input >().start(); };
 
 }  // namespace TAO_PEGTL_NAMESPACE::internal
 
