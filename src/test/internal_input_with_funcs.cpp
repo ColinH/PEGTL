@@ -4,6 +4,7 @@
 
 #include <concepts>
 #include <memory>
+#include <span>
 
 #include "test.hpp"
 
@@ -109,6 +110,9 @@ namespace TAO_PEGTL_NAMESPACE
          TAO_PEGTL_TEST_ASSERT( in.string() == "abc" );
          TAO_PEGTL_TEST_ASSERT( in.string_view() == "abc" );
          TAO_PEGTL_TEST_ASSERT( in.vector() == std::vector< char >( { 'a', 'b', 'c' } ) );
+         const auto view = in.span();
+         static_assert( std::same_as< decltype( in.span() ), std::span< const char > > );
+         TAO_PEGTL_TEST_ASSERT( view.data() == in.current() && view.size() == 3 );
       }
       {
          const std::byte data[] = { std::byte( 'a' ), std::byte( 'b' ) };
@@ -116,6 +120,7 @@ namespace TAO_PEGTL_NAMESPACE
          TAO_PEGTL_TEST_ASSERT( in.peek_char( 1 ) == 'b' );
          TAO_PEGTL_TEST_ASSERT( in.peek_byte() == data[ 0 ] );
          TAO_PEGTL_TEST_ASSERT( in.vector() == std::vector< std::byte >( data, data + 2 ) );
+         TAO_PEGTL_TEST_ASSERT( in.span().data() == data && in.span().size() == 2 );
       }
       {
          const char32_t data[] = { U'a', U'b' };
@@ -141,6 +146,19 @@ namespace TAO_PEGTL_NAMESPACE
          TAO_PEGTL_TEST_ASSERT( ai.string() == "ab" );
          TAO_PEGTL_TEST_ASSERT( ai.string_view() == "ab" );
          TAO_PEGTL_TEST_ASSERT( ai.vector() == std::vector< char >( { 'a', 'b' } ) );
+         TAO_PEGTL_TEST_ASSERT( ai.span().data() == ai.begin() && ai.span().size() == 2 );
+      }
+      {
+         const func_input< char > empty( "" );
+         TAO_PEGTL_TEST_ASSERT( empty.span().empty() );
+         std::unique_ptr< int > data[] = { std::make_unique< int >( 42 ), std::make_unique< int >( 43 ) };
+         func_input< std::unique_ptr< int > > in( data, 2 );
+         const auto view = in.span();
+         TAO_PEGTL_TEST_ASSERT( view.data() == data && *view.front() == 42 );
+         *data[ 0 ] = 44;
+         TAO_PEGTL_TEST_ASSERT( *view.front() == 44 );
+         in.consume< eol_exclude_tag >( 1 );
+         TAO_PEGTL_TEST_ASSERT( in.span().data() == data + 1 && in.span().size() == 1 );
       }
    }
 

@@ -6,6 +6,26 @@ Notes on incompatible changes that need to be taken into account when updating t
 ## Version 5.0.0
 
 * The build system needs to be configured for C++20 or later.
+* Inputs passed to `parse()` and the inner input passed to `parse_nested()` must not be `const`.
+
+### String Rules
+
+The ASCII string rules and `raise_message` now take string literals directly.
+Replace the old character-pack arguments and string-literal macros as follows:
+
+| Before | PEGTL 5.0 |
+| --- | --- |
+| `string< 'f', 'o', 'o' >` or `TAO_PEGTL_STRING( "foo" )` | `string< "foo" >` |
+| `istring< 'f', 'o', 'o' >` or `TAO_PEGTL_ISTRING( "foo" )` | `istring< "foo" >` |
+| `keyword< 'f', 'o', 'o' >` or `TAO_PEGTL_KEYWORD( "foo" )` | `keyword< "foo" >` |
+| `astring< 1, 'f', 'o', 'o' >` | `astring< 1, "foo" >` |
+| `aistring< 1, 'f', 'o', 'o' >` | `aistring< 1, "foo" >` |
+| `raise_message< 'f', 'o', 'o' >` or `TAO_PEGTL_RAISE_MESSAGE( "foo" )` | `raise_message< "foo" >` |
+
+Code that produces character packs can use the [compatibility rules](Rule-Reference.md#character-packs) `string_chars`, `istring_chars`, `keyword_chars`, `astring_chars`, `aistring_chars` and `raise_message_chars`.
+The character-pack and string-literal forms are distinct types; update action and control specializations to match the form used by the grammar.
+The old macros and `<tao/pegtl/pegtl_string.hpp>` were removed.
+The Unicode, binary and member string rules retain their value-pack interfaces.
 
 
 ## Version 4.0.0
@@ -152,8 +172,8 @@ Update includes accordingly; for example:
 The old `contrib/peg.hpp` and `contrib/predicates.hpp` headers were removed without direct replacements.
 Also note that [`<tao/pegtl.hpp>`](../include/tao/pegtl.hpp) includes fewer auxiliary headers than before; include action, control, debug, extra, binary, unicode and stream headers explicitly when client code uses them.
 
-The string-literal macros `TAO_PEGTL_STRING`, `TAO_PEGTL_ISTRING`, `TAO_PEGTL_KEYWORD` and `TAO_PEGTL_RAISE_MESSAGE` are now in [`<tao/pegtl/pegtl_string.hpp>`](../include/tao/pegtl/pegtl_string.hpp).
-The umbrella header [`<tao/pegtl.hpp>`](../include/tao/pegtl.hpp) still includes this header.
+PEGTL 4.0 moved the string-literal macros to `<tao/pegtl/pegtl_string.hpp>`, which was also included by `<tao/pegtl.hpp>`.
+These macros and that header were removed in PEGTL 5.0; see [String Rules](#string-rules).
 
 The depth and consumption action helpers were renamed: use `check_depth` instead of the old `limit_depth`, `check_consume` instead of `check_bytes`, and `limit_consume` instead of `limit_bytes`.
 Their headers are in [`action/`](../include/tao/pegtl/action).

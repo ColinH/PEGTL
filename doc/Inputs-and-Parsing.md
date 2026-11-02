@@ -273,6 +273,8 @@ bool parse( ParseInput&& in,
 - The `apply_mode` defaults to `apply_mode::enabled` which enables actions. Can be changed to `apply_mode::disabled` or in the grammar with the [`enable`](Rule-Reference.md#enable-r-) and [`disable`](Rule-Reference.md#disable-r-) rules.
 - The `rewind_mode` defaults to `rewind_mode::optional` in which case the input might not be rewound to its start when `parse()` returns `false`. Rewinding can be enabled by passing `rewind_mode::required`.
 
+The input being parsed must not be `const`; this also applies to the inner input passed to `parse_nested()`.
+
 A parsing run can have the [same three outcomes](Rules-and-Grammars.md#match-function) as the match function of a rule.
 Note that the distinction between "local" and "global" failure does not make too much sense at top-level, however for sake of consistency we will use these terms in all appropriate contexts.
 
@@ -429,70 +431,60 @@ There are two source type aliases, `input_source_t` is the type of the source ob
 
 ### Input Convenience
 
-All inputs, including `action_input`, implement the following set of convenience functions.
+The input wrappers, including `action_input`, provide the following convenience functions when the underlying input and `data_t` support the required operations.
 
 ```c++
-   [[nodiscard]] const data_t& peek( const std::size_t offset = 0 ) const noexcept
-   {
-      return *current( offset );
-   }
+   [[nodiscard]] const data_t& peek( const std::size_t offset = 0 ) const noexcept;
 
    template< typename T >
-   [[nodiscard]] T peek_as( const std::size_t offset = 0 ) const noexcept
-   {
-      static_assert( sizeof( T ) == sizeof( data_t ) );
-      return static_cast< T >( peek( offset ) );
-   }
+   [[nodiscard]] T peek_as( const std::size_t offset = 0 ) const noexcept;
 
-   [[nodiscard]] char peek_char( const std::size_t offset = 0 ) const noexcept
-   {
-      return peek_as< char >( offset );
-   }
+   [[nodiscard]] char peek_char( const std::size_t offset = 0 ) const noexcept;
+   [[nodiscard]] std::byte peek_byte( const std::size_t offset = 0 ) const noexcept;
+   [[nodiscard]] std::int8_t peek_int8( const std::size_t offset = 0 ) const noexcept;
+   [[nodiscard]] std::uint8_t peek_uint8( const std::size_t offset = 0 ) const noexcept;
 
-   [[nodiscard]] std::byte peek_byte( const std::size_t offset = 0 ) const noexcept
-   {
-      return peek_as< std::byte >( offset );
-   }
-
-   [[nodiscard]] std::int8_t peek_int8( const std::size_t offset = 0 ) const noexcept
-   {
-      return peek_as< std::int8_t >( offset );
-   }
-
-   [[nodiscard]] std::uint8_t peek_uint8( const std::size_t offset = 0 ) const noexcept
-   {
-      return peek_as< std::uint8_t >( offset );
-   }
-
-   [[nodiscard]] std::string string() const
-   {
-      static_assert( sizeof( data_t ) == 1 );
-      return std::string( static_cast< const char* >( this->current() ), this->size() );
-   }
-
-   [[nodiscard]] std::string_view string_view() const noexcept
-   {
-      static_assert( sizeof( data_t ) == 1 );
-      return std::string_view( static_cast< const char* >( this->current() ), this->size() );
-   }
-
-   [[nodiscard]] std::vector< data_t > vector() const
-   {
-      return std::vector< data_t >( this->current(), this->current() + this->size() );
-   }
+   [[nodiscard]] std::string string() const;
+   [[nodiscard]] std::string_view string_view() const noexcept;
+   [[nodiscard]] std::span< const data_t > span() const noexcept;
+   [[nodiscard]] std::vector< data_t > vector() const;
 
    template< typename Position >
-   [[nodiscard]] std::string_view line_view_at( const Position& pos )
-   {
-      static_assert( sizeof( data_t ) == 1 );
-      const char* const b = static_cast< const char* >( this->begin_of_line( pos ) );
-      const char* const e = static_cast< const char* >( this->end_of_line_or_file( pos ) );
-      return { b, std::size_t( e - b ) };
-   }
+   [[nodiscard]] std::string_view line_view_at( const Position& pos );
 ```
 
-The `line_view_at` function returns a `std::string_view` of the line of the input containing `pos`.
-It requires an input `in` where `in.begin_of_line( pos )` and `in.end_of_line_or_file( pos )` are valid function calls.
+The `peek()` function returns the object at `offset` without checking bounds.
+The caller must ensure that this object exists.
+
+The remaining functions have the following requirements:
+
+| Functions | Requirements |
+| --- | --- |
+| `peek_as< T >()` | `T` and `data_t` have the same size, and `static_cast< T >( value )` is valid for a `const data_t& value`. |
+| `peek_char()`, `peek_byte()`, `peek_int8()`, `peek_uint8()` | The corresponding `peek_as< T >()` operation is available. |
+| `string()`, `string_view()` | `current()` yields a pointer convertible to `const char*`, and `size()` is callable on the const input without an argument. |
+| `span()` | `current()` and `size()` describe a contiguous range on the const input, with no argument required by `size()`. |
+| `vector()` | `data_t` is cv-unqualified and copy-constructible, and `size()` is callable on the const input without an argument. |
+| `line_view_at( pos )` | The input provides `begin_of_line( pos )` and `end_of_line_or_file( pos )` returning pointers convertible to `const char*`. |
+
+The `line_view_at()` function returns a `std::string_view` of the line containing `pos`.
+These line operations are available on suitable parse inputs, but are not forwarded by `action_input`.
+The `string()` and `vector()` functions copy the range; `string_view()` and `span()` refer to the existing storage.
+
+#### Span Views
+
+The `span()` accessor returns a `std::span< const data_t >` over the remaining input.
+On an `action_input` it instead refers to the complete range matched by the rule.
+It does not copy the objects, and can therefore also be used with non-copyable input objects.
+
+```c++
+const char data[] = "hello";
+tao::pegtl::view_input<> in( std::span< const char >( data, 5 ) );
+const auto remaining = in.span();  // Five characters; the terminating null is excluded.
+```
+
+A span does not keep its underlying storage alive.
+Destroying or changing that storage can invalidate it; for action inputs over a stream this includes discarding or moving buffered data.
 
 ### Stream Compatibility
 

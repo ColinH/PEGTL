@@ -24,7 +24,7 @@ The extras can be found in [`include/tao/pegtl/extra/`](../include/tao/pegtl/ext
 
 ###### [`builders.hpp`](../include/tao/pegtl/extra/builders.hpp)
 
-Provides builders that combine the builder actions with the integer conversion from [`charconv.hpp`](#charconvhpp) and the string unescaping from [`unescape.hpp`](#unescapehpp).
+Provides [builder-style actions](Builder.md) that combine the standard builders with the integer conversion from [`charconv.hpp`](#charconvhpp) and the string unescaping from [`unescape.hpp`](#unescapehpp).
 
 ```c++
 template< auto S > struct from_chars_to;
@@ -278,7 +278,7 @@ struct record
 
 ###### [`type_to_string.hpp`](../include/tao/pegtl/extra/type_to_string.hpp)
 
-Functions to convert compile-time sequences of `char` into a `std::string` or `std::string_view`.
+Functions to convert compile-time strings or sequences of `char` into a `std::string` or `std::string_view`.
 
 ```c++
 template< typename T >
@@ -294,7 +294,12 @@ template< char... Cs >
 [[nodiscard]] constexpr std::string_view type_to_string_view() noexcept;
 ```
 
-The overloads that take a single type can be used with `tao::pegtl::string<>` or any other type that takes a sequence of `char` as template parameters.
+The overloads that take a single type support the ASCII string-literal rules, their character-pack forms, and `raise_message` and `raise_message_chars`.
+For example `type_to_string< string< "abc" > >()` returns `"abc"`.
+For `astring` and `aistring` they return the complete string, including the optional suffix.
+Embedded null bytes are preserved.
+
+The type overloads also accept other class templates with `char...` parameters, optionally preceded by a `std::size_t` parameter.
 
 ###### [`unescape.hpp`](../include/tao/pegtl/extra/unescape.hpp)
 
@@ -362,7 +367,7 @@ An optimized version of `tao::pegtl::rep_min_max< tao::pegtl::ascii::one< ... > 
 
 ###### [`rep_string.hpp`](../include/tao/pegtl/deprecated/rep_string.hpp)
 
-An optimized version of `tao::pegtl::rep< tao::pegtl::ascii::string< ... > >`.
+An optimized version of `tao::pegtl::rep< Num, tao::pegtl::ascii::string< Text > >`.
 
 ###### [`unescape.hpp`](../include/tao/pegtl/deprecated/unescape.hpp)
 

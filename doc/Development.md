@@ -14,15 +14,18 @@ Version 3.x of the PEGTL requires at least C++17.
 
 Version 4.x of the PEGTL requires at least C++17.
 
-Version 5.x of the PEGTL will jump to C++20 or C++23.
+Version 5.x of the PEGTL requires at least C++20.
 
 ### C++ Features
 
+The C++20 modernization uses concepts for optional interfaces and overload selection, string-literal template arguments for the ASCII string rules, and callable template arguments including lambdas for `function`.
+Inputs also support spans, and iterator readers accept separate sentinels and move-only input iterators.
+
+Further opportunities include:
+
  * Add support for C++20 `char8_t` where appropriate.
- * Use C++20 `std::span` in inputs and everywhere else it makes sense.
+ * Extend the use of C++20 `std::span` where it makes sense.
  * Investigate whether there is anything useful we can do with Ranges in the PEGTL.
- * Use C++20 Concepts instead of all the SFINAE and meta-programming where possible.
- * Give examples for C++20 "lambdas in unevaluated contexts" in conjunction with `tao::pegtl::function`.
  * ~~Keep an open eye for opportunities to use C++20 spaceship operator. Spaceship!~~
  * Keep an open eye for opportunities to use C++20 defaulted comparison operators.
  * Keep an open eye for opportunities to use C++20 `[[likely]]` and `[[unlikely]]`.
@@ -32,7 +35,6 @@ Version 5.x of the PEGTL will jump to C++20 or C++23.
  * Keep an open eye for opportunities to use the extended CTAD facilities from C++20.
  * Keep an open eye for opportunities to use class types as non-type template parameters.
  * Replace the hand-crafted endian facilities with C++20 `std::endian` and C++23 `std::byteswap`.
- * Investigate how C++20 and C++23 compile-time facilities can help with compile-time strings.
  * Investigate whether we can use C++20 `std::bit_cast` to improve some of the low-level code.
  * Use C++23 "deducing this" feature to let base class `make_rewind_guard()` return a rewind guard for a derived class.
  * When can we assume the C++17 `charconv` facilities are universally available?

@@ -7,9 +7,17 @@ All noteworthy changes since the first public [release](https://github.com/taocp
 Not Yet Released
 
 * Updated required C++ standard to C++20.
+* Changed the ASCII string rules and `raise_message` to take string-literal template arguments.
+  * Added the corresponding [character-pack rules](Rule-Reference.md#character-packs) with names ending in `_chars`.
+  * Removed the old string-literal macros and `pegtl_string.hpp`; see the [migration guide](Migration-Guide.md#string-rules).
+* Extended [`function`](Rule-Reference.md#function-f-p--void-) and `member::function` to support lambdas, structural callable objects and member pointers, with results convertible to `bool`.
+* Extended [member getters](Rule-Reference.md#member) to support reference-qualified const member functions and mutable pointer and reference results.
+* Added `std::span` construction for non-owning inputs and a [`span()` accessor](Inputs-and-Parsing.md#span-views) for contiguous input ranges.
+* Extended [iterator readers](Stream-Parsing.md#iterator-reader) and input aliases to support separate sentinel types and move-only input iterators.
+* Constrained optional input operations to supported inputs and parsing functions to non-const inputs.
 * Fixed the [floating point](Example-Reference.md#fphpp) example [grammar](Rules-and-Grammars.md) to accept underscores in the `NAN` payload.
-* Added new convenience [rule](Rules-and-Gramamrs.md) [`list_opt`](Rule-Reference.md#list_opt-r-s-).
-* Added new ASCII [rules](Rules-and-Grammrs.md) [`astring`](Rule-Reference.md#astring-p-c-) and [`aistring`](Rule-Reference.md#aistring-p-c-).
+* Added new convenience [rule](Rules-and-Grammars.md) [`list_opt`](Rule-Reference.md#list_opt-r-s-).
+* Added new ASCII [rules](Rules-and-Grammars.md) [`astring`](Rule-Reference.md#astring-p-text-) and [`aistring`](Rule-Reference.md#aistring-p-text-).
 * Added new extra [rule](Rules-and-Grammars.md) [`partial_apply1`](Extra-Reference.md#partial_apply1hpp).
 * Added new *builder* actions. -- TODO: Documentation!
   * Added new primitives `build_to` and `build_for`.
@@ -24,10 +32,17 @@ Not Yet Released
   * Added new builder-style `from_chars_to` and `from_chars_for`.
   * Added new builder-style `unescape_to` and `unescape_for`.
   * Added and updated examples that demonstrate builder actions.
+* TODO: `sor1`
+
+## 4.0.2
+
+Released 2026-09-21
+
+* Updated demangle workaround for GCC 16.1 only.
 
 ## Version 4.0.1
 
-Released TBD
+Released 2026-08-01
 
 * Fixed [`rematch`](Rule-Reference.md#rematch-r-s-) not doing the right thing with some inputs.
 
@@ -45,7 +60,7 @@ Released 2026-06-07
   * Added [`pkg-config`](../.pkg-config/pegtl.pc.in) metadata and [installation support](Install-Guide.md#using-cmake).
   * All headers in `include/tao/pegtl/contrib/` were moved to [`extra/`](../include/tao/pegtl/extra), [`example/`](../include/tao/pegtl/example), [`deprecated/`](../include/tao/pegtl/deprecated) or [`include/tao/pegtl/`](../include/tao/pegtl).
   * Not all headers in [`include/tao/pegtl/`](../include/tao/pegtl) are included by [`<tao/pegtl.hpp>`](../include/tao/pegtl.hpp).
-  * Moved the string-literal macros to the new public header [`pegtl_string.hpp`](../include/tao/pegtl/pegtl_string.hpp).
+  * Moved the string-literal macros to the new public header `pegtl_string.hpp`.
   * All [stream parsing](Stream-Parsing.md) headers were moved to [`stream/`](../include/tao/pegtl/stream).
   * All Unicode (incl. ICU) rules were moved to [`unicode/`](../include/tao/pegtl/unicode).
   * All binary rules (incl. enums) were moved to [`binary/`](../include/tao/pegtl/binary).
@@ -141,7 +156,7 @@ Released 2026-06-07
   * Renamed rule `try_catch` to [`try_catch_return_false`](Rule-Reference.md#try_catch_return_false-r-).
   * Added rule [`try_catch_std_return_false`](Rule-Reference.md#try_catch_std_return_false-r-).
   * Renamed rule `try_catch_type` to [`try_catch_type_return_false`](Rule-Reference.md#try_catch_type_return_false-e-r-).
-  * Added rule [`raise_message`](Rule-Reference.md#raise_message-c-) and macro [`TAO_PEGTL_RAISE_MESSAGE`](Rule-Reference.md#tao_pegtl_raise_message--).
+  * Added rule [`raise_message`](Rule-Reference.md#raise_message-text-) and macro `TAO_PEGTL_RAISE_MESSAGE`.
   * Added rule [`try_catch_any_raise_nested`](Rule-Reference.md#try_catch_any_raise_nested-r-).
   * Added rule [`try_catch_raise_nested`](Rule-Reference.md#try_catch_raise_nested-r-).
   * Added rule [`try_catch_std_raise_nested`](Rule-Reference.md#try_catch_std_raise_nested-r-).
@@ -203,6 +218,12 @@ Released 2026-06-07
 
 The deprecated headers have been moved to `include/tao/pegtl/deprecated/`.
 Please let us know if you (still) need them.
+
+## 3.2.9
+
+Released 2026-09-21
+
+* Updated demangle workaround for GCC 16.1 only.
 
 ## Version 3.2.8
 
@@ -551,7 +572,7 @@ Released 2017-06-23
 
 * Added optional template parameters to [`raw_string`](Extra-Reference.md#raw_stringhpp) for rules that the content must match.
 * Added new contrib rules [`rep_one_min_max`](Extra-Reference.md#rep_one_min_maxhpp) and `ellipsis`.
-* Fixed broken [`TAOCPP_PEGTL_KEYWORD`](Rule-Reference.md#tao_pegtl_keyword--) macro.
+* Fixed broken `TAOCPP_PEGTL_KEYWORD` macro.
 * Fixed a bug in the contrib HTTP grammar which prevented it from parsing status lines in some cases.
 * Fixed build with MinGW-w64 on Windows.
 * Added [automated testing](https://ci.appveyor.com/project/taocpp/PEGTL) with MinGW-w64.
@@ -586,14 +607,14 @@ Released 2017-05-18
 * Parsing Rules
 
   * Added combinator class [`minus`](Rule-Reference.md#minus-m-s-).
-* Added ASCII rule class [`keyword`](Rule-Reference.md#keyword-c-).
-  * Added [`string`](Rule-Reference.md#string-c--1) rules for UTF-8, UTF-16 and UTF-32.
+* Added ASCII rule class [`keyword`](Rule-Reference.md#keyword-text-).
+  * Added [`string`](Rule-Reference.md#string-c-) rules for UTF-8, UTF-16 and UTF-32.
   * Added [`apply`](Rule-Reference.md#apply-a-), [`apply0`](Rule-Reference.md#apply0-a-) and [`if_apply`](Rule-Reference.md#if_apply-r-a-) rules for intrusive actions.
 * Added incremental input support rules [`discard`](Stream-Parsing.md#discard) and [`require`](Stream-Parsing.md#require-num-).
 
 * String Macros
 
-* Renamed to [`TAOCPP_PEGTL_(I)STRING`](Rule-Reference.md#tao_pegtl_istring--).
+* Renamed to `TAOCPP_PEGTL_(I)STRING`.
   * Increased allowed string length to 512.
   * Allowed embedded null bytes.
   * Reduced template instantiation depth.
@@ -649,7 +670,7 @@ Released 2015-09-21
 
 Released 2015-08-23
 
-* Added [`pegtl_string_t`](Rule-Reference.md#tao_pegtl_string--) and [`pegtl_istring_t`](Rule-Reference.md#tao_pegtl_istring--) to simplify string definitions as follows:
+* Added `pegtl_string_t` and `pegtl_istring_t` to simplify string definitions as follows:
 ```c++
    pegtl::string< 'h', 'e', 'l', 'l', 'o' >  // Normal
    pegtl_string_t( "hello" )                 // New shortcut

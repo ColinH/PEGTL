@@ -170,7 +170,7 @@ struct read_include
    : tao::pegtl::seq< tao::pegtl::one< ' ' >, tao::pegtl::one< '"' >, tao::pegtl::plus< tao::pegtl::not_one< '"' > >, tao::pegtl::one< '"' > > {};
 
 struct hash_include
-   : tao::pegtl::if_must< tao::pegtl::string< 'i', 'n', 'c', 'l', 'u', 'd', 'e' >, read_include > {};
+   : tao::pegtl::if_must< tao::pegtl::string< "include" >, read_include > {};
 
 struct hashed
    : tao::pegtl::if_must< tao::pegtl::one< '#' >, tao::pegtl::sor< hash_include, list_comment, hash_comment > > {};
@@ -738,13 +738,13 @@ struct c : one< 'c' > {};
 
 |  | "" | "inf" | "infinityx" | "iNFi" | "infiNiTy" |
 |--|--|--|--|--|--|
-| [`string< "infinity" >`](Rule-Reference.md#string-c-) | f | f | "infinity" | f | f |
-| [`istring< "infinity" >`](Rule-Reference.md#istring-c-) | f | f | "infinity" | f | "infiNiTy" |
-| [`astring< 3, "infinity" >`](Rule-Reference.md#astring-p-c-) | f | "inf" | "infinity" | f | "inf" |
-| [`aistring< 3, "infinity" >`](Rule-Reference.md#aistring-p-c-) | f | "inf" | "infinity" | "iNF" | "infiNiTy" |
+| [`string< "infinity" >`](Rule-Reference.md#string-text-) | f | f | "infinity" | f | f |
+| [`istring< "infinity" >`](Rule-Reference.md#istring-text-) | f | f | "infinity" | f | "infiNiTy" |
+| [`astring< 3, "infinity" >`](Rule-Reference.md#astring-p-text-) | f | "inf" | "infinity" | f | "inf" |
+| [`aistring< 3, "infinity" >`](Rule-Reference.md#aistring-p-text-) | f | "inf" | "infinity" | "iNF" | "infiNiTy" |
 
-Note that the syntax `rule< "string" >` is not (currently) suppported, it's a shortcut for `rule< 's', 't', 'r', 'i', 'n', 'g' >`.
-However the [string macros](Rule-Reference.md#tao_pegtl_string--) do support a very similar syntax.
+These rules take string literals directly as template arguments.
+The [character-pack forms](Rule-Reference.md#character-packs) are available under names ending in `_chars`.
 
 ### ASCII Matching Rules
 

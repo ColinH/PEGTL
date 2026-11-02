@@ -85,7 +85,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
 
       [[nodiscard]] std::span< const data_t > span() const noexcept
       {
-         return { this->current(), this->siez() };
+         return { this->current(), this->size() };
       }
 
       [[nodiscard]] std::vector< data_t > vector() const

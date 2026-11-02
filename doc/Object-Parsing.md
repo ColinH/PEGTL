@@ -104,8 +104,9 @@ using token_copy = tao::pegtl::copy_input< void, std::vector< token > >;
 All ordinary input operations still operate in token units.
 For example `in.size()` returns the number of remaining tokens, `in.current()` points to the next token, `in.consume< R >( 1 )` consumes one token, and an action input's `peek()` returns a `const token&`.
 
-The convenience functions `string()` and `string_view()` are only available when `sizeof( data_t ) == 1`, though they probably don't make much sense when parsing objects that are not integers or enums.
-For token inputs the `peek()`, `current()`, or `vector()` accessors are more useful.
+The convenience functions `string()` and `string_view()` require character data accessible as `const char*`.
+For token inputs the `peek()`, `current()`, `span()` or `vector()` accessors are more useful.
+The `vector()` accessor requires copy-constructible tokens; `span()` provides a view without copying them.
 
 ### Member Rules
 
@@ -137,6 +138,9 @@ struct expression
 
 The first template parameter, `M`, tells the rule how to extract a value from the next input object.
 It can be a pointer to a data member, a pointer to a suitable const member function, or a pointer to a suitable free getter function.
+Member getters qualified with `const &` are also supported.
+Value results are stored in the peek result; reference and pointer results refer to existing objects, which must remain alive while the result is used.
+A null pointer means no value is available for matching.
 
 The extracted value is then tested by one of the member rules:
 
@@ -150,7 +154,16 @@ The extracted value is then tested by one of the member rules:
 Each successful member rule consumes one input object, except `member::string` which consumes one object per listed value.
 On local failure the input is left unchanged when rewinding is required, just like for the corresponding character rules.
 
-As usual, the predicate `F` supplied to `member::function< M, F >` must return `bool` to signal parsing success or failure.
+The predicate `F` supplied to `member::function< M, F >` must return a result implicitly convertible to `bool` to signal parsing success or failure.
+As with [`function`](Rule-Reference.md#function-f-p--void-), it can be a function pointer, a lambda, a structural callable object or a member pointer.
+It is invoked with the extracted value and all state objects when supported, otherwise with only the extracted value.
+For example a member-function pointer can test a token's text:
+
+```c++
+struct empty_text
+   : tao::pegtl::member::function< &token::text, &std::string::empty >
+{};
+```
 
 ### Custom Object Rules
 

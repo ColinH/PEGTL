@@ -199,14 +199,13 @@ If a backslash is present, the escape character must match, otherwise a parse er
 The rule [`raise< T >`](Rule-Reference.md#raise-t-) unconditionally generates a global failure by calling `Control< T >::raise()`.
 The template argument `T` can be any type; it does not have to be a parsing rule.
 
-The rule [`raise_message< C... >`](Rule-Reference.md#raise_message-c-) is a convenience rule that raises with a custom static message.
-The macro `TAO_PEGTL_RAISE_MESSAGE( "..." )` creates the corresponding `raise_message<>` rule from a string literal.
+The rule [`raise_message< Text >`](Rule-Reference.md#raise_message-text-) is a convenience rule that raises with the custom static message given by a string literal.
 
 ```c++
 using namespace tao::pegtl;
 
 struct value
-   : sor< number, string, TAO_PEGTL_RAISE_MESSAGE( "expected value" ) > {};
+   : sor< number, string, raise_message< "expected value" > > {};
 ```
 
 This is useful as the final alternative of an `sor<>`, or in a helper rule whose only purpose is to report a specific error.
@@ -267,17 +266,17 @@ The test `src/test/error_message_3.cpp` shows the minimal form.
 
 ### Raise Message
 
-For one-off error points, use `raise_message<>` or the macro `TAO_PEGTL_RAISE_MESSAGE()`.
+For one-off error points, use `raise_message< "message" >`.
 
 ```c++
 struct grammar
    : tao::pegtl::sor< option_a,
                       option_b,
-                      TAO_PEGTL_RAISE_MESSAGE( "expected option" ) > {};
+                      tao::pegtl::raise_message< "expected option" > > {};
 ```
 
 The test `src/test/error_message_2.cpp` shows this pattern.
-The macro argument must be a string literal.
+The message is supplied as a string-literal template argument.
 
 ### must_if Control
 

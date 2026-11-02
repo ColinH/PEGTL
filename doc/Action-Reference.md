@@ -3,6 +3,7 @@
 The reference documentation for all included actions.
 The actions related to [stream parsing](Stream-Parsing.md) are [documented here](Stream-Parsing.md#actions).
 The actions that are part of the [debug facilities](Debug-Facilities.md) are [documented here](Debug-Facilities.md#trace-action).
+The builder-style actions are documented on the [Builder Actions](Builder.md) page.
 
 
 ## Contents

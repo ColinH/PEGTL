@@ -36,7 +36,7 @@ namespace hello
    // Parsing rule that matches a literal "Hello, ".
 
    struct prefix
-      : pegtl::string< 'H', 'e', 'l', 'l', 'o', ',', ' ' >
+      : pegtl::string< "Hello, " >
    {};
 
    // Parsing rule that matches a non-empty sequence of

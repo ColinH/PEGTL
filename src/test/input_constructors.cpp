@@ -4,6 +4,7 @@
 
 #include <concepts>
 #include <memory>
+#include <span>
 #include <utility>
 
 #include "test.hpp"
@@ -23,6 +24,9 @@ namespace TAO_PEGTL_NAMESPACE
    static_assert( !std::constructible_from< plain_input, int > );
    static_assert( !std::constructible_from< plain_input, std::string > );
    static_assert( !std::constructible_from< plain_input, literal, int, int > );
+   static_assert( std::constructible_from< plain_input, std::span< const char > > );
+   static_assert( std::constructible_from< plain_input, std::span< const char, 3 > > );
+   static_assert( std::constructible_from< base_input<>, std::span< const char > > );
 
    static_assert( std::constructible_from< sourced_input, std::string&, literal > );
    static_assert( std::constructible_from< sourced_input, const std::string&, literal > );
@@ -33,6 +37,8 @@ namespace TAO_PEGTL_NAMESPACE
    static_assert( std::constructible_from< tracked_input, std::string, literal > );
    static_assert( !std::constructible_from< tracked_input, int, literal > );
    static_assert( !std::constructible_from< tracked_input, std::string, int > );
+   static_assert( std::constructible_from< sourced_input, std::string, std::span< const char > > );
+   static_assert( std::constructible_from< tracked_input, std::string, std::span< const char > > );
 
    // The byte-sized string constructors must reject wide and non-scalar data.
    struct token
@@ -89,6 +95,22 @@ namespace TAO_PEGTL_NAMESPACE
 
    void unit_test()
    {
+      {
+         const char data[] = "abc";
+         const std::span< const char > dynamic( data, 3 );
+         const std::span< const char, 3 > fixed( data, 3 );
+         plain_input plain( fixed );
+         TAO_PEGTL_TEST_ASSERT( plain.current() == data && plain.size() == 3 );
+         sourced_input sourced( "source", dynamic );
+         TAO_PEGTL_TEST_ASSERT( sourced.direct_source() == "source" );
+         TAO_PEGTL_TEST_ASSERT( sourced.current() == data && sourced.size() == 3 );
+         tracked_input tracked( "source", dynamic );
+         TAO_PEGTL_TEST_ASSERT( tracked.current() == data && tracked.size() == 3 );
+         base_input<> base( dynamic );
+         TAO_PEGTL_TEST_ASSERT( base.current() == data && base.size() == 3 );
+         plain_input empty( dynamic.first( 0 ) );
+         TAO_PEGTL_TEST_ASSERT( empty.empty() );
+      }
       {
          // Copying a mutable input must preserve its start as well as its cursor.
          using started_input = internal::input_with_start< internal::view_input< char > >;

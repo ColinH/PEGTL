@@ -217,7 +217,7 @@ The resulting DOT can be rendered with [Graphviz](https://graphviz.org/).
 ./my_parser '{"foo":[42,null]}' | dot -Tsvg -o parse_tree.svg
 ```
 
-The program [`src/example/json_ast.cpp`](../src/example/json_ast.cpp) demonstrates this with the included [JSON grammar](Example-Reference.md#jsonhpp).
+The program [`src/example/json_parse_tree.cpp`](../src/example/json_parse_tree.cpp) demonstrates this with the included [JSON grammar](Example-Reference.md#jsonhpp).
 
 
 ## Basic Tree Node

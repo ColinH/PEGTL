@@ -18,6 +18,8 @@ The rules related to [stream parsing](Stream-Parsing.md) are [documented here](S
 * [Exceptional](#exceptional)
 * [Controlling](#controlling)
 * [Compatibility](#compatibility)
+  * [Character Packs](#character-packs)
+  * [Intrusive Actions](#intrusive-actions)
 * [ICU Support](#icu-support)
   * [Basic ICU Rules](#basic-icu-rules)
   * [ICU Rules for Binary Properties](#icu-rules-for-binary-properties)
@@ -57,6 +59,18 @@ Remember that the default [control](Control-and-Normal.md) `tao::pegtl::normal` 
 The documentation will use [(template parameter) packs](https://en.cppreference.com/w/cpp/language/parameter_pack) when zero-or-more or one-or-more of a (template) parameter are allowed.
 For example `seq< R... >` accepts zero-or-more template parameters.
 In the zero case, i.e. `seq<>`, we also say `R` is "empty", otherwise `R` is "non-empty".
+
+#### String Literals
+
+The ASCII rules `string`, `istring`, `keyword`, `astring` and `aistring`, and the rule `raise_message`, take an ordinary string literal as template argument.
+For example `string< "hello" >` matches the five characters `hello`.
+In their descriptions `Text` denotes the string literal, and `C...` denotes its characters without the implicit terminating `'\0'`.
+A null-terminated `constexpr char` array can be used in the same way.
+
+The matching rules preserve embedded null bytes, e.g. `string< "a\0b" >` matches three bytes.
+There is no fixed 512-byte limit; the maximum length depends on the compiler's implementation limits.
+
+The [character-pack rules](#character-packs) provide the corresponding interfaces with individual `char` template arguments.
 
 #### End Of Line Rules
 
@@ -141,24 +155,35 @@ Note that the default behavior can be changed either by defining `TAO_PEGTL_DEFA
 
 ###### `function< F, P = void >`
 
-* Delegates matching to the function `F`.
-* The function `F` must return `bool`.
-* The function `F` can be `noexcept( true )` or `noexcept( false )`.
+* Delegates matching to the callable `F`, invoked with `std::invoke`.
+* `F` can be a function pointer, a member pointer, a captureless lambda or a structural callable object usable as a template argument.
+* The result of the invocation must be implicitly convertible to `bool`.
+* The callable can be `noexcept( true )` or `noexcept( false )`.
 
-| Rule form | Function signature | Behavior |
+| Rule form | Arguments | Behavior |
 | --- | --- | --- |
-| `function< F >` | `bool F( Input& )` | Calls `F` with the current input. The function is responsible for matching and consuming input. |
-| `function< F >` | `bool F( Input&, States... )` | Calls `F` with the current input and the current state objects. |
-| `function< F, P >` | `bool F( Data )` | Calls `P::peek( in )` and then `F` with the peeked data. |
-| `function< F, P >` | `bool F( Data, States... )` | Calls `P::peek( in )` and then `F` with the peeked data and the current state objects. |
+| `function< F >` | Input and all states | Calls `F` with the current input and the current state objects, if this invocation is supported. |
+| `function< F >` | Input only | Otherwise calls `F` with the current input, ignoring the states. |
+| `function< F, P >` | Peeked data and all states | Calls `P::peek( in )` and then `F` with the peeked data and the current state objects, if this invocation is supported. |
+| `function< F, P >` | Peeked data only | Otherwise calls `F` with the peeked data, ignoring the states. |
+
+State objects are passed as lvalues.
+At least one of the two invocations for the chosen rule form must be supported.
 
 When `P` is `void`, `F` is used as a [match function](Rules-and-Grammars.md#match-function) and receives the current input directly.
 This form should usually consume input only when returning `true`.
 When `P` is not `void`, it is used as peek implementation; if peeking succeeds and `F` returns `true`, the rule consumes the size reported by the peek result.
 For this peeked-data form, if peeking fails, or if `F` returns `false`, the rule returns `false` and consumes no input.
+The match function is `noexcept` when the invocation, its conversion to `bool`, and any peek and consume operations cannot throw.
+
+For example a lambda can be supplied directly as template argument:
+
+```c++
+using at_end = function< []( auto& in ) { return in.empty(); } >;
+```
 
 * [Meta data] and [implementation] mapping:
-  - `function< F, P >::rule_t` is `internal::function< P, decltype( F ), F >`
+  - `function< F, P >::rule_t` is `internal::function< P, F >`
   - `function< F, P >::subs_t` is `empty_list`
 
 ###### `invert< R >`
@@ -214,22 +239,22 @@ For example rules like `ascii::any` or `ascii::not_one< 'a' >` will match *all* 
 The rules [`any7`](#any7), [`many7`](#many7-num-), [`not_one7`](#not_one7-c-), [`not_ione7`](#not_ione7-c-) and [`not_range7`](#not_range7-c-d-) are like their respective counterparts without the trailing `7` but only match values that can be represented in 7 bits.
 
 It is possible to match UTF-8 multi-byte characters with the non-seven ASCII rules.
-For example the Euro sign code point `U+20AC`, which is encoded by the UTF-8 sequence `E2 82 AC`, is matched by both `ascii::string< 0xe2, 0x82, 0xac >` and `utf8::one< 0x20ac >`.
-On closer inspection one would find that both rules are implemented via `internal::ascii_string< 0xe2, 0x82, 0xac >`.
+For example the Euro sign code point `U+20AC`, which is encoded by the UTF-8 sequence `E2 82 AC`, is matched by both `ascii::string< "\xe2\x82\xac" >` and `utf8::one< 0x20ac >`.
+On closer inspection one would find that both rules are implemented via `internal::ascii_string< '\xe2', '\x82', '\xac' >`.
 
 These rules are in the *inline* namespace `tao::pegtl::ascii`.
 
-For all ASCII rules the template parameters representing characters are of type `char`.
+Except for the string-literal arguments, the ASCII template parameters representing characters are of type `char`.
 
-###### `aistring< P, C... >`
+###### `aistring< P, Text >`
 
-* [Similar to](Rules-and-Grammars.md#ascii-string-rules) `(ascii::)astring< P, C... >`, but:
+* [Similar to](Rules-and-Grammars.md#ascii-string-rules) `(ascii::)astring< P, Text >`, but:
 * For ASCII letters the match is case insensitive.
-* The `std::size_t P` must be between `0` and sizeof `C...`, excluding edges.
-* If the complete string `C...` matches, consumes that complete string.
-* Otherwise, if the first `P` characters of `C...` match, consumes those `P` characters.
+* The `std::size_t P` must be greater than `0` and less than the length of `Text`.
+* If the complete string `Text` matches, consumes that complete string.
+* Otherwise, if the first `P` characters of `Text` match, consumes those `P` characters.
 * [Meta data] and [implementation] mapping:
-  - `ascii::aistring< P, C... >::rule_t` is `internal::ascii_aistring< P, C... >`
+  - `ascii::aistring< P, Text >::rule_t` is `internal::ascii_aistring< P, C... >`
 
 ###### `alnum`
 
@@ -255,14 +280,14 @@ For all ASCII rules the template parameters representing characters are of type 
 * [Meta data] and [implementation] mapping:
   - `(ascii::)any7::rule_t` is `internal::any< internal::peek_seven >`
 
-###### `astring< P, C... >`
+###### `astring< P, Text >`
 
-* [Like](Rules-and-Grammars.md#ascii-string-rules) `(ascii::)string< C... >` but also matches one prefix of `C...`.
-* The `std::size_t P` must be between `0` and sizeof `C...`, excluding edges.
-* If the complete string `C...` matches, consumes that complete string.
-* Otherwise, if the first `P` characters of `C...` match, consumes those `P` characters.
+* [Like](Rules-and-Grammars.md#ascii-string-rules) `(ascii::)string< Text >` but also matches one prefix of `Text`.
+* The `std::size_t P` must be greater than `0` and less than the length of `Text`.
+* If the complete string `Text` matches, consumes that complete string.
+* Otherwise, if the first `P` characters of `Text` match, consumes those `P` characters.
 * [Meta data] and [implementation] mapping:
-  - `ascii::astring< P, C... >::rule_t` is `internal::ascii_astring< P, C... >`
+  - `ascii::astring< P, Text >::rule_t` is `internal::ascii_astring< P, C... >`
 
 ###### `bdigit`
 
@@ -307,7 +332,7 @@ For all ASCII rules the template parameters representing characters are of type 
 ###### `crlf`
 
 * Matches and consumes a carriage return followed by a line feed.
-* [Equivalent] to `(ascii::)string< '\r', '\n' >`.
+* [Equivalent] to `(ascii::)string< "\r\n" >`.
 * Also available in [the `lazy` sub-namespace].
 
 ###### `digit`
@@ -368,22 +393,22 @@ For all ASCII rules the template parameters representing characters are of type 
 * [Meta data] and [implementation] mapping:
   - `ascii::ione< C... >::rule_t` is `internal::ione< internal::peek_char, C... >`.
 
-###### `istring< C... >`
+###### `istring< Text >`
 
-* Similar to `(ascii::)string< C... >`, but:
+* Similar to `(ascii::)string< Text >`, but:
 * For ASCII letters the match is case insensitive.
 * [Meta data] and [implementation] mapping:
-  - `ascii::istring<>::rule_t` is `internal::success`
-  - `ascii::istring< C >::rule_t` is `internal::ione< internal::peek_char, C >`
-  - `ascii::istring< C... >::rule_t` is `internal::ascii_istring< C... >`
+  - `ascii::istring< "" >::rule_t` is `internal::success`
+  - `ascii::istring< Text >::rule_t` is `internal::ione< internal::peek_char, C >` when `Text` contains one character `C`
+  - `ascii::istring< Text >::rule_t` is `internal::ascii_istring< C... >` when `Text` contains two or more characters
 
-###### `keyword< C... >`
+###### `keyword< Text >`
 
 * Matches and consumes a non-empty string not followed by an identifier character.
-* [Equivalent] to `seq< (ascii::)string< C... >, not_at< (ascii::)identifier_other > >`.
-* `C` must be a non-empty character pack.
+* [Equivalent] to `seq< (ascii::)string< Text >, not_at< (ascii::)identifier_other > >`.
+* `Text` must be non-empty, e.g. `keyword< "private" >`.
 * [Meta data] and [implementation] mapping:
-  - `ascii::keyword< C... >::rule_t` is `internal::seq< internal::ascii_string< C... >, internal::not_at< internal::ranges< internal::peek_char, 'a', 'z', 'A', 'Z', '0', '9', '_' > > >`
+  - `ascii::keyword< Text >::rule_t` is `internal::seq< internal::ascii_string< C... >, internal::not_at< internal::ranges< internal::peek_char, 'a', 'z', 'A', 'Z', '0', '9', '_' > > >`
 
 ###### `lf`
 
@@ -535,7 +560,7 @@ For all ASCII rules the template parameters representing characters are of type 
 
 ###### `shebang`
 
-* [Equivalent] to `seq< (ascii::)string< '#', '!' >, until< eolf > >`.
+* [Equivalent] to `seq< (ascii::)string< "#!" >, until< eolf > >`.
 * [Meta data] and [implementation] mapping:
   - `ascii::shebang::rule_t` is `internal::seq< internal::ascii_string< '#', '!' >, internal::until< internal::eolf > >`
   - `ascii::shebang::subs_t` is `type_list< internal::ascii_string< '#', '!' >, internal::until< internal::eolf > >`
@@ -550,35 +575,16 @@ For all ASCII rules the template parameters representing characters are of type 
 * Matches and consumes a single space, line feed, carriage return, horizontal tab, vertical tab or form feed.
 * [Equivalent] to `(ascii::)one< ' ', '\n', '\r', '\t', '\v', '\f' >`.
 
-###### `string< C... >`
+###### `string< Text >`
 
-* Matches and consumes a string, a sequence of bytes or ASCII characters.
+* Matches and consumes the bytes or ASCII characters in the string literal `Text`.
+* For example `string< "foo" >` matches the three characters `foo`.
 * [Equivalent] to `seq< (ascii::)one< C >... >`.
+* The empty literal `""` always matches and consumes no input.
 * [Meta data] and [implementation] mapping:
-  - `ascii::string<>::rule_t` is `internal::success`
-  - `ascii::string< C >::rule_t` is `internal::one< internal::peek_char, C >`
-  - `ascii::string< C... >::rule_t` is `internal::ascii_string< C... >`
-
-###### `TAO_PEGTL_ISTRING( "..." )`
-
-* Macro where `TAO_PEGTL_ISTRING( "foo" )` yields `(ascii::)istring< 'f', 'o', 'o' >`.
-* The argument must be a string literal.
-* Works for strings up to 512 bytes of length (excluding trailing `'\0'`).
-* Strings may contain embedded `'\0'`.
-
-###### `TAO_PEGTL_KEYWORD( "..." )`
-
-* Macro where `TAO_PEGTL_KEYWORD( "foo" )` yields `(ascii::)keyword< 'f', 'o', 'o' >`.
-* The argument must be a string literal.
-* Works for keywords up to 512 bytes of length (excluding trailing `'\0'`).
-* Strings may contain embedded `'\0'`.
-
-###### `TAO_PEGTL_STRING( "..." )`
-
-* Macro where `TAO_PEGTL_STRING( "foo" )` yields `(ascii::)string< 'f', 'o', 'o' >`.
-* The argument must be a string literal.
-* Works for strings up to 512 bytes of length (excluding trailing `'\0'`).
-* Strings may contain embedded `'\0'`.
+  - `ascii::string< "" >::rule_t` is `internal::success`
+  - `ascii::string< Text >::rule_t` is `internal::one< internal::peek_char, C >` when `Text` contains one character `C`
+  - `ascii::string< Text >::rule_t` is `internal::ascii_string< C... >` when `Text` contains two or more characters
 
 ###### `three< C >`
 
@@ -968,24 +974,28 @@ The term *input value* indicates an integer or enum value of the appropriate siz
 
 The member rules apply their matching condition to a value derived from the next object in the input.
 
-The first template parameter to the member rules must be a member pointer, a member function pointer to a "getter" function, or a function pointer to a global "getter".
+The first template parameter to the member rules is a pointer to a data member, a member getter function, or a free getter function.
+For inputs representing sequences of objects of type `T`, extraction is performed as `std::invoke( M, object )` where `object` is a `const T&`.
 
-More precisely, for inputs representing sequences of objects of type `T`, the permissible types of the first template parameter `M` are as follows; the functions can be `noexcept( true )` or `noexcept( false )`.
+* A data-member pointer can name a `U`, `const U`, `U*`, `const U*`, `U* const` or `const U* const` member.
+* A member getter must be callable without arguments on a `const T&`, e.g. a `const` or `const &` qualified member function.
+* A free getter takes a `const T&`.
+* Getters can be `noexcept( true )` or `noexcept( false )`.
 
-* `U T::*` -- pointer to data member of type `U`.
-* `const U T::*` -- pointer to data member of type `const U`.
-* `U* T::*` -- pointer to data member of type `U*`.
-* `const U* T::*` -- pointer to data member of type `const U*`.
-* `U* const T::*` -- pointer to data member of type `U* const`.
-* `const U* const T::*` -- pointer to data member of type `const U* const`.
-* `U (T::*)() const` -- pointer to const member function that returns a `U`.
-* `const U& (T::*)() const` -- pointer to const member function that returns a `const U&`.
-* `const U* (T::*)() const` -- pointer to const member function that returns a `const U*`.
-* `U (*)( const T& )` -- pointer to function that takes a `const T&` and returns a `U`.
-* `const U& (*)( const T& )` -- pointer to function that takes a `const T&` and returns a `const U&`.
-* `const U* (*)( const T& )` -- pointer to function that takes a `const T&` and returns a `const U*`.
+The result determines how the extracted object is represented:
 
-Here `U` is assumed to be neither a pointer nor a reference type.
+| Result | Extracted type | Storage |
+| --- | --- | --- |
+| Value `U` | `U` | The peek result stores the value. |
+| Reference `U&`, `const U&` or `U&&` | `U` | The peek result refers to the returned object. |
+| Pointer `U*` or `const U*` | `U` | The peek result refers to the pointed-to object. A null pointer means no value is available. |
+
+Here `U` has no top-level cv-qualification and is neither a pointer nor a reference type.
+References and pointers must refer to objects that remain alive while the extracted value is used.
+The getter is only invoked when the requested input object exists.
+A null pointer causes extraction to fail, like end-of-input.
+Peeking itself does not consume input.
+
 Subsequent non-type template parameters, if any, must be of type `U` as that is the type of the object **extracted** from the next input object of type `T` on which the match condition is tested.
 
 The member rules are **not** automatically included with `<tao/pegtl.hpp>`.
@@ -995,11 +1005,10 @@ These rules are in namespace `tao::pegtl::member`.
 
 ###### `function< M, F >`
 
-* Apply the function `F` to the extracted object of type `U`.
-* The function `F` must take a `U` or `const U&` as first argument, and
-* if possible the function `F` is called with all State objects as additional arguments.
-* The function `F` must return a `bool` with the result of the match attempt.
-* The function `F` can be `noexcept( true )` or `noexcept( false )`.
+* Applies the callable `F` to the extracted object of type `U`.
+* Supports the same callable forms and state-argument selection as [`function< F, P >`](#function-f-p--void-).
+* The first argument is the extracted value, or a `const U&` for a reference or pointer result.
+* The invocation result must be implicitly convertible to `bool`.
 
 ###### `nested< M, R >`
 
@@ -1590,13 +1599,14 @@ Note that the `true` template parameter to `internal::if_must` corresponds to th
 * [Meta data] and [implementation] mapping:
   - `raise< T >::rule_t` is `internal::raise< T >`
 
-###### `raise_message< C... >`
+###### `raise_message< Text >`
 
-* Generates a *global failure* with the message given by `C...`.
-* Calls the control-class' `Control< raise_message< C... > >::raise()` static member function.
+* Generates a *global failure* with the message given by the string literal `Text`.
+* For example `raise_message< "expected value" >` raises with the message `expected value`.
+* Calls the control-class' `Control< raise_message< Text > >::raise()` static member function.
 * Does not consume input.
 * [Meta data] and [implementation] mapping:
-  - `raise_message< C... >::rule_t` is `internal::raise< raise_message< C... > >`
+  - `raise_message< Text >::rule_t` is `internal::raise< raise_message< Text > >`
 
 ###### `star_must< R, S... >`
 
@@ -1711,14 +1721,65 @@ Note that the `true` template parameter to `internal::if_must` corresponds to th
   - `try_catch_type_return_false< E, R... >::rule_t` is `internal::try_catch_return_false< E, internal::seq< R... > >`
   - `try_catch_type_return_false< E, R... >::subs_t` is `type_list< internal::seq< R... > >`
 
-###### `TAO_PEGTL_RAISE_MESSAGE( "..." )`
-
-* Macro where `TAO_PEGTL_RAISE_MESSAGE( "foo" )` yields `raise_message< 'f', 'o', 'o' >`.
-* The argument must be a string literal.
-* Works for strings up to 512 bytes of length (excluding trailing `'\0'`).
-
 
 ## Compatibility
+
+### Character Packs
+
+These rules provide character-pack counterparts of the ASCII string-literal rules and `raise_message`, under names ending in `_chars`.
+For example `string_chars< 'f', 'o', 'o' >` matches the same input as `string< "foo" >`.
+
+The character-pack and string-literal forms are distinct rule types.
+Action and control specializations for one form do not automatically apply to the other.
+The old string-literal macros and `pegtl_string.hpp` were removed.
+
+The matching rules are in the *inline* namespace `tao::pegtl::ascii`; `raise_message_chars` is in namespace `tao::pegtl`.
+
+###### `aistring_chars< P, C... >`
+
+* Character-pack form of `(ascii::)aistring< P, Text >`.
+* `P` must be greater than `0` and less than the number of characters in `C...`.
+* [Meta data] and [implementation] mapping:
+  - `ascii::aistring_chars< P, C... >::rule_t` is `internal::ascii_aistring< P, C... >`
+
+###### `astring_chars< P, C... >`
+
+* Character-pack form of `(ascii::)astring< P, Text >`.
+* `P` must be greater than `0` and less than the number of characters in `C...`.
+* [Meta data] and [implementation] mapping:
+  - `ascii::astring_chars< P, C... >::rule_t` is `internal::ascii_astring< P, C... >`
+
+###### `istring_chars< C... >`
+
+* Character-pack form of `(ascii::)istring< Text >`.
+* [Meta data] and [implementation] mapping:
+  - `ascii::istring_chars<>::rule_t` is `internal::success`
+  - `ascii::istring_chars< C >::rule_t` is `internal::ione< internal::peek_char, C >`
+  - `ascii::istring_chars< C... >::rule_t` is `internal::ascii_istring< C... >` for two or more characters
+
+###### `keyword_chars< C... >`
+
+* Character-pack form of `(ascii::)keyword< Text >`.
+* `C` must be a non-empty character pack.
+* Has the same `rule_t` and `subs_t` as the corresponding string-literal form.
+
+###### `raise_message_chars< C... >`
+
+* Character-pack form of `raise_message< Text >`.
+* Calls `Control< raise_message_chars< C... > >::raise()`.
+* Requires exception support.
+* [Meta data] and [implementation] mapping:
+  - `raise_message_chars< C... >::rule_t` is `internal::raise< raise_message_chars< C... > >`
+
+###### `string_chars< C... >`
+
+* Character-pack form of `(ascii::)string< Text >`.
+* [Meta data] and [implementation] mapping:
+  - `ascii::string_chars<>::rule_t` is `internal::success`
+  - `ascii::string_chars< C >::rule_t` is `internal::one< internal::peek_char, C >`
+  - `ascii::string_chars< C... >::rule_t` is `internal::ascii_string< C... >` for two or more characters
+
+### Intrusive Actions
 
 These rules replicate the intrusive way action invocations were part of the grammar in the PEGTL 0.x.
 
@@ -2096,7 +2157,8 @@ Convenience wrappers for enumerated properties that return a value instead of an
 ## Index
 
 * [`action< A, R... >`](#action-a-r-) <sup>[(controlling)](#controlling)</sup>
-* [`aistring< P, C... >`](#aistring-p-c-) <sup>[(ascii)](#ascii)</sup>
+* [`aistring< P, Text >`](#aistring-p-text-) <sup>[(ascii)](#ascii)</sup>
+* [`aistring_chars< P, C... >`](#aistring_chars-p-c-) <sup>[(compat)](#character-packs)</sup>
 * [`alnum`](#alnum) <sup>[(ascii)](#ascii)</sup>
 * [`alpha`](#alpha) <sup>[(ascii)](#ascii)</sup>
 * [`alphabetic`](#alphabetic) <sup>[(icu rules)](#icu-rules-for-binary-properties)</sup>
@@ -2107,7 +2169,8 @@ Convenience wrappers for enumerated properties that return a value instead of an
 * [`apply< A... >`](#apply-a-) <sup>[(compat)](#compatibility)</sup>
 * [`apply0< A... >`](#apply0-a-) <sup>[(compat)](#compatibility)</sup>
 * [`ascii_hex_digit`](#ascii_hex_digit) <sup>[(icu rules)](#icu-rules-for-binary-properties)</sup>
-* [`astring< P, C... >`](#astring-p-c-) <sup>[(ascii)](#ascii)</sup>
+* [`astring< P, Text >`](#astring-p-text-) <sup>[(ascii)](#ascii)</sup>
+* [`astring_chars< P, C... >`](#astring_chars-p-c-) <sup>[(compat)](#character-packs)</sup>
 * [`at< R... >`](#at-r-) <sup>[(combinators)](#combinators)</sup>
 * [`bidi_class< V >`](#bidi_class-v-) <sup>[(icu rules)](#icu-rules-for-enumerated-properties)</sup>
 * [`bidi_control`](#bidi_control) <sup>[(icu rules)](#icu-rules-for-binary-properties)</sup>
@@ -2181,11 +2244,13 @@ Convenience wrappers for enumerated properties that return a value instead of an
 * [`if_then_else< R, S, T >`](#if_then_else-r-s-t-) <sup>[(convenience)](#convenience)</sup>
 * [`invert< R >`](#invert-r-) <sup>[(atomic)](#atomic)</sup>
 * [`ione< C... >`](#ione-c-) <sup>[(ascii)](#ascii)</sup>
-* [`istring< C... >`](#istring-c-) <sup>[(ascii)](#ascii)</sup>
+* [`istring< Text >`](#istring-text-) <sup>[(ascii)](#ascii)</sup>
+* [`istring_chars< C... >`](#istring_chars-c-) <sup>[(compat)](#character-packs)</sup>
 * [`join_control`](#join_control) <sup>[(icu rules)](#icu-rules-for-binary-properties)</sup>
 * [`joining_group< V >`](#joining_group-v-) <sup>[(icu rules)](#icu-rules-for-enumerated-properties)</sup>
 * [`joining_type< V >`](#joining_type-v-) <sup>[(icu rules)](#icu-rules-for-enumerated-properties)</sup>
-* [`keyword< C... >`](#keyword-c-) <sup>[(ascii)](#ascii)</sup>
+* [`keyword< Text >`](#keyword-text-) <sup>[(ascii)](#ascii)</sup>
+* [`keyword_chars< C... >`](#keyword_chars-c-) <sup>[(compat)](#character-packs)</sup>
 * [`lead_canonical_combining_class< V >`](#lead_canonical_combining_class-v-) <sup>[(icu rules)](#icu-rules-for-value-properties)</sup>
 * [`lf`](#lf) <sup>[(ascii)](#ascii)</sup>
 * [`lf`](#lf-1) <sup>[(unicode)](#unicode)</sup>
@@ -2271,7 +2336,8 @@ Convenience wrappers for enumerated properties that return a value instead of an
 * [`quotation_mark`](#quotation_mark) <sup>[(icu rules)](#icu-rules-for-binary-properties)</sup>
 * [`radical`](#radical) <sup>[(icu rules)](#icu-rules-for-binary-properties)</sup>
 * [`raise< T >`](#raise-t-) <sup>[(exceptional)](#exceptional)</sup>
-* [`raise_message< C... >`](#raise_message-c-) <sup>[(exceptional)](#exceptional)</sup>
+* [`raise_message< Text >`](#raise_message-text-) <sup>[(exceptional)](#exceptional)</sup>
+* [`raise_message_chars< C... >`](#raise_message_chars-c-) <sup>[(compat)](#character-packs)</sup>
 * [`range< C, D >`](#range-c-d-) <sup>[(ascii)](#ascii)</sup>
 * [`range< C, D >`](#range-c-d--1) <sup>[(unicode)](#unicode)</sup>
 * [`range< C, D >`](#range-c-d--2) <sup>[(binary)](#binary)</sup>
@@ -2309,15 +2375,12 @@ Convenience wrappers for enumerated properties that return a value instead of an
 * [`star_strict< R... >`](#star_strict-r-) <sup>[(convenience)](#convenience)</sup>
 * [`state< S, R... >`](#state-s-r-) <sup>[(controlling)](#controlling)</sup>
 * [`strict< R... >`](#strict-r-) <sup>[(convenience)](#convenience)</sup>
-* [`string< C... >`](#string-c-) <sup>[(ascii)](#ascii)</sup>
-* [`string< C... >`](#string-c--1) <sup>[(unicode)](#unicode)</sup>
-* [`string< C... >`](#string-c--2) <sup>[(binary)](#binary)</sup>
+* [`string< Text >`](#string-text-) <sup>[(ascii)](#ascii)</sup>
+* [`string_chars< C... >`](#string_chars-c-) <sup>[(compat)](#character-packs)</sup>
+* [`string< C... >`](#string-c-) <sup>[(unicode)](#unicode)</sup>
+* [`string< C... >`](#string-c--1) <sup>[(binary)](#binary)</sup>
 * [`string< M, U... >`](#string-m-u-) <sup>[(member)](#member)</sup>
 * [`success`](#success) <sup>[(atomic)](#atomic)</sup>
-* [`TAO_PEGTL_ISTRING( "..." )`](#tao_pegtl_istring--) <sup>[(ascii)](#ascii)</sup>
-* [`TAO_PEGTL_KEYWORD( "..." )`](#tao_pegtl_keyword--) <sup>[(ascii)](#ascii)</sup>
-* [`TAO_PEGTL_RAISE_MESSAGE( "..." )`](#tao_pegtl_raise_message--) <sup>[(exceptional)](#exceptional)</sup>
-* [`TAO_PEGTL_STRING( "..." )`](#tao_pegtl_string--) <sup>[(ascii)](#ascii)</sup>
 * [`terminal_punctuation`](#terminal_punctuation) <sup>[(icu rules)](#icu-rules-for-binary-properties)</sup>
 * [`three< C >`](#three-c-) <sup>[(ascii)](#ascii)</sup>
 * [`trail_canonical_combining_class< V >`](#trail_canonical_combining_class-v-) <sup>[(icu rules)](#icu-rules-for-value-properties)</sup>

@@ -51,9 +51,8 @@ The included [grammar analysis](doc/Debug-Facilities.md#grammar-analysis) finds 
 
 ## Design
 
-The PEGTL is designed to be "lean and mean".
-The core library has around 12K lines of code.
-Emphasis is on simplicity and efficiency, putting a well-tuned *relatively* simple approach above overly complex optimizations.
+The PEGTL is designed to be "lean and mean", putting a well-tuned *relatively* simple approach above overly complex optimizations.
+Grammars and parsing rules are expressed in C++ as template instantiations, burdening the compiler with a lot of the optimizations.
 
 The PEGTL is mostly concerned with parsing combinators and grammar rules, and with giving the user of the library (the possibility of) full control over all other aspects of a parsing run.
 Whether/which [actions](doc/Actions-and-States.md) are taken, and whether/which data structures are created during a [parsing run](doc/Inputs-and-Parsing.md), is entirely up to the user.
@@ -63,22 +62,22 @@ Included are some [examples](doc/Example-Reference.md) for typical situations li
 Through the use of template programming and template specialisations it is possible to write a grammar once, and use it in multiple ways with different (semantic) actions in different (or the same) parsing runs.
 
 With the PEG formalism, the separation into lexer and parser stages is usually dropped -- everything is done in a single grammar.
-The parsing rules of grammars are expressed in C++ as template instantiations, and it is *mostly* the compiler's task to optimize PEGTL grammars.
+The PEGTL can however also be used to implement a tokenizer as well as for parsing sequences of arbitrary custom token objects.
 
 
-## Status
+## Quality
 
-Each commit is automatically tested with multiple architectures, operating systems, compilers, and versions thereof.
+An extensive test suite is run automatically on each push, running on multiple architectures, operating system, compilers, and versions thereof.
 
-Each commit is checked with the GCC and Clang [sanitizers](https://github.com/google/sanitizers), Clang's [Static Analyzer](https://clang-analyzer.llvm.org/), and [`clang-tidy`](http://clang.llvm.org/extra/clang-tidy/).
-Additionally, we use [CodeQL](https://securitylab.github.com/tools/codeql) to scan for (security) issues.
+The test suite is also run with the GCC and Clang [sanitizers](https://github.com/google/sanitizers), Clang's [Static Analyzer](https://clang-analyzer.llvm.org/), and [`clang-tidy`](http://clang.llvm.org/extra/clang-tidy/).
+Additionally, [CodeQL](https://securitylab.github.com/tools/codeql) is used to scan for (security) issues.
 
-Code coverage is automatically measured, for releases the unit tests cover 100% of the core library (with the caveat that coverage of C++ code, especially with many templates, is not an exact science.)
+[Releases](https://github.com/taocpp/PEGTL/releases) are done in accordance with [Semantic Versioning](http://semver.org/); incompatible changes to the public API are *only* allowed to occur with a new major version.
 
-[Releases](https://github.com/taocpp/PEGTL/releases) are done in accordance with [Semantic Versioning](http://semver.org/).
-Incompatible changes to the public API are *only* allowed to occur with a new major version.
+For releases the test suite covers 100% of the core library.
+To make up for the imprecision of code coverage measurements on C++ code with this many templates, AI is also used to verify full test coverage.
 
-For a stable experience please download [the latest release](https://github.com/taocpp/PEGTL/releases).
+For a stable experience please download [the latest release](https://github.com/taocpp/PEGTL/releases) instead of using the current state of development on the `main` branch.
 
 
 ## Contact

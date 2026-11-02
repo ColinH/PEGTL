@@ -218,6 +218,8 @@ public:
    [[nodiscard]] decltype( auto ) direct_position() const noexcept;
 ```
 
+The `direct_source()` and `direct_position()` accessors are only available when the corresponding const operations exist on the underlying parse input.
+
 The most obvious difference is that an action input has no `consume()` or other function to modify it in any way.
 
 The `begin()`, `end()`, `size()` and `empty()` functions are essentially like on a `std::array` or `std::vector`.

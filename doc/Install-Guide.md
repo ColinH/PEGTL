@@ -28,9 +28,9 @@ How to install the PEGTL, and verify and ensure that the system requirements are
 
 The PEGTL requires a C++20 enabled compiler like
 
-* GCC 11 with `--std=c++20`
-* Clang 13 with `--std=c++20`
-* Visual Studio 2022 with `/std:c++20`
+* GCC 12 with `--std=c++20`
+* Clang 16 with `--std=c++20`
+* Visual Studio 2025 with `/std:c++20`
 
 on the mainstream operating systems
 
@@ -62,7 +62,8 @@ Parsing rules that throw or catch exceptions and therefore require exception sup
  * `must<>`
  * `opt_must<>`
  * `raise<>`
- * `raise_message<>`
+ * `raise_message< Text >`
+ * `raise_message_chars< C... >`
  * `star_must<>`
  * `try_catch_any_raise_nested<>`
  * `try_catch_any_return_false<>`

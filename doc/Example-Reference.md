@@ -72,6 +72,10 @@ JSON pointer grammar according to [RFC 6901](https://tools.ietf.org/html/rfc6901
 
 Grammar for the [Lua](https://lua.org) [5.3](https://lua.org/manual/5.3/) scripting language that combines lexer and parser.
 
+###### [`open_metrics.hpp`](../include/tao/pegtl/example/open_metrics.hpp)
+
+Grammar for the [OpenMetrics](https://github.com/prometheus/OpenMetrics/blob/main/specification/OpenMetrics.md) text format exposition version 1.0.
+
 ###### [`proto3.hpp`](../include/tao/pegtl/example/proto3.hpp)
 
 Grammar for [Protocol Buffers (Proto3)](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec).
@@ -187,10 +191,6 @@ Parses its command line arguments.
 
 Performs a grammar analysis on the JSON [grammar](Example-Reference.md#jsonhpp) to check for problems.
 
-###### [`json_ast.cpp`](../src/example/json_ast.cpp)
-
-Combines the JSON [grammar](#jsonhpp) with the [parse tree](Parse-Tree.md) to build a generic data structure while parsing.
-
 ###### [`json_builder.cpp`](../src/example/json_builder.cpp)
 
 Combines the JSON [grammar](#jsonhpp) with a `std::variant`-based data structure using builder-style actions.
@@ -210,6 +210,10 @@ Combines the JSON [grammar](#jsonhpp) with the [rule coverage](Debug-Facilities.
 ###### [`json_parse.cpp`](../src/example/json_parse.cpp)
 
 Shows how to use the [custom error messages](Errors-and-Exceptions.md#custom-error-messages) defined in `json_errors.hpp` with the JSON [grammar](Example-Reference.md#jsonhpp) to parse command line arguments as JSON data.
+
+###### [`json_parse_tree.cpp`](../src/example/json_parse_tree.cpp)
+
+Combines the JSON [grammar](#jsonhpp) with the [parse tree](Parse-Tree.md) to build a generic data structure while parsing.
 
 ###### [`json_print_debug.cpp`](../src/example/json_print_debug.cpp)
 
@@ -255,6 +259,10 @@ $ build/bin/example/modulus_match a b c
    'b' is NOT a match
    'c' is a match
 ```
+
+###### [`open_metrics.cpp`](../src/exmaple/open_metrics.cpp)
+
+TODO
 
 ###### [`parse_tree.cpp`](../src/example/parse_tree.cpp)
 
@@ -393,12 +401,12 @@ Parses its command line arguments.
 * [`iri_struct.cpp`](#iri_structcpp) <sup>[(program)](#programs)</sup>
 * [`json.hpp`](#jsonhpp) <sup>[(grammar)](#grammars)</sup>
 * [`json_analyze.cpp`](#json_analyzecpp) <sup>[(program)](#programs)</sup>
-* [`json_ast.cpp`](#json_astcpp) <sup>[(program)](#programs)</sup>
 * [`json_builder.cpp`](#json_buildercpp) <sup>[(program)](#programs)</sup>
 * [`json_classes.cpp`](#json_classescpp) <sup>[(program)](#programs)</sup>
 * [`json_count.cpp`](#json_countcpp) <sup>[(program)](#programs)</sup>
 * [`json_coverage.cpp`](#json_coveragecpp) <sup>[(program)](#programs)</sup>
 * [`json_parse.cpp`](#json_parsecpp) <sup>[(program)](#programs)</sup>
+* [`json_parse_tree.cpp`](#json_parse_treecpp) <sup>[(program)](#programs)</sup>
 * [`json_pointer.hpp`](#json_pointerhpp) <sup>[(grammar)](#grammars)</sup>
 * [`json_print_debug.cpp`](#json_print_debugcpp) <sup>[(program)](#programs)</sup>
 * [`json_print_names.cpp`](#json_print_namescpp) <sup>[(program)](#programs)</sup>
