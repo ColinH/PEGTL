@@ -187,7 +187,6 @@ namespace TAO_PEGTL_NAMESPACE
          template< typename T >
          void shift( T& it, int delta )
          {
-            it.line += delta;
             it.column += delta;
             it.count += delta;
          }
@@ -238,8 +237,8 @@ namespace TAO_PEGTL_NAMESPACE
 
          struct quoted_string_cont : until< DQUOTE, print > {};
          struct quoted_string : seq< DQUOTE, quoted_string_cont > {};
-         struct case_insensitive_string : seq< opt< istring< '%', 'i' > >, quoted_string > {};
-         struct case_sensitive_string : seq< istring< '%', 's' >, quoted_string > {};
+         struct case_insensitive_string : seq< opt< istring< "%i" > >, quoted_string > {};
+         struct case_sensitive_string : seq< istring< "%s" >, quoted_string > {};
          struct char_val : sor< case_insensitive_string, case_sensitive_string > {};
 
          struct prose_val_cont : until< one< '>' >, print > {};
@@ -251,7 +250,7 @@ namespace TAO_PEGTL_NAMESPACE
             struct value : plus< Digit > {};
             struct range : seq< one< '-' >, value > {};
             struct next_value : seq< value > {};
-            struct type : seq< istring< First >, value, sor< range, star< one< '.' >, next_value > > > {};
+            struct type : seq< istring_chars< First >, value, sor< range, star< one< '.' >, next_value > > > {};
          };
 
          using hex_val = gen_val< 'x', HEXDIG >;
@@ -279,7 +278,7 @@ namespace TAO_PEGTL_NAMESPACE
          struct concatenation : list< predicate, plus< c_wsp > > {};
          struct alternation : list< concatenation, pad< one< '/' >, c_wsp > > {};
 
-         struct defined_as_op : sor< string< '=', '/' >, one< '=' > > {};
+         struct defined_as_op : sor< string< "=/" >, one< '=' > > {};
          struct defined_as : pad< defined_as_op, c_wsp > {};
          struct rule : seq< seq< rulename, defined_as, alternation >, star< c_wsp >, req_c_nl > {};
          struct rulelist : until< eof, sor< seq< star< c_wsp >, c_nl >, rule > > {};
@@ -388,6 +387,8 @@ namespace TAO_PEGTL_NAMESPACE
          {
             shift( n->begin, 1 );
             shift( n->end, -1 );
+            n->data.remove_prefix( 1 );
+            n->data.remove_suffix( 1 );
 
             const auto content = n->data;
             for( const auto c : content ) {
@@ -476,7 +477,7 @@ namespace TAO_PEGTL_NAMESPACE
             if( n->children.size() == 1 ) {
                return prefix + "one< " + to_string( n->children ) + " >";
             }
-            return prefix + "string< " + to_string( n->children ) + " >";
+            return prefix + "string_chars< " + to_string( n->children ) + " >";
          }
 
          struct ccmp
@@ -611,7 +612,7 @@ namespace TAO_PEGTL_NAMESPACE
             for( const auto c : content ) {
                append_char( s, c );
             }
-            return prefix + "string< " + s + " >";
+            return prefix + "string_chars< " + s + " >";
          } );
 
          nrv.add< istring_tag >( []( const node_ptr& n ) {
@@ -620,7 +621,7 @@ namespace TAO_PEGTL_NAMESPACE
             for( const auto c : content ) {
                append_char( s, c );
             }
-            return prefix + "istring< " + s + " >";
+            return prefix + "istring_chars< " + s + " >";
          } );
 
          nrv.add< one_tag >( []( const node_ptr& n ) {

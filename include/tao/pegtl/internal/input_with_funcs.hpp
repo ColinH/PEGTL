@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <span>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -62,24 +63,29 @@ namespace TAO_PEGTL_NAMESPACE::internal
          return peek_as< std::uint8_t >( offset );
       }
 
-      // [[nodiscard]] std::span< data_t > span() const noexcept  // TODO: With C++20.
-
       [[nodiscard]] std::string string() const
-         requires requires( const Input& in ) {
-            static_cast< const char* >( in.current() );
-            in.size();
-         }
+         requires requires( const Input& in )
       {
-         return std::string( static_cast< const char* >( this->current() ), this->size() );
+         static_cast< const char* >( in.current() );
+         in.size();
+      }
+      {
+         return { static_cast< const char* >( this->current() ), this->size() };
       }
 
       [[nodiscard]] std::string_view string_view() const noexcept
-         requires requires( const Input& in ) {
-            static_cast< const char* >( in.current() );
-            in.size();
-         }
+         requires requires( const Input& in )
       {
-         return std::string_view( static_cast< const char* >( this->current() ), this->size() );
+         static_cast< const char* >( in.current() );
+         in.size();
+      }
+      {
+         return { static_cast< const char* >( this->current() ), this->size() };
+      }
+
+      [[nodiscard]] std::span< const data_t > span() const noexcept
+      {
+         return { this->current(), this->siez() };
       }
 
       [[nodiscard]] std::vector< data_t > vector() const
@@ -87,10 +93,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
             in.size();
          }
       {
-         return std::vector< data_t >( this->current(), this->current() + this->size() );
+         return { this->current(), this->current() + this->size() };
       }
-
-      // TODO: Add span() with C++20.
 
       template< typename Position >
       [[nodiscard]] std::string_view line_view_at( const Position& pos )

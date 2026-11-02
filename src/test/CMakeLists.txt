@@ -48,6 +48,7 @@ set(test_sources
   ascii_ranges.cpp
   ascii_shebang.cpp
   ascii_string.cpp
+  ascii_string_literals.cpp
   ascii_three.cpp
   ascii_two.cpp
   base_empty.cpp
@@ -153,6 +154,7 @@ set(test_sources
   internal_constraints.cpp
   internal_copy_input.cpp
   internal_data_and_size.cpp
+  internal_deliver.cpp
   internal_endian.cpp
   internal_extract_position.cpp
   internal_file_input.cpp

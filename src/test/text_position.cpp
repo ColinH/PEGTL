@@ -160,11 +160,11 @@ namespace TAO_PEGTL_NAMESPACE
       test_matches_lf< one< ' ', '\n', 'b' > >();
       test_matches_other< one< ' ', '\n', 'b' > >( " " );
 
-      test_matches_lf< string< '\n' > >();
-      test_mismatch< string< '\n' > >( " " );
+      test_matches_lf< string< "\n" > >();
+      test_mismatch< string< "\n" > >( " " );
 
-      test_matches_other< string< ' ' > >( " " );
-      test_mismatch< string< ' ' > >( "\n" );
+      test_matches_other< string< " " > >( " " );
+      test_mismatch< string< " " > >( "\n" );
 
       test_matches_lf< range< 8, 33 > >();
       test_matches_other< range< 8, 33 > >( " " );

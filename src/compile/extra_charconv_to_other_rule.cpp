@@ -22,7 +22,7 @@ struct rule
 {};
 #else
 struct rule
-   : pegtl::string< '4', '2' >
+   : pegtl::string< "42" >
 {};
 #endif
 

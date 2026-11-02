@@ -9,11 +9,11 @@
 namespace pegtl = TAO_PEGTL_NAMESPACE;
 
 #if TAO_PEGTL_COMPILE_ACCEPT
-using rule = pegtl::keyword< 'i', 'f' >;
+using rule = pegtl::keyword< "if" >;
 #else
-// include/tao/pegtl/ascii.hpp
+// include/tao/pegtl/internal/ascii_keyword.hpp
 // static_assert( sizeof...( Cs ) > 0 );
-using rule = pegtl::keyword<>;
+using rule = pegtl::keyword< "" >;
 #endif
 
 int main()

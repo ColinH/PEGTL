@@ -21,29 +21,29 @@ namespace TAO_PEGTL_NAMESPACE::internal
       static_assert( !std::is_reference_v< Data > );
       static_assert( !std::is_member_pointer_v< Data > );
 
-      data_and_size() noexcept = default;  // NOLINT(cppcoreguidelines-pro-type-member-init)
+      constexpr data_and_size() noexcept = default;  // NOLINT(cppcoreguidelines-pro-type-member-init)
 
-      data_and_size( const Data d, const Size s ) noexcept
+      constexpr data_and_size( const Data d, const Size s ) noexcept
          : m_data( d ),
            m_size( s )
       {}
 
-      [[nodiscard]] bool empty() const noexcept
+      [[nodiscard]] constexpr bool empty() const noexcept
       {
          return m_size == 0;
       }
 
-      [[nodiscard]] Size size() const noexcept
+      [[nodiscard]] constexpr Size size() const noexcept
       {
          return m_size;
       }
 
-      [[nodiscard]] Data data() const noexcept
+      [[nodiscard]] constexpr Data data() const noexcept
       {
          return m_data;
       }
 
-      [[nodiscard]] explicit operator bool() const noexcept
+      [[nodiscard]] constexpr explicit operator bool() const noexcept
       {
          return !empty();
       }
@@ -61,33 +61,33 @@ namespace TAO_PEGTL_NAMESPACE::internal
       static_assert( !std::is_reference_v< Data > );
       static_assert( !std::is_member_pointer_v< Data > );
 
-      data_and_size() noexcept = default;
+      constexpr data_and_size() noexcept = default;
 
-      explicit data_and_size( const Data* d ) noexcept
+      constexpr explicit data_and_size( const Data* d ) noexcept
          : m_data( d )
       {}
 
-      [[nodiscard]] bool empty() const noexcept
+      [[nodiscard]] constexpr bool empty() const noexcept
       {
          return m_data == nullptr;
       }
 
-      [[nodiscard]] std::size_t size() const noexcept
+      [[nodiscard]] constexpr std::size_t size() const noexcept
       {
          return empty() ? 0 : 1;
       }
 
-      [[nodiscard]] const Data& data() const noexcept
+      [[nodiscard]] constexpr const Data& data() const noexcept
       {
          return *m_data;
       }
 
-      [[nodiscard]] const Data* pointer() const noexcept
+      [[nodiscard]] constexpr const Data* pointer() const noexcept
       {
          return m_data;
       }
 
-      [[nodiscard]] explicit operator bool() const noexcept
+      [[nodiscard]] constexpr explicit operator bool() const noexcept
       {
          return !empty();
       }

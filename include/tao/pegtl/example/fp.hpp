@@ -22,10 +22,10 @@ namespace TAO_PEGTL_NAMESPACE::fp
    struct dot : one< '.' > {};
    struct sign : opt< one< '+', '-' > > {};
 
-   struct inf : aistring< 3, 'i', 'n', 'f', 'i', 'n', 'i', 't', 'y' > {};
+   struct inf : aistring< 3, "infinity" > {};
 
    struct payload : plus< identifier_other > {};
-   struct nan : seq< istring< 'n', 'a', 'n' >, opt< one< '(' >, payload, one< ')' > > > {};
+   struct nan : seq< istring< "nan" >, opt< one< '(' >, payload, one< ')' > > > {};
 
    template< typename D >
    struct numeric : if_then_else< dot,

@@ -30,11 +30,11 @@ namespace TAO_PEGTL_NAMESPACE::open_metrics
    struct CLOSE : one< '}' > {};
    struct COMMA : one< ',' > {};
 
-   struct type : string< 'T', 'Y', 'P', 'E' > {};
-   struct help : string< 'H', 'E', 'L', 'P' > {};
-   struct unit : string< 'U', 'N', 'I', 'T' > {};
+   struct type : string< "TYPE" > {};
+   struct help : string< "HELP" > {};
+   struct unit : string< "UNIT" > {};
 
-   struct trailer : seq< HASH, SP, string< 'E', 'O', 'F' >, eolf, eof > {};
+   struct trailer : seq< HASH, SP, string< "EOF" >, eolf, eof > {};
 
    struct normal_char : utf8::not_one< '\n', '\\', '"' > {};
    struct backslash_char : utf8::not_one< '\n' > {};
@@ -48,8 +48,8 @@ namespace TAO_PEGTL_NAMESPACE::open_metrics
    struct exemplar_label_name : identifier {};
    struct sample_label_name : identifier {};
 
-   struct nan : istring< 'n', 'a', 'n' > {};
-   struct infinity : aistring< 3, 'i', 'n', 'f', 'i', 'n', 'i', 't', 'y' > {};
+   struct nan : istring< "nan" > {};
+   struct infinity : aistring< 3, "infinity" > {};
 
    struct exponent : seq< ione< 'e' >, opt< SIGN >, plus< digit > > {};
    struct real_number_1 : seq< plus< digit >, opt< DOT, star< digit > >, opt< exponent > > {};
@@ -63,14 +63,14 @@ namespace TAO_PEGTL_NAMESPACE::open_metrics
    struct exemplar_timestamp : real_number {};
    struct sample_timestamp : real_number {};
 
-   struct counter : string< 'c', 'o', 'u', 'n', 't', 'e', 'r' > {};
-   struct gauge : string< 'g', 'a', 'u', 'g', 'e' > {};
-   struct histogram : string< 'h', 'i', 's', 't', 'o', 'g', 'r', 'a', 'm' > {};
-   struct gaugehistogram : string< 'g', 'a', 'u', 'g', 'e', 'h', 'i', 's', 't', 'o', 'g', 'r', 'a', 'm' > {};
-   struct stateset : string< 's', 't', 'a', 't', 'e', 's', 'e', 't' > {};
-   struct info : string< 'i', 'n', 'f', 'o' > {};
-   struct summary : string< 's', 'u', 'm', 'm', 'a', 'r', 'y' > {};
-   struct unknown : string< 'u', 'n', 'k', 'n', 'o', 'w', 'n' > {};
+   struct counter : string< "counter" > {};
+   struct gauge : string< "gauge" > {};
+   struct histogram : string< "histogram" > {};
+   struct gaugehistogram : string< "gaugehistogram" > {};
+   struct stateset : string< "stateset" > {};
+   struct info : string< "info" > {};
+   struct summary : string< "summary" > {};
+   struct unknown : string< "unknown" > {};
    struct metric_type : sor< counter, gaugehistogram, gauge, histogram, stateset, info, summary, unknown > {};
 
    struct metric_name_char : sor< alnum, one< ':', '_' > > {};

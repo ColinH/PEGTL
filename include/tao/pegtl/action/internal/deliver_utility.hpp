@@ -42,41 +42,25 @@ namespace TAO_PEGTL_NAMESPACE::internal
       : delivery_traits_base< C, T >
    {};
 
-#if defined( __GNUC__ ) || defined( __clang__ )
-
-   template< bool N, typename C, typename... Ts >
-   struct delivery_traits< void ( * )( C&, Ts... ) noexcept( N ) >
-      : delivery_traits_base< C, Ts... >
-   {};
-
-   template< bool N, typename C, typename... Ts >
-   struct delivery_traits< void ( C::* )( Ts... ) noexcept( N ) >
-      : delivery_traits_base< C, Ts... >
-   {};
-
-#else  // MSVC can't deduce the N in template< bool N ..... noexcept( N ) >
-
    template< typename C, typename... Ts >
-   struct delivery_traits< void ( * )( C&, Ts... ) noexcept( true ) >
+   struct delivery_traits< void ( * )( C&, Ts... ) >
       : delivery_traits_base< C, Ts... >
    {};
 
    template< typename C, typename... Ts >
-   struct delivery_traits< void ( * )( C&, Ts... ) noexcept( false ) >
+   struct delivery_traits< void ( C::* )( Ts... ) >
       : delivery_traits_base< C, Ts... >
    {};
 
    template< typename C, typename... Ts >
-   struct delivery_traits< void ( C::* )( Ts... ) noexcept( true ) >
-      : delivery_traits_base< C, Ts... >
+   struct delivery_traits< void ( * )( C&, Ts... ) noexcept >
+      : delivery_traits< void ( * )( C&, Ts... ) >
    {};
 
    template< typename C, typename... Ts >
-   struct delivery_traits< void ( C::* )( Ts... ) noexcept( false ) >
-      : delivery_traits_base< C, Ts... >
+   struct delivery_traits< void ( C::* )( Ts... ) noexcept >
+      : delivery_traits< void ( C::* )( Ts... ) >
    {};
-
-#endif
 
    template< auto S >
    using delivery_traits_t = delivery_traits< decltype( S ) >;

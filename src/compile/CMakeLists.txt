@@ -40,6 +40,7 @@ set(compile_sources
   parse_const_input.cpp
   parse_nested_const_input.cpp
   position_with_source.cpp
+  rule_function_result.cpp
   rule_ione.cpp
   rule_keyword.cpp
   rule_not_ione.cpp

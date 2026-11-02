@@ -156,8 +156,8 @@ namespace TAO_PEGTL_NAMESPACE
       : analyze_any_traits<>
    {};
 
-   template< typename Name, typename Peek, typename Func, Func Tion >
-   struct analyze_traits< Name, internal::function< Peek, Func, Tion > >
+   template< typename Name, typename Peek, auto Function >
+   struct analyze_traits< Name, internal::function< Peek, Function > >
    {
       static_assert( internal::dependent_false< Name >, "We cannot analyze function!" );
    };

@@ -12,7 +12,7 @@ namespace pegtl = TAO_PEGTL_NAMESPACE;
 namespace example
 {
    // clang-format off
-   struct prefix : pegtl::string< 'H', 'e', 'l', 'l', 'o', ',', ' ' > {};
+   struct prefix : pegtl::string< "Hello, " > {};
    struct name : pegtl::plus< pegtl::alpha > {};
    struct grammar : pegtl::seq< prefix, name, pegtl::one< '!' >, pegtl::eof > {};
    // clang-format on

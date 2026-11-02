@@ -15,6 +15,7 @@
 
 #include "config.hpp"
 
+#include "internal/fixed_string.hpp"
 #include "internal/rules.hpp"
 
 namespace TAO_PEGTL_NAMESPACE
@@ -35,7 +36,7 @@ namespace TAO_PEGTL_NAMESPACE
    struct eolf : internal::eolf {};
    struct everything : internal::everything {};
    struct failure : internal::failure {};
-   template< auto Function, typename Peek = void > struct function : internal::function< Peek, decltype( Function ), Function > {};
+   template< auto Function, typename Peek = void > struct function : internal::function< Peek, Function > {};
    template< typename Rule, typename... Actions > struct if_apply : internal::if_apply< Rule, Actions... > {};
    template< typename Cond, typename Then, typename Else > struct if_then_else : internal::if_then_else< Cond, Then, Else > {};
    template< typename Rule > struct invert : internal::invert_traits< typename Rule::rule_t >::type {};
@@ -84,7 +85,10 @@ namespace TAO_PEGTL_NAMESPACE
    template< typename... Rules > struct must : internal::must< Rules... > {};
    template< typename Cond, typename... Rules > struct opt_must : internal::if_must< true, Cond, Rules... > {};
    template< typename Exception > struct raise : internal::raise< Exception > {};
-   template< char... Cs > struct raise_message : internal::raise< raise_message< Cs... > > {
+   template< internal::fixed_string Text > struct raise_message : internal::raise< raise_message< Text > > {
+      static constexpr auto& error_message = Text.data;
+   };
+   template< char... Cs > struct raise_message_chars : internal::raise< raise_message_chars< Cs... > > {
       static constexpr const char error_message[] = { Cs..., 0 };
    };
    template< typename Cond, typename... Rules > struct star_must : internal::star_must< Cond, Rules... > {};

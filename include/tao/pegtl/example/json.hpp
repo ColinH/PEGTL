@@ -29,9 +29,9 @@ namespace TAO_PEGTL_NAMESPACE::json
    struct name_separator : pad< one< ':' >, ws > {};
    struct value_separator : padr< one< ',' > > {};
 
-   struct false_ : string< 'f', 'a', 'l', 's', 'e' > { using case_t = one< 'f' >; };  // NOLINT(readability-identifier-naming)
-   struct null : string< 'n', 'u', 'l', 'l' > { using case_t = one< 'n' >; };
-   struct true_ : string< 't', 'r', 'u', 'e' > { using case_t = one< 't' >; };  // NOLINT(readability-identifier-naming)
+   struct false_ : string< "false" > { using case_t = one< 'f' >; };  // NOLINT(readability-identifier-naming)
+   struct null : string< "null" > { using case_t = one< 'n' >; };
+   struct true_ : string< "true" > { using case_t = one< 't' >; };  // NOLINT(readability-identifier-naming)
 
    struct digits : plus< digit > {};
    struct exp : seq< one< 'e', 'E' >, opt< one< '-', '+' > >, digits > {};

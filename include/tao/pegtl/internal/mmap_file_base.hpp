@@ -13,6 +13,7 @@
 #endif
 
 #include <filesystem>
+#include <span>
 
 #include "../config.hpp"
 #include "../system.hpp"
@@ -61,6 +62,12 @@ namespace TAO_PEGTL_NAMESPACE::internal
       [[nodiscard]] const Data* mmap_file_data() const noexcept
       {
          return reinterpret_cast< const Data* >( m_mmap_data.data() );
+      }
+
+      template< typename Data >
+      [[nodiscard]] std::span< const Data > mmap_file_span() const
+      {
+         return { mmap_file_data< Data >(), mmap_file_size< Data >() };
       }
 
    protected:

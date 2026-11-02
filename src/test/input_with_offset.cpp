@@ -11,8 +11,8 @@ namespace TAO_PEGTL_NAMESPACE
 {
    const std::string data = "foo\nbar";
 
-   using rule1 = seq< string< 'f', 'o', 'o' >, eol >;
-   using rule2 = seq< string< 'b', 'a', 'r' >, eof >;
+   using rule1 = seq< string< "foo" >, eol >;
+   using rule2 = seq< string< "bar" >, eof >;
 
    void test_count_offset()
    {

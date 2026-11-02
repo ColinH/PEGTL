@@ -20,13 +20,13 @@ namespace TAO_PEGTL_NAMESPACE
    struct E : star< A, B > {};
    struct F : seq< E > {};
 
-   struct rematch_head : string< 'a', '\n', 'b' > {};
+   struct rematch_head : string< "a\nb" > {};
    struct rematch_a : one< 'a' > {};
    struct rematch_b : one< 'b' > {};
    struct rematch_check : seq< rematch_a, eol, rematch_b, eof > {};
    struct rematch_grammar : rematch< rematch_head, rematch_check > {};
 
-   struct rematch_test_kw : TAO_PEGTL_KEYWORD( "test" ) {};
+   struct rematch_test_kw : keyword< "test" > {};
    struct rematch_keyword : sor< rematch_test_kw > {};
    struct rematch_identifier : plus< alpha > {};
    struct rematch_identifier_minus_keyword : minus< rematch_identifier, rematch_keyword > {};

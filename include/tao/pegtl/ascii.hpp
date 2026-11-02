@@ -9,6 +9,7 @@
 
 #include "config.hpp"
 
+#include "internal/fixed_string.hpp"
 #include "internal/peek_direct.hpp"
 #include "internal/peek_seven.hpp"
 #include "internal/rules.hpp"
@@ -53,15 +54,20 @@ namespace TAO_PEGTL_NAMESPACE
       struct identifier_first : internal::identifier_first< internal::peek_char > {};
       struct identifier_other : internal::identifier_other< internal::peek_char > {};
       struct identifier : internal::identifier< internal::peek_char > {};
-      template< char... Cs > struct keyword : internal::seq< internal::ascii_string< Cs... >, internal::not_at< internal::identifier_other< internal::peek_char > > > { static_assert( sizeof...( Cs ) > 0 ); };
+      template< internal::fixed_string Text > struct keyword : internal::string_to_chars< Text >::template apply< internal::ascii_keyword > {};
+      template< char... Cs > struct keyword_chars : internal::ascii_keyword< Cs... > {};
       struct shebang : internal::seq< internal::ascii_string< '#', '!' >, internal::until< internal::eolf > > {};
 
       struct any : internal::any< internal::peek_char > {};
-      template< std::size_t Prefix, char... Cs > struct astring : internal::ascii_astring< Prefix, Cs... > {};
-      template< std::size_t Prefix, char... Cs > struct aistring : internal::ascii_aistring< Prefix, Cs... > {};
-      template< char... Cs > struct istring : internal::ascii_istring< Cs... > {};
+      template< std::size_t Prefix, internal::fixed_string Text > struct astring : internal::string_to_chars< Text >::template apply_prefix< internal::ascii_astring, Prefix > {};
+      template< std::size_t Prefix, char... Cs > struct astring_chars : internal::ascii_astring< Prefix, Cs... > {};
+      template< std::size_t Prefix, internal::fixed_string Text > struct aistring : internal::string_to_chars< Text >::template apply_prefix< internal::ascii_aistring, Prefix > {};
+      template< std::size_t Prefix, char... Cs > struct aistring_chars : internal::ascii_aistring< Prefix, Cs... > {};
+      template< internal::fixed_string Text > struct istring : internal::string_to_chars< Text >::template apply< internal::ascii_istring > {};
+      template< char... Cs > struct istring_chars : internal::ascii_istring< Cs... > {};
       template< std::size_t Count > struct many : internal::many< Count, internal::peek_char > {};
-      template< char... Cs > struct string : internal::ascii_string< Cs... > {};
+      template< internal::fixed_string Text > struct string : internal::string_to_chars< Text >::template apply< internal::ascii_string > {};
+      template< char... Cs > struct string_chars : internal::ascii_string< Cs... > {};
       template< char C > struct three : internal::ascii_string< C, C, C > {};
       template< char C > struct two : internal::ascii_string< C, C > {};
 

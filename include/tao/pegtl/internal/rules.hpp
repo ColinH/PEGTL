@@ -12,6 +12,7 @@
 #include "ascii_aistring.hpp"
 #include "ascii_astring.hpp"
 #include "ascii_istring.hpp"
+#include "ascii_keyword.hpp"
 #include "ascii_string.hpp"
 #include "at.hpp"
 #include "bof.hpp"

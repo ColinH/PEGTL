@@ -28,7 +28,7 @@ namespace example
    struct list_comment : pegtl::if_must< pegtl::at< pegtl::one< '(' > >, pegtl::disable< list > > {};
 
    struct read_include : pegtl::seq< pegtl::one< ' ' >, pegtl::one< '"' >, pegtl::star< pegtl::not_one7< '"' > >, pegtl::one< '"' > > {};
-   struct hash_include : pegtl::if_must< pegtl::string< 'i', 'n', 'c', 'l', 'u', 'd', 'e' >, read_include > {};
+   struct hash_include : pegtl::if_must< pegtl::string< "include" >, read_include > {};
 
    struct hashed : pegtl::if_must< pegtl::one< '#' >, pegtl::sor< hash_include, list_comment, hash_comment > > {};
 

@@ -13,7 +13,7 @@
 namespace TAO_PEGTL_NAMESPACE::member
 {
    // clang-format off
-   template< auto M, auto Function > struct function : internal::function< internal::peek_member< M >, decltype( Function ), Function > {};
+   template< auto M, auto Function > struct function : internal::function< internal::peek_member< M >, Function > {};
    template< auto M, typename Rule > struct nested : internal::nested< internal::peek_member< M >, Rule > {};
    template< auto M, internal::peek_member< M >::data_t E, decltype( E )... Es > struct string : internal::seq_one< internal::peek_member< M >, E, Es... > {};
 

@@ -30,7 +30,7 @@ namespace example
    // Implementation that implicitly uses the C++ call stack.
 
    struct type_2_recursive
-      : pegtl::sor< pegtl::string< 'a', 'b' >, pegtl::seq< pegtl::one< 'a' >, type_2_recursive, pegtl::one< 'b' > > >
+      : pegtl::sor< pegtl::string< "ab" >, pegtl::seq< pegtl::one< 'a' >, type_2_recursive, pegtl::one< 'b' > > >
    {};
 
    // Implementation that uses state instead of recursion, an

@@ -71,7 +71,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
       const std::size_t m_chunk;
       const std::unique_ptr< Data[] > m_data;
 
-      Reader m_reader;
+      [[no_unique_address]] Reader m_reader;
    };
 
 }  // namespace TAO_PEGTL_NAMESPACE::internal

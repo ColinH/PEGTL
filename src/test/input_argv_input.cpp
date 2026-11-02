@@ -15,10 +15,10 @@ namespace TAO_PEGTL_NAMESPACE
       char* argv[] = { data, data + 4, data + 8 };
       argv_input< scan::lf > in( argv, 1 );
       TAO_PEGTL_TEST_ASSERT( in.direct_source() == "argv[1]" );
-      const bool r1 = parse< string< 'b', 'a', 'r' > >( in );
+      const bool r1 = parse< string< "bar" > >( in );
       TAO_PEGTL_TEST_ASSERT( r1 );
       argv_input< void, void > i2( argv, 2 );
-      const bool r2 = parse< string< 'b', 'a', 'z' > >( i2 );
+      const bool r2 = parse< string< "baz" > >( i2 );
       TAO_PEGTL_TEST_ASSERT( r2 );
    }
 

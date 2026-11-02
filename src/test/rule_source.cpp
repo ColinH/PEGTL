@@ -10,7 +10,7 @@
 
 namespace TAO_PEGTL_NAMESPACE
 {
-   using source_grammar = seq< string< 'f', 'o', 'o' >, eof >;
+   using source_grammar = seq< string< "foo" >, eof >;
 
    template< typename Source >
    void test_source_success( const Source& name )

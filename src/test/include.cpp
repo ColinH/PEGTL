@@ -23,7 +23,6 @@
 #include <tao/pegtl/normal.hpp>
 #include <tao/pegtl/nothing.hpp>
 #include <tao/pegtl/parse.hpp>
-#include <tao/pegtl/pegtl_string.hpp>
 #include <tao/pegtl/pointer_position.hpp>
 #include <tao/pegtl/position_with_source.hpp>
 #include <tao/pegtl/read_input.hpp>

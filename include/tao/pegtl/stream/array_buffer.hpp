@@ -66,7 +66,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
    protected:
       std::array< Data, Size > m_data;
 
-      Reader m_reader;
+      [[no_unique_address]] Reader m_reader;
    };
 
 }  // namespace TAO_PEGTL_NAMESPACE::internal

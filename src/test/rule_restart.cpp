@@ -23,7 +23,7 @@ namespace TAO_PEGTL_NAMESPACE
       verify_rule< seq< one< 'a' >, restart > >( __LINE__, __FILE__, "ab", result_type::success, 2 );
 
       verify_rule< seq< one< 'a' >, restart, one< 'a' > > >( __LINE__, __FILE__, "a", result_type::success, 0 );
-      verify_rule< seq< one< 'a' >, restart, string< 'a', 'b' > > >( __LINE__, __FILE__, "ab", result_type::success, 0 );
+      verify_rule< seq< one< 'a' >, restart, string< "ab" > > >( __LINE__, __FILE__, "ab", result_type::success, 0 );
       verify_rule< seq< one< 'a' >, restart, one< 'b' > > >( __LINE__, __FILE__, "ab", result_type::local_failure );
    }
 

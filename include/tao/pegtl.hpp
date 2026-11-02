@@ -18,8 +18,6 @@
 #include "pegtl/parse_nested.hpp"
 #endif
 
-#include "pegtl/pegtl_string.hpp"
-
 #include "pegtl/unicode/utf8.hpp"
 
 // FCOV_EXCL_FILE

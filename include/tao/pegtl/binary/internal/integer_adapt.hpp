@@ -14,8 +14,6 @@
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-   // TODO: Use C++20 std::bit_cast.
-
    template< typename Type, typename Data >
    [[nodiscard]] Type integer_adapt( const Data* pointer ) noexcept
    {

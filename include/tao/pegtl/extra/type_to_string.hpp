@@ -5,10 +5,13 @@
 #ifndef TAO_PEGTL_EXTRA_TYPE_TO_STRING_HPP
 #define TAO_PEGTL_EXTRA_TYPE_TO_STRING_HPP
 
+#include <cstddef>
 #include <string>
 #include <string_view>
 
 #include "../config.hpp"
+
+#include "../internal/fixed_string.hpp"
 
 namespace TAO_PEGTL_NAMESPACE
 {
@@ -36,6 +39,21 @@ namespace TAO_PEGTL_NAMESPACE
       template< template< char... > class T, char... Cs >
       struct template_to_string< T< Cs... > >
          : chars_to_string< Cs... >
+      {};
+
+      template< template< std::size_t, char... > class T, std::size_t Prefix, char... Cs >
+      struct template_to_string< T< Prefix, Cs... > >
+         : chars_to_string< Cs... >
+      {};
+
+      template< template< fixed_string > class T, fixed_string Text >
+      struct template_to_string< T< Text > >
+         : string_to_chars< Text >::template apply< chars_to_string >
+      {};
+
+      template< template< std::size_t, fixed_string > class T, std::size_t Prefix, fixed_string Text >
+      struct template_to_string< T< Prefix, Text > >
+         : string_to_chars< Text >::template apply< chars_to_string >
       {};
 
    }  // namespace internal

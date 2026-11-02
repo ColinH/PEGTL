@@ -53,8 +53,8 @@ namespace TAO_PEGTL_NAMESPACE::abnf
 
    struct quoted_string_cont : until< dquote, ascii::print > {};
    struct quoted_string : seq< dquote, quoted_string_cont > {};
-   struct case_insensitive_string : seq< opt< ascii::istring< '%', 'i' > >, quoted_string > {};
-   struct case_sensitive_string : seq< ascii::istring< '%', 's' >, quoted_string > {};
+   struct case_insensitive_string : seq< opt< ascii::istring< "%i" > >, quoted_string > {};
+   struct case_sensitive_string : seq< ascii::istring< "%s" >, quoted_string > {};
    struct char_val : sor< case_insensitive_string, case_sensitive_string > {};
 
    struct prose_val_cont : until< ascii::one< '>' >, ascii::print > {};
@@ -66,7 +66,7 @@ namespace TAO_PEGTL_NAMESPACE::abnf
       struct value : plus< Digit > {};
       struct range : seq< ascii::one< '-' >, value > {};
       struct next_value : seq< value > {};
-      struct type : seq< ascii::istring< First >, value, sor< range, star< ascii::one< '.' >, next_value > > > {};
+      struct type : seq< ascii::istring_chars< First >, value, sor< range, star< ascii::one< '.' >, next_value > > > {};
    };
 
    using hex_val = gen_val< 'x', ascii::xdigit >;
@@ -94,7 +94,7 @@ namespace TAO_PEGTL_NAMESPACE::abnf
    struct concatenation : list< predicate, plus< c_wsp > > {};
    struct alternative : list< concatenation, pad< ascii::one< '/' >, c_wsp > > {};
 
-   struct defined_as_op : sor< ascii::string< '=', '/' >, ascii::one< '=' > > {};
+   struct defined_as_op : sor< ascii::string< "=/" >, ascii::one< '=' > > {};
    struct defined_as : pad< defined_as_op, c_wsp > {};
    struct rule : seq< seq< rulename, defined_as, alternative >, star< c_wsp >, req_c_nl > {};
    struct rulelist : until< eof, sor< seq< star< c_wsp >, c_nl >, rule > > {};

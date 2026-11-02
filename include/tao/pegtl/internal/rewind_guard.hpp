@@ -29,11 +29,9 @@ namespace TAO_PEGTL_NAMESPACE::internal
       }
 
       rewind_guard( rewind_guard&& rg ) noexcept
-         : m_input( rg.m_input ),
+         : m_input( std::exchange( rg.m_input, nullptr ) ),
            m_saved( std::move( rg.m_saved ) )
-      {
-         rg.m_input = nullptr;
-      }
+      {}
 
       rewind_guard( const rewind_guard& ) = delete;
 

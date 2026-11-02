@@ -50,11 +50,11 @@ namespace TAO_PEGTL_NAMESPACE
    };
 
    struct direct_yes
-      : string< 'y', 'e', 's' >
+      : string< "yes" >
    {};
 
    struct direct_no
-      : string< 'n', 'o' >
+      : string< "no" >
    {};
 
    struct direct_choice
@@ -62,11 +62,11 @@ namespace TAO_PEGTL_NAMESPACE
    {};
 
    struct yes
-      : string< 'y', 'e', 's' >
+      : string< "yes" >
    {};
 
    struct no
-      : string< 'n', 'o' >
+      : string< "no" >
    {};
 
    struct choice

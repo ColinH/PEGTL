@@ -19,28 +19,28 @@ namespace TAO_PEGTL_NAMESPACE
 
    void unit_test()
    {
-      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< string< 'a', 'b', 'c' >, eof > >( "abc", 4, 1 ) );
-      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< string< 'a', 'b', 'c' >, eof > >( "abc", 4, 3 ) );
-      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< string< 'a', 'b', 'c' >, eof > >( "abc", 8, 1 ) );
-      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< string< 'a', 'b', 'c' >, eof > >( "abc", 8, 4 ) );
-      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< string< 'a', 'b', 'c' >, eof > >( "abc", 8, 7 ) );
-      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< string< 'a', 'b', 'c' >, discard, eof > >( "abc", 3, 1 ) );
-      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< string< 'a', 'b', 'c' >, discard, eof > >( "abc", 3, 2 ) );
+      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< string< "abc" >, eof > >( "abc", 4, 1 ) );
+      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< string< "abc" >, eof > >( "abc", 4, 3 ) );
+      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< string< "abc" >, eof > >( "abc", 8, 1 ) );
+      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< string< "abc" >, eof > >( "abc", 8, 4 ) );
+      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< string< "abc" >, eof > >( "abc", 8, 7 ) );
+      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< string< "abc" >, discard, eof > >( "abc", 3, 1 ) );
+      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< string< "abc" >, discard, eof > >( "abc", 3, 2 ) );
 #if defined( __cpp_exceptions )
-      TAO_PEGTL_TEST_THROWS( parse_cstring< seq< string< 'a', 'b', 'c' >, eof > >( "abc", 3, 1 ) );
-      TAO_PEGTL_TEST_THROWS( parse_cstring< seq< string< 'a', 'b', 'c' >, eof > >( "abc", 3, 2 ) );
+      TAO_PEGTL_TEST_THROWS( parse_cstring< seq< string< "abc" >, eof > >( "abc", 3, 1 ) );
+      TAO_PEGTL_TEST_THROWS( parse_cstring< seq< string< "abc" >, eof > >( "abc", 3, 2 ) );
 #endif
-      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< rep< 3, string< 'a', 'b', 'c' > >, eof > >( "abcabcabc", 12, 1 ) );
-      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< rep< 3, string< 'a', 'b', 'c' > >, eof > >( "abcabcabc", 12, 2 ) );
-      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< rep< 3, string< 'a', 'b', 'c' > >, eof > >( "abcabcabc", 12, 8 ) );
-      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< rep< 3, string< 'a', 'b', 'c' > >, eof > >( "abcabcabc", 12, 11 ) );
-      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< rep< 3, string< 'a', 'b', 'c' >, discard >, eof > >( "abcabcabc", 4, 1 ) );
-      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< rep< 3, string< 'a', 'b', 'c' >, discard >, eof > >( "abcabcabc", 4, 2 ) );
+      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< rep< 3, string< "abc" > >, eof > >( "abcabcabc", 12, 1 ) );
+      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< rep< 3, string< "abc" > >, eof > >( "abcabcabc", 12, 2 ) );
+      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< rep< 3, string< "abc" > >, eof > >( "abcabcabc", 12, 8 ) );
+      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< rep< 3, string< "abc" > >, eof > >( "abcabcabc", 12, 11 ) );
+      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< rep< 3, string< "abc" >, discard >, eof > >( "abcabcabc", 4, 1 ) );
+      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< rep< 3, string< "abc" >, discard >, eof > >( "abcabcabc", 4, 2 ) );
 #if defined( __cpp_exceptions )
-      TAO_PEGTL_TEST_THROWS( parse_cstring< seq< rep< 3, string< 'a', 'b', 'c' > >, eof > >( "abcabcabc", 4, 1 ) );
-      TAO_PEGTL_TEST_THROWS( parse_cstring< seq< rep< 3, string< 'a', 'b', 'c' > >, eof > >( "abcabcabc", 4, 2 ) );
+      TAO_PEGTL_TEST_THROWS( parse_cstring< seq< rep< 3, string< "abc" > >, eof > >( "abcabcabc", 4, 1 ) );
+      TAO_PEGTL_TEST_THROWS( parse_cstring< seq< rep< 3, string< "abc" > >, eof > >( "abcabcabc", 4, 2 ) );
 #endif
-      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< string< 'a', 'b', 'c' >, discard, string< 'd', 'e', 'f' >, eof > >( "abcdef", 4, 1 ) );
+      TAO_PEGTL_TEST_ASSERT( parse_cstring< seq< string< "abc" >, discard, string< "def" >, eof > >( "abcdef", 4, 1 ) );
    }
 
 }  // namespace TAO_PEGTL_NAMESPACE

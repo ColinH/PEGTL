@@ -33,7 +33,7 @@ namespace TAO_PEGTL_NAMESPACE
                return control_action::match_impl< Rule, A, M, Action, Control >( in, st... );
             }
             catch( ... ) {
-               Action< Rule >::unwind( const_cast< const ParseInput& >( in ), st... );
+               Action< Rule >::unwind( std::as_const( in ), st... );
                throw;
             }
          }
@@ -67,12 +67,12 @@ namespace TAO_PEGTL_NAMESPACE
                 typename... States >
       [[nodiscard]] static bool match_impl( ParseInput& in, States&&... st )
       {
-         Action< Rule >::start( const_cast< const ParseInput& >( in ), st... );
+         Action< Rule >::start( std::as_const( in ), st... );
          if( TAO_PEGTL_NAMESPACE::match< Rule, A, M, Action, Control >( in, st... ) ) {
-            Action< Rule >::success( const_cast< const ParseInput& >( in ), st... );
+            Action< Rule >::success( std::as_const( in ), st... );
             return true;
          }
-         Action< Rule >::failure( const_cast< const ParseInput& >( in ), st... );
+         Action< Rule >::failure( std::as_const( in ), st... );
          return false;
       }
    };

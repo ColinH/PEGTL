@@ -11,7 +11,6 @@
 
 #include "../ascii.hpp"
 #include "../config.hpp"
-#include "../pegtl_string.hpp"
 #include "../rules.hpp"
 
 #include "../extra/raw_string.hpp"
@@ -108,28 +107,28 @@ namespace TAO_PEGTL_NAMESPACE::lua53
    struct sep : pegtl::sor< pegtl::ascii::space, comment > {};
    struct seps : pegtl::star< sep > {};
 
-   struct str_and : TAO_PEGTL_STRING( "and" ) {};
-   struct str_break : TAO_PEGTL_STRING( "break" ) {};
-   struct str_do : TAO_PEGTL_STRING( "do" ) {};
-   struct str_else : TAO_PEGTL_STRING( "else" ) {};
-   struct str_elseif : TAO_PEGTL_STRING( "elseif" ) {};
-   struct str_end : TAO_PEGTL_STRING( "end" ) {};
-   struct str_false : TAO_PEGTL_STRING( "false" ) {};
-   struct str_for : TAO_PEGTL_STRING( "for" ) {};
-   struct str_function : TAO_PEGTL_STRING( "function" ) {};
-   struct str_goto : TAO_PEGTL_STRING( "goto" ) {};
-   struct str_if : TAO_PEGTL_STRING( "if" ) {};
-   struct str_in : TAO_PEGTL_STRING( "in" ) {};
-   struct str_local : TAO_PEGTL_STRING( "local" ) {};
-   struct str_nil : TAO_PEGTL_STRING( "nil" ) {};
-   struct str_not : TAO_PEGTL_STRING( "not" ) {};
-   struct str_or : TAO_PEGTL_STRING( "or" ) {};
-   struct str_repeat : TAO_PEGTL_STRING( "repeat" ) {};
-   struct str_return : TAO_PEGTL_STRING( "return" ) {};
-   struct str_then : TAO_PEGTL_STRING( "then" ) {};
-   struct str_true : TAO_PEGTL_STRING( "true" ) {};
-   struct str_until : TAO_PEGTL_STRING( "until" ) {};
-   struct str_while : TAO_PEGTL_STRING( "while" ) {};
+   struct str_and : pegtl::string< "and" > {};
+   struct str_break : pegtl::string< "break" > {};
+   struct str_do : pegtl::string< "do" > {};
+   struct str_else : pegtl::string< "else" > {};
+   struct str_elseif : pegtl::string< "elseif" > {};
+   struct str_end : pegtl::string< "end" > {};
+   struct str_false : pegtl::string< "false" > {};
+   struct str_for : pegtl::string< "for" > {};
+   struct str_function : pegtl::string< "function" > {};
+   struct str_goto : pegtl::string< "goto" > {};
+   struct str_if : pegtl::string< "if" > {};
+   struct str_in : pegtl::string< "in" > {};
+   struct str_local : pegtl::string< "local" > {};
+   struct str_nil : pegtl::string< "nil" > {};
+   struct str_not : pegtl::string< "not" > {};
+   struct str_or : pegtl::string< "or" > {};
+   struct str_repeat : pegtl::string< "repeat" > {};
+   struct str_return : pegtl::string< "return" > {};
+   struct str_then : pegtl::string< "then" > {};
+   struct str_true : pegtl::string< "true" > {};
+   struct str_until : pegtl::string< "until" > {};
+   struct str_while : pegtl::string< "while" > {};
 
    // Note that 'elseif' precedes 'else' in order to prevent only matching
    // the "else" part of an "elseif" and running into an error in the
@@ -194,7 +193,7 @@ namespace TAO_PEGTL_NAMESPACE::lua53
    struct numeral_one : pegtl::sor< numeral_two< D, E >, numeral_three< D, E > > {};
 
    struct decimal : numeral_one< pegtl::digit, pegtl::one< 'e', 'E' > > {};
-   struct hexadecimal : pegtl::if_must< pegtl::istring< '0', 'x' >, numeral_one< pegtl::xdigit, pegtl::one< 'p', 'P' > > > {};
+   struct hexadecimal : pegtl::if_must< pegtl::istring< "0x" >, numeral_one< pegtl::xdigit, pegtl::one< 'p', 'P' > > > {};
    struct numeral : pegtl::sor< hexadecimal, decimal > {};
 
    struct label_statement : pegtl::if_must< pegtl::two< ':' >, seps, name, seps, pegtl::two< ':' > > {};
@@ -215,7 +214,7 @@ namespace TAO_PEGTL_NAMESPACE::lua53
    template< char O, char... N >
    struct op_one : pegtl::seq< pegtl::one< O >, pegtl::at< pegtl::not_one< N... > > > {};
    template< char O, char P, char... N >
-   struct op_two : pegtl::seq< pegtl::string< O, P >, pegtl::at< pegtl::not_one< N... > > > {};
+   struct op_two : pegtl::seq< pegtl::string_chars< O, P >, pegtl::at< pegtl::not_one< N... > > > {};
 
    struct table_field_one : pegtl::if_must< pegtl::one< '[' >, seps, expression, seps, pegtl::one< ']' >, seps, pegtl::one< '=' >, seps, expression > {};
    struct table_field_two : pegtl::if_must< pegtl::seq< name, seps, op_one< '=', '=' > >, seps, expression > {};
@@ -289,11 +288,11 @@ namespace TAO_PEGTL_NAMESPACE::lua53
    struct expr_four : left_assoc< expr_five, op_one< '~', '=' > > {};
    struct expr_three : left_assoc< expr_four, pegtl::one< '|' > > {};
    struct operators_two : pegtl::sor< pegtl::two< '=' >,
-                                      pegtl::string< '<', '=' >,
-                                      pegtl::string< '>', '=' >,
+                                      pegtl::string< "<=" >,
+                                      pegtl::string< ">=" >,
                                       op_one< '<', '<' >,
                                       op_one< '>', '>' >,
-                                      pegtl::string< '~', '=' > > {};
+                                      pegtl::string< "~=" > > {};
    struct expr_two : left_assoc< expr_three, operators_two > {};
    struct expr_one : left_assoc< expr_two, key_and > {};
    struct expression : left_assoc< expr_one, key_or > {};

@@ -22,7 +22,7 @@ namespace TAO_PEGTL_NAMESPACE
    using inner_input = internal::input_with_funcs< internal::input_with_fakes< internal::input_with_start< internal::view_input< char > > > >;
    using outer_input = internal::input_with_fakes< internal::copy_input< std::vector< token > > >;
 
-   using inner_grammar = seq< string< 'f', 'o', 'o' >, eof >;
+   using inner_grammar = seq< string< "foo" >, eof >;
    using member_grammar = seq< member::nested< &token::value, inner_grammar >, eof >;
 
    struct peek_string

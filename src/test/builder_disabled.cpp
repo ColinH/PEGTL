@@ -59,11 +59,11 @@ namespace TAO_PEGTL_NAMESPACE
    {};
 
    struct yes
-      : string< 'y', 'e', 's' >
+      : string< "yes" >
    {};
 
    struct no
-      : string< 'n', 'o' >
+      : string< "no" >
    {};
 
    struct cases_rule

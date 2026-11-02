@@ -16,7 +16,7 @@
 namespace TAO_PEGTL_NAMESPACE
 {
    struct file_content
-      : seq< TAO_PEGTL_STRING( "dummy content" ), eol >
+      : seq< string< "dummy content" >, eol >
    {};
 
    struct file_grammar

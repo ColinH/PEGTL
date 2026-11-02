@@ -45,7 +45,7 @@ namespace example
    struct name : pegtl::plus< pegtl::alpha > {};
    struct value : pegtl::plus< pegtl::digit > {};
    struct equals : pegtl::pad< pegtl::one< '=' >, pegtl::blank > {};
-   struct definition : pegtl::if_must< pegtl::string< 'd', 'e', 'f' >, blanks, name, blank0, semi > {};
+   struct definition : pegtl::if_must< pegtl::string< "def" >, blanks, name, blank0, semi > {};
    struct assignment : pegtl::if_must< name, equals, value, blank0, semi > {};
    struct something : pegtl::sor< pegtl::space, definition, assignment > {};
    struct grammar : pegtl::until< pegtl::eof, pegtl::must< something > > {};

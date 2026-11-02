@@ -8,30 +8,35 @@
 
 namespace test
 {
+   namespace pegtl = TAO_PEGTL_NAMESPACE;
+
    // We only need to test that this compiles...
 
    struct foo
-      : TAO_PEGTL_STRING( "foo" )
+      : pegtl::string< "foo" >
    {};
 
    struct foobar
-      : TAO_PEGTL_NAMESPACE::sor< TAO_PEGTL_STRING( "foo" ), TAO_PEGTL_STRING( "bar" ) >
+      : pegtl::sor< pegtl::string< "foo" >, pegtl::string< "bar" > >
    {};
 
-   static_assert( std::is_same_v< TAO_PEGTL_STRING( "Hello" ), TAO_PEGTL_NAMESPACE::string< 'H', 'e', 'l', 'l', 'o' > > );
-   static_assert( !std::is_same_v< TAO_PEGTL_ISTRING( "Hello" ), TAO_PEGTL_NAMESPACE::string< 'H', 'e', 'l', 'l', 'o' > > );
-   static_assert( std::is_same_v< TAO_PEGTL_ISTRING( "Hello" ), TAO_PEGTL_NAMESPACE::istring< 'H', 'e', 'l', 'l', 'o' > > );
+   template< typename Literal, typename Chars >
+   constexpr bool same_matcher = !std::is_same_v< Literal, Chars > && std::is_same_v< typename Literal::rule_t, typename Chars::rule_t >;
 
-   static_assert( std::is_same_v< TAO_PEGTL_KEYWORD( "private" ), TAO_PEGTL_NAMESPACE::keyword< 'p', 'r', 'i', 'v', 'a', 't', 'e' > > );
+   static_assert( same_matcher< pegtl::string< "Hello" >, pegtl::string_chars< 'H', 'e', 'l', 'l', 'o' > > );
+   static_assert( !std::is_same_v< pegtl::istring< "Hello" >::rule_t, pegtl::string< "Hello" >::rule_t > );
+   static_assert( same_matcher< pegtl::istring< "Hello" >, pegtl::istring_chars< 'H', 'e', 'l', 'l', 'o' > > );
+
+   static_assert( same_matcher< pegtl::keyword< "private" >, pegtl::keyword_chars< 'p', 'r', 'i', 'v', 'a', 't', 'e' > > );
 
    // Strings may even contain embedded null bytes
 
-   static_assert( std::is_same_v< TAO_PEGTL_STRING( "Hello, w\0rld!" ), TAO_PEGTL_NAMESPACE::string< 'H', 'e', 'l', 'l', 'o', ',', ' ', 'w', 0, 'r', 'l', 'd', '!' > > );
+   static_assert( same_matcher< pegtl::string< "Hello, w\0rld!" >, pegtl::string_chars< 'H', 'e', 'l', 'l', 'o', ',', ' ', 'w', 0, 'r', 'l', 'd', '!' > > );
 
-   // The strings currently have a maximum length of 512 characters.
+   // Longer literals use the same matchers as character packs.
 
-   static_assert( std::is_same_v< TAO_PEGTL_STRING( "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz" ),
-                                  TAO_PEGTL_NAMESPACE::string< 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' > > );
+   static_assert( same_matcher< pegtl::string< "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz" >,
+                                pegtl::string_chars< 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' > > );
 
 }  // namespace test
 

@@ -43,8 +43,9 @@ namespace TAO_PEGTL_NAMESPACE
       };
 
       // The factory retains priority over the constructor and its exact result type.
-      static_assert( std::same_as< decltype( internal::make_multi_impl< factory_traits, constructed >( 0, 1 ) ), const constructed& > );
-      static_assert( std::same_as< decltype( internal::make_multi_impl< constructor_traits, constructed >( 0, 1 ) ), constructed > );
+      static_assert( std::same_as< decltype( internal::make_multi_impl< factory_traits, constructed >( 1 ) ), const constructed& > );
+      static_assert( std::same_as< decltype( internal::make_multi_impl< constructor_traits, constructed >( 1 ) ), constructed > );
+      static_assert( std::same_as< decltype( internal::make_multi_impl< factory_traits, constructed >( std::declval< int& >() ) ), constructed > );
    }  // namespace factory_constraints
 
    struct aggregate_entry

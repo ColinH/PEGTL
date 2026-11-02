@@ -16,7 +16,7 @@ namespace TAO_PEGTL_NAMESPACE::proto3
 
    // clang-format off
    struct comment_sl : seq< two< '/' >, until< eolf > > {};
-   struct comment_ml : if_must< string< '/', '*' >, until< string< '*', '/' > > > {};
+   struct comment_ml : if_must< string< "/*" >, until< string< "*/" > > > {};
    struct sp : sor< space, comment_sl, comment_ml > {};
    struct sps : star< sp > {};
 
@@ -48,11 +48,11 @@ namespace TAO_PEGTL_NAMESPACE::proto3
       seq< plus< digit >, dot, exp >,
       seq< plus< digit >, dot, star< digit >, opt< exp > >,
       seq< dot, plus< digit >, opt< exp > >,
-      keyword< 'i', 'n', 'f' >,
-      keyword< 'n', 'a', 'n' > > {};
+      keyword< "inf" >,
+      keyword< "nan" > > {};
 
-   struct bool_lit : sor< keyword< 't', 'r', 'u', 'e' >,
-                          keyword< 'f', 'a', 'l', 's', 'e' > > {};
+   struct bool_lit : sor< keyword< "true" >,
+                          keyword< "false" > > {};
 
    struct hex_escape : if_must< one< 'x', 'X' >, xdigit, xdigit > {};
    struct oct_escape : if_must< odigit, odigit, odigit > {};
@@ -66,24 +66,24 @@ namespace TAO_PEGTL_NAMESPACE::proto3
    struct constant : sor< bool_lit, seq< opt< sign >, float_lit >, seq< opt< sign >, int_lit >, str_lit, full_ident > {};
 
    struct option_name : seq< sor< ident, if_must< one< '(' >, full_ident, one< ')' > > >, star_must< dot, ident > > {};
-   struct option : if_must< keyword< 'o', 'p', 't', 'i', 'o', 'n' >, sps, option_name, sps, equ, sps, constant, sps, semi > {};
+   struct option : if_must< keyword< "option" >, sps, option_name, sps, equ, sps, constant, sps, semi > {};
 
-   struct bool_type : keyword< 'b', 'o', 'o', 'l' > {};
-   struct bytes_type : keyword< 'b', 'y', 't', 'e', 's' > {};
-   struct double_type : keyword< 'd', 'o', 'u', 'b', 'l', 'e' > {};
-   struct float_type : keyword< 'f', 'l', 'o', 'a', 't' > {};
-   struct string_type : keyword< 's', 't', 'r', 'i', 'n', 'g' > {};
+   struct bool_type : keyword< "bool" > {};
+   struct bytes_type : keyword< "bytes" > {};
+   struct double_type : keyword< "double" > {};
+   struct float_type : keyword< "float" > {};
+   struct string_type : keyword< "string" > {};
 
-   struct int32_type : keyword< 'i', 'n', 't', '3', '2' > {};
-   struct int64_type : keyword< 'i', 'n', 't', '6', '4' > {};
-   struct sint32_type : keyword< 's', 'i', 'n', 't', '3', '2' > {};
-   struct sint64_type : keyword< 's', 'i', 'n', 't', '6', '4' > {};
-   struct uint32_type : keyword< 'u', 'i', 'n', 't', '3', '2' > {};
-   struct uint64_type : keyword< 'u', 'i', 'n', 't', '6', '4' > {};
-   struct fixed32_type : keyword< 'f', 'i', 'x', 'e', 'd', '3', '2' > {};
-   struct fixed64_type : keyword< 'f', 'i', 'x', 'e', 'd', '6', '4' > {};
-   struct sfixed32_type : keyword< 's', 'f', 'i', 'x', 'e', 'd', '3', '2' > {};
-   struct sfixed64_type : keyword< 's', 'f', 'i', 'x', 'e', 'd', '6', '4' > {};
+   struct int32_type : keyword< "int32" > {};
+   struct int64_type : keyword< "int64" > {};
+   struct sint32_type : keyword< "sint32" > {};
+   struct sint64_type : keyword< "sint64" > {};
+   struct uint32_type : keyword< "uint32" > {};
+   struct uint64_type : keyword< "uint64" > {};
+   struct fixed32_type : keyword< "fixed32" > {};
+   struct fixed64_type : keyword< "fixed64" > {};
+   struct sfixed32_type : keyword< "sfixed32" > {};
+   struct sfixed64_type : keyword< "sfixed64" > {};
 
    struct builtin_type : sor< bool_type, bytes_type, double_type, float_type, string_type, int32_type, int64_type, sint32_type, sint64_type, uint32_type, uint64_type, fixed32_type, fixed64_type, sfixed32_type, sfixed64_type > {};
 
@@ -95,49 +95,49 @@ namespace TAO_PEGTL_NAMESPACE::proto3
    struct field_options : if_must< one< '[' >, sps, list< field_option, comma, sp >, sps, one< ']' > > {};
    struct field_name : ident {};
    struct field_number : int_lit {};
-   struct field : seq< opt< sor< keyword< 'o', 'p', 't', 'i', 'o', 'n', 'a', 'l' >, keyword< 'r', 'e', 'p', 'e', 'a', 't', 'e', 'd' > >, sps >, type, sps, field_name, sps, equ, sps, field_number, sps, opt< field_options, sps >, semi > {};
+   struct field : seq< opt< sor< keyword< "optional" >, keyword< "repeated" > >, sps >, type, sps, field_name, sps, equ, sps, field_number, sps, opt< field_options, sps >, semi > {};
 
    struct oneof_name : ident {};
    struct oneof_field : if_must< type, sps, field_name, sps, equ, sps, field_number, sps, opt< field_options, sps >, semi > {};
    struct oneof_body : sor< oneof_field, semi > {};
-   struct oneof : if_must< keyword< 'o', 'n', 'e', 'o', 'f' >, sps, oneof_name, sps, one< '{' >, sps, until< one< '}' >, oneof_body, sps >, sps > {};
+   struct oneof : if_must< keyword< "oneof" >, sps, oneof_name, sps, one< '{' >, sps, until< one< '}' >, oneof_body, sps >, sps > {};
 
    struct key_type : seq< sor< bool_type, string_type, int32_type, int64_type, sint32_type, sint64_type, uint32_type, uint64_type, fixed32_type, fixed64_type, sfixed32_type, sfixed64_type >, not_at< ident_other > > {};
    struct map_name : ident {};
-   struct map_field : if_must< keyword< 'm', 'a', 'p' >, sps, one< '<' >, sps, key_type, sps, comma, sps, type, sps, one< '>' >, sps, map_name, sps, equ, sps, field_number, sps, opt< field_options, sps >, semi > {};
+   struct map_field : if_must< keyword< "map" >, sps, one< '<' >, sps, key_type, sps, comma, sps, type, sps, one< '>' >, sps, map_name, sps, equ, sps, field_number, sps, opt< field_options, sps >, semi > {};
 
-   struct range : if_must< int_lit, sps, keyword< 't', 'o' >, sps, sor< int_lit, keyword< 'm', 'a', 'x' > > > {};
+   struct range : if_must< int_lit, sps, keyword< "to" >, sps, sor< int_lit, keyword< "max" > > > {};
    struct ranges : list_must< range, comma, sp > {};
    struct field_names : list_must< field_name, comma, sp > {};
-   struct reserved : if_must< keyword< 'r', 'e', 's', 'e', 'r', 'v', 'e', 'd' >, sps, sor< ranges, field_names >, sps, semi > {};
+   struct reserved : if_must< keyword< "reserved" >, sps, sor< ranges, field_names >, sps, semi > {};
 
    struct enum_name : ident {};
    struct enum_value_option : seq< option_name, sps, equ, sps, constant > {};
    struct enum_field : seq< ident, sps, equ, sps, enum_int, sps, opt_must< one< '[' >, sps, list_must< enum_value_option, comma, sp >, sps, one< ']' >, sps >, semi > {};
    struct enum_body : if_must< one< '{' >, sps, star< sor< option, enum_field, semi >, sps >, one< '}' > > {};
-   struct enum_def : if_must< keyword< 'e', 'n', 'u', 'm' >, sps, enum_name, sps, enum_body > {};
+   struct enum_def : if_must< keyword< "enum" >, sps, enum_name, sps, enum_body > {};
 
    struct message_thing : sor< field, enum_def, message, option, oneof, map_field, reserved, extend, semi > {};
    struct message_body : seq< one< '{' >, sps, star< message_thing, sps >, one< '}' > > {};
-   struct message : if_must< keyword< 'm', 'e', 's', 's', 'a', 'g', 'e' >, sps, defined_type, sps, message_body > {};
-   struct extend : if_must< keyword< 'e', 'x', 't', 'e', 'n', 'd' >, sps, defined_type, sps, message_body > {};
+   struct message : if_must< keyword< "message" >, sps, defined_type, sps, message_body > {};
+   struct extend : if_must< keyword< "extend" >, sps, defined_type, sps, message_body > {};
 
-   struct package : if_must< keyword< 'p', 'a', 'c', 'k', 'a', 'g', 'e' >, sps, full_ident, sps, semi > {};
+   struct package : if_must< keyword< "package" >, sps, full_ident, sps, semi > {};
 
-   struct import_option : opt< sor< keyword< 'w', 'e', 'a', 'k' >, keyword< 'p', 'u', 'b', 'l', 'i', 'c' > > > {};
-   struct import : if_must< keyword< 'i', 'm', 'p', 'o', 'r', 't' >, sps, import_option, sps, str_lit, sps, semi > {};
+   struct import_option : opt< sor< keyword< "weak" >, keyword< "public" > > > {};
+   struct import : if_must< keyword< "import" >, sps, import_option, sps, str_lit, sps, semi > {};
 
    struct rpc_name : ident {};
-   struct rpc_type : if_must< one< '(' >, sps, opt< keyword< 's', 't', 'r', 'e', 'a', 'm' >, sps >, defined_type, sps, one< ')' > > {};
+   struct rpc_type : if_must< one< '(' >, sps, opt< keyword< "stream" >, sps >, defined_type, sps, one< ')' > > {};
    struct rpc_options : if_must< one< '{' >, sps, star< sor< option, semi >, sps >, one< '}' > > {};
-   struct rpc : if_must< keyword< 'r', 'p', 'c' >, sps, rpc_name, sps, rpc_type, sps, keyword< 'r', 'e', 't', 'u', 'r', 'n', 's' >, sps, rpc_type, sps, sor< semi, rpc_options > > {};
+   struct rpc : if_must< keyword< "rpc" >, sps, rpc_name, sps, rpc_type, sps, keyword< "returns" >, sps, rpc_type, sps, sor< semi, rpc_options > > {};
    struct service_name : ident {};
-   struct service : if_must< keyword< 's', 'e', 'r', 'v', 'i', 'c', 'e' >, sps, service_name, sps, one< '{' >, sps, star< sor< option, rpc, semi >, sps >, one< '}' > > {};
+   struct service : if_must< keyword< "service" >, sps, service_name, sps, one< '{' >, sps, star< sor< option, rpc, semi >, sps >, one< '}' > > {};
 
    struct body : sor< import, package, option, message, enum_def, service, extend, semi > {};
 
    struct quote : one< '\'', '"' > {};
-   struct head : if_must< keyword< 's', 'y', 'n', 't', 'a', 'x' >, sps, equ, sps, quote, string< 'p', 'r', 'o', 't', 'o', '3' >, quote, sps, semi > {};
+   struct head : if_must< keyword< "syntax" >, sps, equ, sps, quote, string< "proto3" >, quote, sps, semi > {};
    struct proto : must< sps, head, sps, star< body, sps >, eof > {};
    // clang-format on
 

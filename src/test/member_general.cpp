@@ -65,7 +65,7 @@ namespace TAO_PEGTL_NAMESPACE
 
    void test_function()
    {
-      verify_meta< member::function< &member_token::value, is_even >, internal::function< value_peek, decltype( &is_even ), is_even > >();
+      verify_meta< member::function< &member_token::value, is_even >, internal::function< value_peek, is_even > >();
 
       called = false;
       seen_value = 0;
@@ -94,6 +94,18 @@ namespace TAO_PEGTL_NAMESPACE
       TAO_PEGTL_TEST_ASSERT( called );
       TAO_PEGTL_TEST_ASSERT( seen_value == 7 );
       TAO_PEGTL_TEST_ASSERT( in.size() == 0 );
+
+      verify_member< member::function< &member_token::value, []( const int value ) noexcept { return value == 42; } > >( __LINE__, __FILE__, { 42 }, true, 0 );
+      verify_member_data< member::function< &member_token::text, &std::string::empty > >( __LINE__, __FILE__, {
+                                                                                                                 { 1, "" }
+      },
+                                                                                          true,
+                                                                                          0 );
+      verify_member_data< member::function< &member_token::text, &std::string::empty > >( __LINE__, __FILE__, {
+                                                                                                                 { 1, "nonempty" }
+      },
+                                                                                          false,
+                                                                                          1 );
    }
 
    void test_one()

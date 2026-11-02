@@ -25,7 +25,7 @@ namespace TAO_PEGTL_NAMESPACE
       alloc_endless_input< void > dei( 100, 20, "abcdefghijklmnopqrstuvwxyz" );
 
       TAO_PEGTL_TEST_ASSERT( dei.buffer_used_size() == 0 );
-      TAO_PEGTL_TEST_ASSERT( parse< ascii::string< 'a', 'b', 'c' > >( dei ) );
+      TAO_PEGTL_TEST_ASSERT( parse< ascii::string< "abc" > >( dei ) );
       TAO_PEGTL_TEST_ASSERT( dei.buffer_used_size() == 17 );
       TAO_PEGTL_TEST_ASSERT( dei.current() == dei.buffer_start() + 3 );
       TAO_PEGTL_TEST_ASSERT( parse< discard >( dei ) );

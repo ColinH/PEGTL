@@ -7,9 +7,11 @@
 
 #include <array>
 #include <cstddef>
+#include <span>
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 #include "../config.hpp"
@@ -48,7 +50,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
 
       explicit view_input( std::string& data ) noexcept
          requires( sizeof( data_t ) == 1 && is_simple_type_v< data_t > )
-         : view_input( const_cast< const std::string& >( data ) )
+         : view_input( std::as_const( data ) )
       {}
 
       explicit view_input( const std::string& data ) noexcept
@@ -61,11 +63,16 @@ namespace TAO_PEGTL_NAMESPACE::internal
          : view_input( reinterpret_cast< const data_t* >( data.data() ), data.size() )
       {}
 
+      template< std::size_t E >
+      explicit view_input( const std::span< const data_t, E > data ) noexcept
+         : view_input( data.data(), data.size() )
+      {}
+
       view_input( std::vector< data_t >&& ) = delete;
       view_input( const std::vector< data_t >&& ) = delete;
 
       explicit view_input( std::vector< data_t >& data ) noexcept
-         : view_input( const_cast< const std::vector< data_t >& >( data ) )
+         : view_input( std::as_const( data ) )
       {}
 
       explicit view_input( const std::vector< data_t >& data ) noexcept
