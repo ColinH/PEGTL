@@ -57,6 +57,14 @@
 #else
 #  error "Byte order is neither big nor little endian -- are you using a PDP-11?"
 #endif
+
+#if __has_cpp_attribute( msvc::no_unique_address )
+#  define TAO_PEGTL_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
+#elif __has_cpp_attribute( no_unique_address )
+#  define TAO_PEGTL_NO_UNIQUE_ADDRESS [[no_unique_address]]
+#else
+#  define TAO_PEGTL_NO_UNIQUE_ADDRESS
+#endif
 // clang-format on
 
 // FCOV_EXCL_FILE
