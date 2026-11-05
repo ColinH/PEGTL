@@ -168,7 +168,7 @@ namespace open_metrics
             if( family.name.starts_with( '_' ) ) {
                error( where, "MetricFamily names beginning with an underscore are reserved" );
             }
-            if( family.name.find( ':' ) != std::string::npos ) {
+            if( family.name.contains( ':' ) ) {
                warning( where, "colons are reserved for names produced by monitoring systems" );
             }
             if( !is_snake_case( family.name ) ) {

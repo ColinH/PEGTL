@@ -131,7 +131,7 @@ namespace example
    {
       // Needs more elaborate escaping in practice...
 
-      if( s.find( ',' ) != std::string::npos ) {
+      if( s.contains( ',' ) ) {
          std::cout << '"' << s << '"';
       }
       else {

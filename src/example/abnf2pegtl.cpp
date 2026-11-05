@@ -451,7 +451,7 @@ namespace TAO_PEGTL_NAMESPACE
             if( it != rules.rend() ) {
                return *it;
             }
-            if( keywords.contains( v ) || ( v.find( "__" ) != std::string::npos ) ) {
+            if( keywords.contains( v ) || v.contains( "__" ) ) {
 #if defined( __cpp_exceptions )
                throw parse_error( '\'' + n->string() + "' is a reserved rulename", n->begin );
 #else
