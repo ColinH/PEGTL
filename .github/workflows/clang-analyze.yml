@@ -15,18 +15,22 @@ permissions:
 
 jobs:
   clang-analyze:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     steps:
     - uses: actions/checkout@v7
 
-    - run: sudo apt-get update -yq
+    - name: Install Dependencies
+      run: |
+        sudo apt-get -qq update -yq
+        sudo apt-get -qq install -y clang-22 clang-tools-22 --no-install-recommends --no-install-suggests
 
-    - run: sudo apt-get install -yq clang-tools
+    - name: Show analyzer version
+      run: clang-22 --version
 
-    - run: scan-build cmake -S . -B build -GNinja
+    - run: scan-build-22 --use-analyzer=/usr/bin/clang-22 cmake -S . -B build -GNinja
 
-    - run: scan-build --status-bugs -o build/analyzer-reports cmake --build build
+    - run: scan-build-22 --use-analyzer=/usr/bin/clang-22 --status-bugs -o build/analyzer-reports cmake --build build
 
     - name: Upload analyzer reports
       if: always()
