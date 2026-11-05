@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.8...3.19)
-
 set(example_sources
   abnf_record.cpp
   abnf2pegtl.cpp
@@ -64,11 +62,7 @@ foreach(examplesourcefile ${example_sources})
   get_filename_component(exename pegtl-example-${examplesourcefile} NAME_WE)
   add_executable(${exename} ${examplesourcefile})
   target_link_libraries(${exename} PRIVATE taocpp::pegtl)
-  set_target_properties(${exename} PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED ON
-    CXX_EXTENSIONS OFF
-  )
+  set_target_properties(${exename} PROPERTIES CXX_EXTENSIONS OFF)
   if(MSVC)
     target_compile_options(${exename} PRIVATE /W4 /WX /utf-8 /bigobj)
   else()

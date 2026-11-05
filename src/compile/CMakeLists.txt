@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.8...3.19)
-
 set(compile_sources
   action_add_guard.cpp
   action_add_state.cpp
@@ -75,8 +73,6 @@ foreach(source IN LISTS compile_sources)
     add_library(${target} OBJECT ${source})
     set_target_properties(${target} PROPERTIES
       EXCLUDE_FROM_ALL ON
-      CXX_STANDARD 20
-      CXX_STANDARD_REQUIRED ON
       CXX_EXTENSIONS OFF
     )
     target_link_libraries(${target} PRIVATE taocpp::pegtl)

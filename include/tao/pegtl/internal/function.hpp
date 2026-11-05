@@ -6,7 +6,6 @@
 #define TAO_PEGTL_INTERNAL_FUNCTION_HPP
 
 #include <functional>
-#include <type_traits>
 #include <utility>
 
 #include "../apply_mode.hpp"
@@ -19,17 +18,22 @@
 namespace TAO_PEGTL_NAMESPACE::internal
 {
    template< auto Function, typename Arg, typename... States >
-   [[nodiscard]] bool invoke_function( Arg&& arg, States&... st ) noexcept( std::is_nothrow_invocable_r_v< bool, decltype( ( Function ) ), Arg, States&... > )
-      requires std::is_invocable_r_v< bool, decltype( ( Function ) ), Arg, States&... >
+   concept can_invoke_function = requires( Arg&& arg, States&... st ) {
+      std::invoke_r< bool >( Function, std::forward< Arg >( arg ), st... );
+   };
+
+   template< auto Function, typename Arg, typename... States >
+   [[nodiscard]] bool invoke_function( Arg&& arg, States&... st ) noexcept( noexcept( std::invoke_r< bool >( Function, std::forward< Arg >( arg ), st... ) ) )
+      requires can_invoke_function< Function, Arg, States... >
    {
-      return std::invoke( Function, std::forward< Arg >( arg ), st... );
+      return std::invoke_r< bool >( Function, std::forward< Arg >( arg ), st... );
    }
 
    template< auto Function, typename Arg, typename... States >
-   [[nodiscard]] bool invoke_function( Arg&& arg, States&... /*unused*/ ) noexcept( std::is_nothrow_invocable_r_v< bool, decltype( ( Function ) ), Arg > )
-      requires( !std::is_invocable_r_v< bool, decltype( ( Function ) ), Arg, States&... > && std::is_invocable_r_v< bool, decltype( ( Function ) ), Arg > )
+   [[nodiscard]] bool invoke_function( Arg&& arg, States&... /*unused*/ ) noexcept( noexcept( std::invoke_r< bool >( Function, std::forward< Arg >( arg ) ) ) )
+      requires( !can_invoke_function< Function, Arg, States... > && can_invoke_function< Function, Arg > )
    {
-      return std::invoke( Function, std::forward< Arg >( arg ) );
+      return std::invoke_r< bool >( Function, std::forward< Arg >( arg ) );
    }
 
    template< typename Peek, auto Function >

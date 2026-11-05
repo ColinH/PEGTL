@@ -54,23 +54,19 @@ namespace TAO_PEGTL_NAMESPACE
       literal_actions::verify( "abCDefghIJKLif do" );
       literal_actions::verify( "abCDegIKif do" );  // Abbreviated astring/aistring matches.
 
-      // There is no longer a 512-character macro limit.
+      // Keep the pattern below Clang's default fold-expression nesting limit.
       static constexpr char long_text[] = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                                           "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                                           "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-                                          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-                                          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-                                          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-                                          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-                                          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                                           "b";
-      static_assert( sizeof( long_text ) == 514 );
+      constexpr std::size_t length = sizeof( long_text ) - 1;
+      static_assert( length < 256 );
 
-      std::string text( 512, 'a' );
+      std::string text( length - 1, 'a' );
       text += 'b';
       verify_rule< string< long_text > >( __LINE__, __FILE__, text, result_type::success, 0 );
       text.back() = 'c';
-      verify_rule< string< long_text > >( __LINE__, __FILE__, text, result_type::local_failure, 513 );
+      verify_rule< string< long_text > >( __LINE__, __FILE__, text, result_type::local_failure, length );
 
       // Preserve byte values and a trailing null that is part of the pattern.
       verify_rule< string< "a\xff\0" > >( __LINE__, __FILE__, std::string( "a\xff\0", 3 ), result_type::success, 0 );

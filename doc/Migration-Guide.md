@@ -5,7 +5,7 @@ Notes on incompatible changes that need to be taken into account when updating t
 
 ## Version 5.0.0
 
-* The build system needs to be configured for C++20 or later.
+* The build system needs to be configured for C++23 or later and [needs a modern compiler](Install-Guide.md#requirements).
 * Inputs passed to `parse()` and the inner input passed to `parse_nested()` must not be `const`.
 
 ### String Rules
@@ -39,7 +39,7 @@ Please check the full list of added, renamed and changed rules, actions, control
 PEGTL 4.0 still requires C++17, however the supported compiler baseline was raised.
 See the [install guide](Install-Guide.md#requirements) for the current list of supported compilers.
 
-Note that GCC 16 re-introduces [a bug](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91155) that reduces the `constexpr` function `tao::pegtl::demangle()` to returning `typeid( T ).name()`.
+With GCC 16.1, `tao::pegtl::demangle()` falls back to `typeid( T ).name()` due to [bug #91155](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91155).
 
 ### Input Classes
 

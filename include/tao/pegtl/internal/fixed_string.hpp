@@ -17,6 +17,8 @@ namespace TAO_PEGTL_NAMESPACE::internal
    {
       char data[ Size ];
 
+      // Literal template arguments need implicit conversion. The loop writes every array element.
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,*-explicit-constructor)
       constexpr fixed_string( const char ( &text )[ Size ] ) noexcept
       {
          for( std::size_t i = 0; i < Size; ++i ) {

@@ -19,11 +19,11 @@ endif
 
 # For Darwin (Mac OS X / macOS) we assume that the default compiler
 # clang++ is used; when $(CXX) is some version of g++, then
-# $(CXXSTD) has to be set to -std=c++20 (or newer) so
+# $(CXXSTD) has to be set to -std=c++23 (or newer) so
 # that -stdlib=libc++ is not automatically added.
 
 ifeq ($(CXXSTD),)
-CXXSTD := -std=c++20
+CXXSTD := -std=c++23
 ifeq ($(UNAME_S),Darwin)
 CXXSTD += -stdlib=libc++
 endif

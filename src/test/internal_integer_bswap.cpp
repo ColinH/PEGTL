@@ -10,6 +10,13 @@ namespace TAO_PEGTL_NAMESPACE
 {
    void unit_test()
    {
+      enum class word : std::uint16_t
+      {
+         original = 0xabcd,
+         swapped = 0xcdab
+      };
+      static_assert( internal::integer_bswap( word::original ) == word::swapped );
+
       TAO_PEGTL_TEST_ASSERT( internal::integer_bswap( std::int8_t( -42 ) ) == std::int8_t( -42 ) );
       TAO_PEGTL_TEST_ASSERT( internal::integer_bswap( std::int8_t( 0x27 ) ) == std::int8_t( 0x27 ) );
       TAO_PEGTL_TEST_ASSERT( internal::integer_bswap( std::uint8_t( 0x42 ) ) == std::uint8_t( 0x42 ) );

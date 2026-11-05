@@ -6,7 +6,8 @@ All noteworthy changes since the first public [release](https://github.com/taocp
 
 Not Yet Released
 
-* Updated required C++ standard to C++20.
+* Updated required C++ standard to C++23.
+  * Raised the [minimum required compiler versions](Install-Guide.md#requirements).
 * Changed the ASCII string rules and `raise_message` to take string-literal template arguments.
   * Added the corresponding [character-pack rules](Rule-Reference.md#character-packs) with names ending in `_chars`.
   * Removed the old string-literal macros and `pegtl_string.hpp`; see the [migration guide](Migration-Guide.md#string-rules).

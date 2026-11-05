@@ -26,11 +26,11 @@ How to install the PEGTL, and verify and ensure that the system requirements are
 
 ## Requirements
 
-The PEGTL requires a C++20 enabled compiler like
+The PEGTL requires a compiler that supports C++23 like
 
-* GCC 12 with `--std=c++20`
-* Clang 16 with `--std=c++20`
-* Visual Studio 2025 with `/std:c++20`
+* GCC 15 or later with `--std=c++23`
+* Clang 17 or later with `--std=c++23`
+* VS 2026 MSVC 14.52 or later with `/std:c++23`
 
 on the mainstream operating systems
 
@@ -47,7 +47,7 @@ It is recommended to *always* compile with *some* optimizations enabled, especia
 
 Larger projects will frequently require the `/bigobj` option when compiling with Visual Studio on Windows.
 
-The PEGTL should also be compatible with other C++20 capable compilers and work on other Unix or Unix-like operating systems.
+The PEGTL should also be compatible with other C++23 capable compilers and work on other Unix or Unix-like operating systems.
 
 
 ## Disabling Exceptions
@@ -95,7 +95,7 @@ Some tests and examples are (partially) disabled when compiling without exceptio
 ## Disabling RTTI
 
 The PEGTL is compatible with `-fno-rtti` on GCC, Clang, and MSVC.
-The only exceptions are GCC versions 9.1, 9.2 and 16.1 due to an unfortunate compiler bug, see [bug #91155](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91155).
+GCC 16.1 requires RTTI due to [bug #91155](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91155).
 
 On other compilers [RTTI](https://en.wikipedia.org/wiki/Run-time_type_information) is required by default (for demangling, see `include/tao/pegtl/demangle.hpp`).
 Let us know if you use such a compiler since an RTTI-free compiler-specific demangling function might be possible.
@@ -177,7 +177,7 @@ find_package(pegtl)
 
 This exports the `taocpp::pegtl` target which can be linked against any other
 target. Linking against `taocpp::pegtl` automatically sets the include
-directories and required flags for C++20 or later. For example:
+directories and required flags for C++23 or later. For example:
 
 ```cmake
 add_executable(myexe mysources...)

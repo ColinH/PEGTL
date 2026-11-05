@@ -109,7 +109,7 @@ Assuming the current directory is the main directory of the PEGTL this source ca
 On Linux and Unix, including macOS, this can be compiled with a command like
 
 ```sh
-$ g++ --std=c++20 -Iinclude src/example/hello_world.cpp -o hello_world
+$ g++ --std=c++23 -Iinclude src/example/hello_world.cpp -o hello_world
 ```
 
 or with a call to `make(1)` to build *all* examples and tests via the included `Makefile`.

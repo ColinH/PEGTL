@@ -66,9 +66,14 @@ namespace TAO_PEGTL_NAMESPACE
    static_assert( verify_materializations< func_input< token >, false, true >() );
    static_assert( verify_materializations< func_input< std::unique_ptr< int > >, false, false >() );
 
+   template< typename Input >
+   concept has_span = requires( const Input& in ) { in.span(); };
+
    // Streams require a mutable size query; action inputs expose a fixed, const range.
    static_assert( verify_materializations< array_cstring_input<>, false, false >() );
    static_assert( verify_materializations< action_input< array_cstring_input<> >, true, true >() );
+   static_assert( !has_span< array_cstring_input<> > );
+   static_assert( has_span< action_input< array_cstring_input<> > > );
 
    template< typename Input, typename Position >
    concept has_line_view = requires( Input& in, const Position& pos ) {

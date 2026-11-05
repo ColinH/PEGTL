@@ -6,18 +6,13 @@
 #define TAO_PEGTL_INTERNAL_READ_FILE_STDIO_HPP
 
 #include <cstdio>
+#include <exception>
 #include <filesystem>
 #include <memory>
 #include <string>
 #include <utility>
 
-#if !defined( __cpp_exceptions )
-#include <exception>
-#endif
-
 #include "../config.hpp"
-
-#include "resize_uninitialized.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
@@ -124,8 +119,29 @@ namespace TAO_PEGTL_NAMESPACE::internal
       {
          std::string nrv;
          if( const std::size_t s = size(); s > 0 ) {
-            resize_uninitialized( nrv, s );
-            read_impl( nrv.data(), nrv.size() );
+#if defined ( __cpp_exceptions )
+            std::exception_ptr ep;
+
+            nrv.resize_and_overwrite( s, [ this, &ep ]( char* buffer, const std::size_t length ) -> std::size_t {
+               try {
+                  read_impl( buffer, length );
+                  return length;
+               }
+               catch( ... ) {
+                  ep = std::current_exception();
+                  return 0;
+               }
+            });
+
+            if( ep ) {
+               std::rethrow_exception( ep );
+            }
+#else
+            nrv.resize_and_overwrite( s, [ this ]( char* buffer, const std::size_t length ) {
+               read_impl( buffer, length );
+               return length;
+            });
+#endif
          }
          return nrv;
       }

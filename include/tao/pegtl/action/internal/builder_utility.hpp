@@ -407,7 +407,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
             return TAO_PEGTL_NAMESPACE::match< Rule, A, M, Action, Control >( in, st... );
          }
       }
-#if defined( __GNUC__ ) && !defined( __clang__ )
+#if defined( __GNUC__ ) && !defined( __clang__ ) && ( __GNUC__ == 16 )
 #pragma GCC diagnostic pop
 #endif
    };

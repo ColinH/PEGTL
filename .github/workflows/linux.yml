@@ -19,18 +19,10 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - os: ubuntu-24.04
-            compiler: g++-12
-          - os: ubuntu-24.04
-            compiler: g++-13
-          - os: ubuntu-24.04
-            compiler: g++-14
           - os: ubuntu-26.04
             compiler: g++-15
           - os: ubuntu-26.04
             compiler: g++-16
-          - os: ubuntu-24.04
-            compiler: clang++-16
           - os: ubuntu-24.04
             compiler: clang++-17
           - os: ubuntu-24.04

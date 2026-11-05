@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.8...3.19)
-
 set(lint_sources
   actions.cpp
   controls.cpp
@@ -20,11 +18,7 @@ foreach(source IN LISTS lint_sources)
   get_filename_component(name ${source} NAME_WE)
   add_executable(pegtl-lint-${name} ${source})
   target_link_libraries(pegtl-lint-${name} PRIVATE taocpp::pegtl)
-  set_target_properties(pegtl-lint-${name} PROPERTIES
-    CXX_STANDARD 20
-    CXX_STANDARD_REQUIRED ON
-    CXX_EXTENSIONS OFF
-  )
+  set_target_properties(pegtl-lint-${name} PROPERTIES CXX_EXTENSIONS OFF)
   if(MSVC)
     target_compile_options(pegtl-lint-${name} PRIVATE /W4 /WX /utf-8 /bigobj)
   else()

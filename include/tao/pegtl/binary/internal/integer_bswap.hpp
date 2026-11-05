@@ -5,11 +5,33 @@
 #ifndef TAO_PEGTL_BINARY_INTERNAL_INTEGER_BSWAP_HPP
 #define TAO_PEGTL_BINARY_INTERNAL_INTEGER_BSWAP_HPP
 
-#if defined( _WIN32 ) && !defined( __MINGW32__ ) && !defined( __CYGWIN__ )
-#include "integer_bswap_win32.hpp"
-#else
-#include "integer_bswap_gcc_clang.hpp"
-#endif
+#include <bit>
+#include <concepts>
+#include <type_traits>
+#include <utility>
 
-// FCOV_EXCL_FILE
+#include "../../config.hpp"
+
+namespace TAO_PEGTL_NAMESPACE::internal
+{
+   template< std::integral T >
+   [[nodiscard]] constexpr T integer_bswap( const T n ) noexcept
+   {
+      if constexpr( sizeof( T ) == 1 ) {
+         return n;
+      }
+      else {
+         return std::byteswap( n );
+      }
+   }
+
+   template< typename T >
+      requires std::is_enum_v< T >
+   [[nodiscard]] constexpr T integer_bswap( const T n ) noexcept
+   {
+      return static_cast< T >( integer_bswap( std::to_underlying( n ) ) );
+   }
+
+}  // namespace TAO_PEGTL_NAMESPACE::internal
+
 #endif

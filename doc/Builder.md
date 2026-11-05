@@ -492,7 +492,7 @@ struct tao::pegtl::multi_traits< entry_value >
 ```
 
 After all fields are captured, the builder normally constructs `T` as `T( fields... )`.
-This supports matching constructors and, with C++20, parenthesized aggregate initialization.
+This supports matching constructors and, with C++20 or later, parenthesized aggregate initialization.
 If the trait supplies a compatible static `make()` function, it is used instead.
 
 ```c++

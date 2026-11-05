@@ -70,7 +70,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
          in.size();
       }
       {
-         return { static_cast< const char* >( this->current() ), this->size() };
+         return std::string( static_cast< const char* >( this->current() ), this->size() );
       }
 
       [[nodiscard]] std::string_view string_view() const noexcept
@@ -80,12 +80,13 @@ namespace TAO_PEGTL_NAMESPACE::internal
          in.size();
       }
       {
-         return { static_cast< const char* >( this->current() ), this->size() };
+         return std::string_view( static_cast< const char* >( this->current() ), this->size() );
       }
 
       [[nodiscard]] std::span< const data_t > span() const noexcept
+         requires requires( const Input& in ) { in.size(); }
       {
-         return { this->current(), this->size() };
+         return std::span< const data_t >( this->current(), this->size() );
       }
 
       [[nodiscard]] std::vector< data_t > vector() const
@@ -93,7 +94,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
             in.size();
          }
       {
-         return { this->current(), this->current() + this->size() };
+         return std::vector< data_t >( this->current(), this->current() + this->size() );
       }
 
       template< typename Position >

@@ -146,13 +146,20 @@ namespace TAO_PEGTL_NAMESPACE::constraint_tests
 
    struct direct_rule
    {
-      static int& match( input& );
+      static int& match( input& )
+      {
+         static int value = 0;
+         return value;
+      }
    };
 
    struct template_rule
    {
       template< apply_mode A, rewind_mode M, template< typename... > class Action, template< typename... > class Control >
-      static int& match( input&, int& );
+      static int& match( input&, int& state )
+      {
+         return state;
+      }
    };
 
    struct both_rules

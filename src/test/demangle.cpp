@@ -35,7 +35,7 @@ namespace TAO_PEGTL_NAMESPACE
    void unit_test()
    {
       const std::string ns = TAO_PEGTL_STRINGIFY( TAO_PEGTL_NAMESPACE );
-#if !defined( __clang__ ) && defined( __GNUC__ ) && ( ( ( __GNUC__ == 9 ) && ( __GNUC_MINOR__ <= 2 ) ) || ( ( __GNUC__ == 16 ) && ( __GNUC_MINOR__ <= 1 ) ) )
+#if !defined( __clang__ ) && defined( __GNUC__ ) && ( __GNUC__ == 16 ) && ( __GNUC_MINOR__ < 2 )
       // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91155
 #if defined( __cpp_rtti )
       test_typeid< int >();

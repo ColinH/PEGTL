@@ -14,7 +14,7 @@ Version 3.x of the PEGTL requires at least C++17.
 
 Version 4.x of the PEGTL requires at least C++17.
 
-Version 5.x of the PEGTL requires at least C++20.
+Version 5.x of the PEGTL requires at least C++23.
 
 ### C++ Features
 
@@ -34,7 +34,6 @@ Further opportunities include:
  * For example make the bulk() and size() functions in the peek classes consteval!
  * Keep an open eye for opportunities to use the extended CTAD facilities from C++20.
  * Keep an open eye for opportunities to use class types as non-type template parameters.
- * Replace the hand-crafted endian facilities with C++20 `std::endian` and C++23 `std::byteswap`.
  * Investigate whether we can use C++20 `std::bit_cast` to improve some of the low-level code.
  * Use C++23 "deducing this" feature to let base class `make_rewind_guard()` return a rewind guard for a derived class.
  * When can we assume the C++17 `charconv` facilities are universally available?

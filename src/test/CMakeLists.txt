@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.8...3.19)
-
 option(PEGTL_BUILD_ICU_TESTS "Enable ICU test programs" OFF)
 if(PEGTL_BUILD_ICU_TESTS)
   find_package(ICU REQUIRED COMPONENTS uc)
@@ -182,7 +180,6 @@ set(test_sources
   internal_read_file_stdio.cpp
   internal_read_input.cpp
   internal_rematch_input.cpp
-  internal_resize_uninitialized.cpp
   internal_set_stack_guard.cpp
   internal_stream_to_string.cpp
   internal_text_inputs.cpp
@@ -305,11 +302,7 @@ foreach(testsourcefile ${test_sources})
   get_filename_component(exename pegtl-test-${testsourcefile} NAME_WE)
   add_executable(${exename} ${testsourcefile})
   target_link_libraries(${exename} PRIVATE taocpp::pegtl)
-  set_target_properties(${exename} PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED ON
-    CXX_EXTENSIONS OFF
-  )
+  set_target_properties(${exename} PROPERTIES CXX_EXTENSIONS OFF)
   if(MSVC)
     target_compile_options(${exename} PRIVATE /W4 /WX /utf-8 /bigobj)
   else()
