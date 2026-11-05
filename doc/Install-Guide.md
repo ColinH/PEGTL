@@ -29,7 +29,7 @@ How to install the PEGTL, and verify and ensure that the system requirements are
 The PEGTL requires a compiler that supports C++23 like
 
 * GCC 15 or later with `--std=c++23`
-* Clang 17 or later with `--std=c++23`
+* Clang 18 or later with `--std=c++23`
 * VS 2026 MSVC 14.52 or later with `/std:c++23`
 
 on the mainstream operating systems

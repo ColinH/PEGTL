@@ -24,8 +24,6 @@ jobs:
           - os: ubuntu-26.04
             compiler: g++-16
           - os: ubuntu-24.04
-            compiler: clang++-17
-          - os: ubuntu-24.04
             compiler: clang++-18
           - os: ubuntu-26.04
             compiler: clang++-21
