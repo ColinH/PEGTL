@@ -24,7 +24,7 @@ The extras can be found in [`include/tao/pegtl/extra/`](../include/tao/pegtl/ext
 
 ###### [`builders.hpp`](../include/tao/pegtl/extra/builders.hpp)
 
-Provides [builder-style actions](Builder.md) that combine the standard builders with the integer conversion from [`charconv.hpp`](#charconvhpp) and the string unescaping from [`unescape.hpp`](#unescapehpp).
+Provides [builder-style actions](Builder.md) that combine the standard builders with the numeric conversion from [`charconv.hpp`](#charconvhpp) and the string unescaping from [`unescape.hpp`](#unescapehpp).
 
 ```c++
 template< auto S > struct from_chars_to;
@@ -34,7 +34,7 @@ template< auto S, template< typename... > class Unescape = unescape > using unes
 template< typename Rule, template< typename... > class Unescape = unescape > using unescape_for = ...;
 ```
 
-The `from_chars` builders can only be used with the integer types and rules from [`charconv.hpp`](#charconvhpp).
+The `from_chars` builders can only be used with the supported integer and floating-point types and rules from [`charconv.hpp`](#charconvhpp).
 They preserve the optimized flow in which the rule parses and converts the matched input in one step.
 
 The `unescape` builders create a `std::string` and use the supplied `Unescape` action while matching the selected rule.
@@ -42,10 +42,10 @@ The default is [`unescape`](#unescapehpp) but any compatible custom action can b
 
 ###### [`charconv.hpp`](../include/tao/pegtl/extra/charconv.hpp)
 
-Provides string-to-integer conversion based on [`std::from_chars()`](https://en.cppreference.com/w/cpp/utility/from_chars.html) from the standard [`<charconv>`](https://en.cppreference.com/w/cpp/header/charconv.html) header.
+Provides string-to-number conversion based on [`std::from_chars()`](https://en.cppreference.com/w/cpp/utility/from_chars.html) from the standard [`<charconv>`](https://en.cppreference.com/w/cpp/header/charconv.html) header.
 The classes defined in this header implement both the `match()` function for use as rule **and** the `apply()` function for use as action.
 
-Conversion classes for decimal and hexadecimal are provided, other bases can be selected via the appropriate template parameter.
+Integer conversion classes for decimal and hexadecimal are provided; other bases can be selected via the appropriate template parameter.
 
 ```c++
 enum class overflow_mode : bool;
@@ -57,25 +57,55 @@ template< typename Integral, std::uint8_t Base = 10 > struct from_chars_nothrow;
 
 template< typename Integral > struct from_xchars_throws : from_chars_throws< Integral, 16 > {};
 template< typename Integral > struct from_xchars_nothrow : from_chars_nothrow< Integral, 16 > {};
+
+template< typename Floating, std::chars_format Format, overflow_mode Over > struct from_fchars_combo;
+
+template< typename Floating, std::chars_format Format = std::chars_format::general > struct from_fchars_throws;
+template< typename Floating, std::chars_format Format = std::chars_format::general > struct from_fchars_nothrow;
 ```
 
 The `Base` parameter is passed to `std::from_chars()` as fourth function argument.
 It can be anything between 2 and 36, inclusive.
 
+The `from_fchars` classes support `float` and `double`.
+Their `Format` parameter is passed to the floating-point overload of `std::from_chars()` and must be one of:
+
+| Format | Accepted numeric form |
+| ------ | --------------------- |
+| `std::chars_format::general` | Decimal, with an optional `e` or `E` exponent. |
+| `std::chars_format::fixed` | Decimal, without an exponent. |
+| `std::chars_format::scientific` | Decimal, with a required `e` or `E` exponent. |
+| `std::chars_format::hex` | Hexadecimal, with an optional `p` or `P` exponent and no `0x` prefix. |
+
+The floating-point classes also accept infinity and NaN as supported by `std::from_chars()`.
+Conversion is independent of the locale.
+For example, `from_fchars_nothrow< double >` parses `"1.25e2"` as `125.0`.
+With `std::chars_format::fixed`, it parses the prefix `"1.25"` and leaves `"e2"` unconsumed.
+
+Floating-point rules pass the entire remaining input range to `std::from_chars()` and have no token-length limit.
+They require a contiguous input with a no-argument `size()` function; direct use as rules on stream inputs is not supported.
+Floating-point conversion actions can also be used with stream inputs because their action input provides the complete matched range.
+
 > [!NOTE]
 > Remember that `std::from_chars()` does **not** allow a leading `+` and does **not** recognize the `0x` prefix for hexadecimal numbers.
 
-In both rules the functions accept arbitrary state arguments, and both return `bool` (as is mandatory for `match()` but optional for `apply()`).
+Both conversion families return `bool` from `match()` and `apply()`.
+As rules, they accept arbitrary state arguments.
 
-* If the first state argument is a mutable reference to `Integral` then it will be assigned the result of the string-to-integer conversion.
+* If the first state argument is a mutable reference to the specified numeric type and actions are enabled, it will be assigned the conversion result.
 * If the first state argument is of any other type it will be ignored -- together with any additional states.
 
-The `_throws` vs. `_nothrow` suffix chooses between failing locally, i.e. returning `false`, when `std::from_chars()` returns `std::errc::result_out_of_range`, or failing globally, i.e. throwing an exception derived from `tao::pegtl::parse_error_base` as described in [Errors and Exceptions](Errors-and-Exceptions.md#failure-modes).
+As actions, they require the first state to be a mutable reference to the specified numeric type, and conversion must consume the entire matched range to succeed.
 
-The template parameter `Integral` can also be `void`, which changes the behavior slightly.
+The `_nothrow` suffix selects local failure, i.e. returning `false`, when `std::from_chars()` returns `std::errc::result_out_of_range`.
+The `_throws` suffix selects global failure, i.e. throwing an exception derived from `tao::pegtl::parse_error_base` as described in [Errors and Exceptions](Errors-and-Exceptions.md#failure-modes).
+For floating-point conversion this policy covers both overflow and underflow reported as out of range.
+When `std::from_chars()` reports invalid input or a range error, the destination remains unchanged; rules also leave the input unconsumed in these cases.
+
+The template parameters `Integral` and `Floating` can also be `void`, which changes the behavior slightly.
 In this case
 
-* the first state *must* be a mutable reference to any integer type supported by `std::from_chars()`,
+* the first state *must* be a mutable reference to a supported integer type for `from_chars` and `from_xchars`, or to `float` or `double` for `from_fchars`,
 * and when used as rule the `apply_mode` is ignored and the conversion result always assigned to the first state.
 
 ###### [`dispatch.hpp`](../include/tao/pegtl/extra/dispatch.hpp)
@@ -176,7 +206,7 @@ The [parse tree has its own dedicated page](Parse-Tree.md).
 ###### [`overflow_mode.hpp`](../include/tao/pegtl/extra/overflow_mode.hpp)
 
 Defines `enum class overflow_mode` with values `local_failure` and `global_failure`.
-This enum is used by [`charconv.hpp`](#charconvhpp) to choose whether integer conversion overflow causes a local failure or a global failure.
+This enum is used by [`charconv.hpp`](#charconvhpp) to choose whether an out-of-range numeric conversion causes a local failure or a global failure.
 
 ###### [`partial_apply1.hpp`](../include/tao/pegtl/extra/partial_apply1.hpp)
 

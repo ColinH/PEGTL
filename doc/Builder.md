@@ -894,10 +894,10 @@ template< typename Rule, template< typename... > class Unescape = unescape >
 using unescape_for = ...;
 ```
 
-`from_chars_to` and `from_chars_for` work with the integer rules from [`charconv.hpp`](Extra-Reference.md#charconvhpp).
-The output must be one of the supported signed or unsigned integer types.
-A typed `from_chars` rule must use the same integer type; a rule instantiated with `void` obtains the type from the surrounding builder.
-The rule's local-failure versus throwing overflow policy is preserved.
+`from_chars_to` and `from_chars_for` work with the integer and floating-point rules from [`charconv.hpp`](Extra-Reference.md#charconvhpp), including `from_fchars_throws` and `from_fchars_nothrow`.
+The output must be one of the supported signed or unsigned integer types, `float`, or `double`.
+A typed rule must use the same numeric type; a rule instantiated with `void` obtains the type from the surrounding builder and must belong to the appropriate integer or floating-point family.
+The rule's local-failure versus throwing range-error policy is preserved.
 Parsing and conversion happen in one optimized operation.
 
 `unescape_to` and `unescape_for` construct a `std::string` while parsing the selected rule with an unescape action template.
@@ -1105,17 +1105,17 @@ This is the preferred kind of extension: compose existing public builders when t
 
 ### The From-Chars Builders
 
-The `from_chars` rules can parse and convert an integer to their first state in one operation.
+The integer and floating-point `charconv` rules can parse and convert a number to their first state in one operation.
 Using an ordinary `apply()` producer would discard that advantage by parsing first and converting the matched string a second time.
 
 The `from_chars` producer therefore uses a `match()` action.
 Conceptually it:
 
-1. obtains the required integer type from `Output::value_t`,
-2. creates one integer object,
-3. matches the selected `from_chars` rule with that integer as its first state,
-4. verifies that a typed rule agrees with the requested integer type, and
-5. moves the converted integer into `out.store()` after success.
+1. obtains the required numeric type from `Output::value_t`,
+2. creates one numeric object,
+3. matches the selected `charconv` rule with that number as its first state,
+4. verifies that a typed rule agrees with the requested numeric type, and
+5. moves the converted number into `out.store()` after success.
 
 The public forms then use the same producer in the standard way.
 

@@ -15,6 +15,7 @@ Not Yet Released
 * Extended [member getters](Rule-Reference.md#member) to support reference-qualified const member functions and mutable pointer and reference results.
 * Added `std::span` construction for non-owning inputs and a [`span()` accessor](Inputs-and-Parsing.md#span-views) for contiguous input ranges.
 * Extended [iterator readers](Stream-Parsing.md#iterator-reader) and input aliases to support separate sentinel types and move-only input iterators.
+* Added `float` and `double` conversion rules and actions `from_fchars_throws` and `from_fchars_nothrow` in [`extra/charconv.hpp`](Extra-Reference.md#charconvhpp), with support in `from_chars_to` and `from_chars_for`.
 * Constrained optional input operations to supported inputs and parsing functions to non-const inputs.
 * Fixed the [floating point](Example-Reference.md#fphpp) example [grammar](Rules-and-Grammars.md) to accept underscores in the `NAN` payload.
 * Added new convenience [rule](Rules-and-Grammars.md) [`list_opt`](Rule-Reference.md#list_opt-r-s-).

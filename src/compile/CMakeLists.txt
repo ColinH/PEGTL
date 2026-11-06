@@ -14,7 +14,12 @@ set(compile_sources
   control_remove_last_states.cpp
   extra_charconv_base_max.cpp
   extra_charconv_base_min.cpp
+  extra_charconv_floating.cpp
+  extra_charconv_floating_state.cpp
+  extra_charconv_format.cpp
   extra_charconv_integral.cpp
+  extra_charconv_to_floating_family.cpp
+  extra_charconv_to_floating_mismatch.cpp
   extra_charconv_to_integer.cpp
   extra_charconv_to_mismatch.cpp
   extra_charconv_to_other_rule.cpp

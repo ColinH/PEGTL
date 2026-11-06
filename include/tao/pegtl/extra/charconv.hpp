@@ -5,6 +5,7 @@
 #ifndef TAO_PEGTL_EXTRA_CHARCONV_HPP
 #define TAO_PEGTL_EXTRA_CHARCONV_HPP
 
+#include <charconv>
 #include <cstdint>
 
 #include "../config.hpp"
@@ -46,8 +47,26 @@ namespace TAO_PEGTL_NAMESPACE
       : from_chars_nothrow< Integral, 16 >
    {};
 
-   template< typename Name, typename Integral, std::uint8_t Base, overflow_mode Over >
-   struct analyze_traits< Name, internal::from_chars_rule< Integral, Base, Over > >
+   template< typename Floating, std::chars_format Format, overflow_mode Over >
+   struct from_fchars_combo
+      : internal::from_chars_rule< Floating, Format, Over >,
+        internal::from_chars_action< Floating, Format, Over >
+   {
+      static_assert( Format == std::chars_format::general || Format == std::chars_format::fixed || Format == std::chars_format::scientific || Format == std::chars_format::hex );
+   };
+
+   template< typename Floating, std::chars_format Format = std::chars_format::general >
+   struct from_fchars_throws
+      : from_fchars_combo< Floating, Format, overflow_mode::global_failure >
+   {};
+
+   template< typename Floating, std::chars_format Format = std::chars_format::general >
+   struct from_fchars_nothrow
+      : from_fchars_combo< Floating, Format, overflow_mode::local_failure >
+   {};
+
+   template< typename Name, typename Number, auto Format, overflow_mode Over >
+   struct analyze_traits< Name, internal::from_chars_rule< Number, Format, Over > >
       : analyze_any_traits<>
    {};
 

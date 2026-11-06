@@ -12,7 +12,7 @@ namespace pegtl = TAO_PEGTL_NAMESPACE;
 using rule = pegtl::from_chars_nothrow< int >;
 #else
 // include/tao/pegtl/extra/internal/charconv.hpp
-// static_assert( std::is_integral_v< Integral > );
+// static_assert( is_from_chars_type_v< Number, Format > );
 using rule = pegtl::from_chars_nothrow< double >;
 #endif
 

@@ -22,33 +22,33 @@ namespace TAO_PEGTL_NAMESPACE::internal
       : std::false_type
    {};
 
-   template< typename Integral, std::uint8_t Base, overflow_mode Over >
-   struct is_from_chars< Integral, from_chars_rule< void, Base, Over > >
-      : std::true_type
+   template< typename Number, auto Format, overflow_mode Over >
+   struct is_from_chars< Number, from_chars_rule< void, Format, Over > >
+      : std::bool_constant< is_from_chars_type_v< Number, Format > >
    {};
 
-   template< typename Integral, std::uint8_t Base, overflow_mode Over >
-   struct is_from_chars< Integral, from_chars_rule< Integral, Base, Over > >
+   template< typename Number, auto Format, overflow_mode Over >
+   struct is_from_chars< Number, from_chars_rule< Number, Format, Over > >
       : std::true_type
    {};
 
    template< typename Object, typename Rule >
    inline constexpr bool is_from_chars_v = is_from_chars< Object, Rule >::value;
 
-   template< typename Integer, typename Rule >
-   inline constexpr bool is_from_chars_or_void_v = is_from_chars_v< Integer, typename Rule::rule_t >;
+   template< typename Number, typename Rule >
+   inline constexpr bool is_from_chars_or_void_v = is_from_chars_v< Number, typename Rule::rule_t >;
 
-   template< typename Integer >
-   inline constexpr bool is_from_chars_or_void_v< Integer, void > = true;
+   template< typename Number >
+   inline constexpr bool is_from_chars_or_void_v< Number, void > = true;
 
-   template< typename Integer >
+   template< typename Number >
    struct from_chars_object_action
    {
       template< typename Rule >
       struct type
          : nothing< Rule >
       {
-         static_assert( is_from_chars_or_void_v< Integer, Rule >, "from_chars builder can only be attached to from_chars rules" );
+         static_assert( is_from_chars_or_void_v< Number, Rule >, "from_chars builder requires a compatible charconv rule" );
       };
    };
 
@@ -56,7 +56,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
    struct from_chars_producer_action
       : create_action< void, from_chars_object_action< typename Output::value_t >::template type, Output >
    {
-      static_assert( is_proper_integer_v< typename Output::value_t > );
+      static_assert( is_proper_integer_v< typename Output::value_t > || is_charconv_floating_v< typename Output::value_t > );
    };
 
    struct from_chars_producer

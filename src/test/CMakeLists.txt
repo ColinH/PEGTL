@@ -114,6 +114,7 @@ set(test_sources
   example_semver2.cpp
   example_uri.cpp
   extra_charconv.cpp
+  extra_charconv_floating.cpp
   extra_charconv_to.cpp
   extra_dispatch.cpp
   extra_nested_exceptions.cpp

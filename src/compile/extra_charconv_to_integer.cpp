@@ -18,16 +18,28 @@ struct bool_target
    bool value = false;
 };
 
+struct floating_target
+{
+   float value = 0;
+   double other = 0;
+};
+
 #if TAO_PEGTL_COMPILE_ACCEPT
 using action = pegtl::from_chars_to< &integer_target::value >;
+using float_action = pegtl::from_chars_to< &floating_target::value >;
+using double_action = pegtl::from_chars_to< &floating_target::other >;
 #else
 // include/tao/pegtl/extra/builders.hpp
-// static_assert( internal::is_proper_integer_v< internal::delivery_result_t< S > > );
+// from_chars_to only accepts supported integer and floating-point types.
 using action = pegtl::from_chars_to< &bool_target::value >;
 #endif
 
 int main()
 {
-   (void)sizeof( action );
+   ( void )sizeof( action );
+#if TAO_PEGTL_COMPILE_ACCEPT
+   ( void )sizeof( float_action );
+   ( void )sizeof( double_action );
+#endif
    return 0;
 }

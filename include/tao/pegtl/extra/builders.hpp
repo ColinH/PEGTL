@@ -25,7 +25,7 @@ namespace TAO_PEGTL_NAMESPACE
    struct from_chars_to
       : build_to< S, internal::from_chars_producer >
    {
-      static_assert( internal::is_proper_integer_v< internal::delivery_result_t< S > > );
+      static_assert( internal::is_proper_integer_v< internal::delivery_result_t< S > > || internal::is_charconv_floating_v< internal::delivery_result_t< S > > );
    };
 
    template< typename Rule >
