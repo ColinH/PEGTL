@@ -39,8 +39,9 @@ namespace TAO_PEGTL_NAMESPACE::experimental
    };
 
    // Builders produce atom_t< Rule >; consumers map atoms and form
-   // applications to value_t. Groups are transparent and do not invoke
-   // the consumer.
+   // applications to value_t. A consumer can declare context_t to receive
+   // the corresponding parse state as the first callback argument. Groups
+   // are transparent and do not invoke the consumer.
 
    template< typename T >
    struct consumer_base
@@ -54,6 +55,12 @@ namespace TAO_PEGTL_NAMESPACE::experimental
       [[nodiscard]] static T atom( Object&& object )
       {
          return T( std::forward< Object >( object ) );
+      }
+
+      template< typename Rule, typename Context, typename Object >
+      [[nodiscard]] static T atom( Context& /*unused*/, Object&& object )
+      {
+         return atom< Rule >( std::forward< Object >( object ) );
       }
    };
 
@@ -124,23 +131,25 @@ namespace TAO_PEGTL_NAMESPACE::experimental
          using atom = atom_rule_t< Binding >;
       };
 
-      template< typename Consumer, typename Rule >
+      template< typename Parser, typename Rule >
       struct atom_output
       {
-         using value_t = Consumer::template atom_t< Rule >;
-         using result_t = Consumer::value_t;
+         using value_t = Parser::consumer_t::template atom_t< Rule >;
+         using result_t = Parser::value_t;
 
-         explicit atom_output( std::optional< result_t >& result )
-            : result( result )
+         explicit atom_output( Parser& parser, std::optional< result_t >& result )
+            : parser( parser ),
+              result( result )
          {}
 
          template< typename Object >
          void store( Object&& object )
          {
             assert( !result );
-            result.emplace( Consumer::template atom< Rule >( std::forward< Object >( object ) ) );
+            result.emplace( parser.template atom< Rule >( std::forward< Object >( object ) ) );
          }
 
+         Parser& parser;
          std::optional< result_t >& result;
       };
 
@@ -541,7 +550,10 @@ namespace TAO_PEGTL_NAMESPACE::experimental
                 typename... States >
       class parser
       {
+         static constexpr bool has_consumer_context = requires { typename Consumer::context_t; };
+
       public:
+         using consumer_t = Consumer;
          using value_t = Consumer::value_t;
          using ignored_t = Expression::ignored_t;
 
@@ -553,9 +565,9 @@ namespace TAO_PEGTL_NAMESPACE::experimental
          [[nodiscard]] std::optional< value_t > parse_expression( const unsigned minimum )
          {
             using forms_t = Expression::forms_t;
-            using context_t = construction_context< parser >;
-            using initial_t = forms_t::template initial< context_t >;
-            using trailing_t = forms_t::template trailing< context_t >;
+            using grammar_context_t = construction_context< parser >;
+            using initial_t = forms_t::template initial< grammar_context_t >;
+            using trailing_t = forms_t::template trailing< grammar_context_t >;
 
             std::optional< value_t > left;
             if( !match_form< initial_t >( left ) ) {
@@ -597,13 +609,13 @@ namespace TAO_PEGTL_NAMESPACE::experimental
             using binding_t = atom_binding_t< Binding >;
             using rule_t = atom_rule_t< Binding >;
 
-            using output_t = atom_output< Consumer, rule_t >;
+            using output_t = atom_output< parser, rule_t >;
             using producer_t = binding_t::template producer_t< rule_t >;
             using selected_action = producer_t::template action< output_t >;
             using action_t = TAO_PEGTL_NAMESPACE::internal::single_rule_action< rule_t, selected_action >;
 
             std::optional< value_t > result;
-            output_t output( result );
+            output_t output( *this, result );
             if( !std::apply(
                    [ & ]( auto&... states ) {
                       return Control< rule_t >::template match< apply_mode::enabled, rewind_mode::required, action_t::template type, Control >( m_input, output, states... );
@@ -615,13 +627,35 @@ namespace TAO_PEGTL_NAMESPACE::experimental
             return result;
          }
 
+         template< typename Rule, typename Object >
+         [[nodiscard]] value_t atom( Object&& object )
+         {
+            if constexpr( has_consumer_context ) {
+               return Consumer::template atom< Rule >( consumer_context(), std::forward< Object >( object ) );
+            }
+            else {
+               return Consumer::template atom< Rule >( std::forward< Object >( object ) );
+            }
+         }
+
          template< typename Form, typename... Args >
          [[nodiscard]] value_t apply( Args&&... args )
          {
-            return Consumer::template apply< Form >( std::forward< Args >( args )... );
+            if constexpr( has_consumer_context ) {
+               return Consumer::template apply< Form >( consumer_context(), std::forward< Args >( args )... );
+            }
+            else {
+               return Consumer::template apply< Form >( std::forward< Args >( args )... );
+            }
          }
 
       private:
+         [[nodiscard]] decltype( auto ) consumer_context()
+            requires has_consumer_context
+         {
+            return std::get< typename Consumer::context_t& >( m_states );
+         }
+
          ParseInput& m_input;
          std::tuple< States&... > m_states;
       };
