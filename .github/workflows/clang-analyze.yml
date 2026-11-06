@@ -22,15 +22,19 @@ jobs:
 
     - name: Install Dependencies
       run: |
+        curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key |
+          sudo tee /usr/share/keyrings/llvm-archive-keyring.asc > /dev/null
+        echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.asc] https://apt.llvm.org/resolute/ llvm-toolchain-resolute-23 main' |
+          sudo tee /etc/apt/sources.list.d/llvm23.list > /dev/null
         sudo apt-get -qq update -yq
-        sudo apt-get -qq install -y clang-22 clang-tools-22 --no-install-recommends --no-install-suggests
+        sudo apt-get -qq install -y clang-23 clang-tools-23 --no-install-recommends --no-install-suggests
 
     - name: Show analyzer version
-      run: clang-22 --version
+      run: clang-23 --version
 
-    - run: scan-build-22 --use-analyzer=/usr/bin/clang-22 cmake -S . -B build -GNinja
+    - run: scan-build-23 --use-analyzer=/usr/bin/clang-23 cmake -S . -B build -GNinja
 
-    - run: scan-build-22 --use-analyzer=/usr/bin/clang-22 --status-bugs -o build/analyzer-reports cmake --build build
+    - run: scan-build-23 --use-analyzer=/usr/bin/clang-23 --status-bugs -o build/analyzer-reports cmake --build build
 
     - name: Upload analyzer reports
       if: always()
