@@ -26,8 +26,10 @@ struct floating_target
 
 #if TAO_PEGTL_COMPILE_ACCEPT
 using action = pegtl::from_chars_to< &integer_target::value >;
+#if defined( __cpp_lib_to_chars ) && __cpp_lib_to_chars >= 201611L
 using float_action = pegtl::from_chars_to< &floating_target::value >;
 using double_action = pegtl::from_chars_to< &floating_target::other >;
+#endif
 #else
 // include/tao/pegtl/extra/builders.hpp
 // from_chars_to only accepts supported integer and floating-point types.
@@ -37,7 +39,7 @@ using action = pegtl::from_chars_to< &bool_target::value >;
 int main()
 {
    ( void )sizeof( action );
-#if TAO_PEGTL_COMPILE_ACCEPT
+#if TAO_PEGTL_COMPILE_ACCEPT && defined( __cpp_lib_to_chars ) && __cpp_lib_to_chars >= 201611L
    ( void )sizeof( float_action );
    ( void )sizeof( double_action );
 #endif

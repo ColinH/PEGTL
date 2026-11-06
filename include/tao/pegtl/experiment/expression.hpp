@@ -87,7 +87,7 @@ namespace TAO_PEGTL_NAMESPACE::experimental
       using atom_binding_t = TAO_PEGTL_NAMESPACE::internal::as_binding_t< Binding >;
 
       template< typename Binding >
-      using atom_rule_t = typename atom_rule< typename atom_binding_t< Binding >::rules_t >::type;
+      using atom_rule_t = atom_rule< typename atom_binding_t< Binding >::rules_t >::type;
 
       template< typename T >
       [[nodiscard]] T&& only( std::vector< T >& values ) noexcept
@@ -99,7 +99,7 @@ namespace TAO_PEGTL_NAMESPACE::experimental
       template< unsigned BindingPower >
       consteval unsigned next_binding_power()
       {
-         static_assert( BindingPower < unsigned( -1 ), "left-associative binding power must be less than the maximum unsigned value" );
+         static_assert( BindingPower < static_cast< unsigned >( -1 ), "left-associative binding power must be less than the maximum unsigned value" );
          return BindingPower + 1;
       }
 
@@ -127,8 +127,8 @@ namespace TAO_PEGTL_NAMESPACE::experimental
       template< typename Consumer, typename Rule >
       struct atom_output
       {
-         using value_t = typename Consumer::template atom_t< Rule >;
-         using result_t = typename Consumer::value_t;
+         using value_t = Consumer::template atom_t< Rule >;
+         using result_t = Consumer::value_t;
 
          explicit atom_output( std::optional< result_t >& result )
             : result( result )
@@ -271,10 +271,10 @@ namespace TAO_PEGTL_NAMESPACE::experimental
       using rule_t = internal::atom_rule_t< Binding >;
 
       template< typename Context >
-      using grammar = typename Context::template atom< Binding >;
+      using grammar = Context::template atom< Binding >;
 
       template< typename Context >
-      using initial = typename Context::template initial< atom, grammar< Context > >;
+      using initial = Context::template initial< atom, grammar< Context > >;
 
       template< typename Parser >
       static void build( Parser& /*unused*/, std::optional< typename Parser::value_t >& result, std::vector< typename Parser::value_t >& captured )
@@ -285,7 +285,7 @@ namespace TAO_PEGTL_NAMESPACE::experimental
 
    template< typename Rule,
              template< typename... > class Unescape = unescape,
-             typename Content = typename Rule::content >
+             typename Content = Rule::content >
    using unescape_atom = atom< multi_for< Rule, create_for< Content, std::string, Unescape > > >;
 
    template< typename Open, typename Close >
@@ -299,7 +299,7 @@ namespace TAO_PEGTL_NAMESPACE::experimental
                                Close >;
 
       template< typename Context >
-      using initial = typename Context::template initial< group, grammar< Context > >;
+      using initial = Context::template initial< group, grammar< Context > >;
 
       template< typename Parser >
       static void build( Parser& /*unused*/, std::optional< typename Parser::value_t >& result, std::vector< typename Parser::value_t >& captured )
@@ -323,7 +323,7 @@ namespace TAO_PEGTL_NAMESPACE::experimental
                                typename Context::template operand< right > >;
 
       template< typename Context >
-      using initial = typename Context::template initial< prefix, grammar< Context > >;
+      using initial = Context::template initial< prefix, grammar< Context > >;
 
       template< typename Parser >
       static void build( Parser& parser, std::optional< typename Parser::value_t >& result, std::vector< typename Parser::value_t >& captured )
@@ -345,10 +345,10 @@ namespace TAO_PEGTL_NAMESPACE::experimental
       using grammar = Rule;
 
       template< typename Context >
-      using trailing = typename Context::template trailing< postfix, grammar< Context > >;
+      using trailing = Context::template trailing< postfix, grammar< Context > >;
 
       template< typename Parser >
-      static void build( Parser& parser, typename Parser::value_t& value, [[maybe_unused]] std::vector< typename Parser::value_t >& captured )
+      static void build( Parser& parser, Parser::value_t& value, [[maybe_unused]] std::vector< typename Parser::value_t >& captured )
       {
          assert( captured.empty() );
          value = parser.template apply< postfix >( std::move( value ) );
@@ -370,10 +370,10 @@ namespace TAO_PEGTL_NAMESPACE::experimental
                                typename Context::template operand< right > >;
 
       template< typename Context >
-      using trailing = typename Context::template trailing< infix, grammar< Context > >;
+      using trailing = Context::template trailing< infix, grammar< Context > >;
 
       template< typename Parser >
-      static void build( Parser& parser, typename Parser::value_t& value, std::vector< typename Parser::value_t >& captured )
+      static void build( Parser& parser, Parser::value_t& value, std::vector< typename Parser::value_t >& captured )
       {
          value = parser.template apply< infix >( std::move( value ), internal::only( captured ) );
       }
@@ -397,10 +397,10 @@ namespace TAO_PEGTL_NAMESPACE::experimental
                                Close >;
 
       template< typename Context >
-      using trailing = typename Context::template trailing< application, grammar< Context > >;
+      using trailing = Context::template trailing< application, grammar< Context > >;
 
       template< typename Parser >
-      static void build( Parser& parser, typename Parser::value_t& value, std::vector< typename Parser::value_t >& captured )
+      static void build( Parser& parser, Parser::value_t& value, std::vector< typename Parser::value_t >& captured )
       {
          value = parser.template apply< application >( std::move( value ), std::move( captured ) );
       }
@@ -420,10 +420,10 @@ namespace TAO_PEGTL_NAMESPACE::experimental
                                typename Context::template atom< Name > >;
 
       template< typename Context >
-      using trailing = typename Context::template trailing< member, grammar< Context > >;
+      using trailing = Context::template trailing< member, grammar< Context > >;
 
       template< typename Parser >
-      static void build( Parser& parser, typename Parser::value_t& value, std::vector< typename Parser::value_t >& captured )
+      static void build( Parser& parser, Parser::value_t& value, std::vector< typename Parser::value_t >& captured )
       {
          value = parser.template apply< member >( std::move( value ), internal::only( captured ) );
       }
@@ -448,10 +448,10 @@ namespace TAO_PEGTL_NAMESPACE::experimental
                                typename Context::template nested< right > >;
 
       template< typename Context >
-      using trailing = typename Context::template trailing< ternary, grammar< Context > >;
+      using trailing = Context::template trailing< ternary, grammar< Context > >;
 
       template< typename Parser >
-      static void build( Parser& parser, typename Parser::value_t& value, std::vector< typename Parser::value_t >& captured )
+      static void build( Parser& parser, Parser::value_t& value, std::vector< typename Parser::value_t >& captured )
       {
          assert( captured.size() == 2 );
          value = parser.template apply< ternary >( std::move( value ), std::move( captured[ 0 ] ), std::move( captured[ 1 ] ) );
@@ -528,7 +528,7 @@ namespace TAO_PEGTL_NAMESPACE::experimental
          : require_apply0
       {
          template< typename Parser, typename... States >
-         static void apply0( Parser& parser, std::vector< typename Parser::value_t >& captured, typename Parser::value_t& value, const unsigned /*unused*/, States&&... /*unused*/ )
+         static void apply0( Parser& parser, std::vector< typename Parser::value_t >& captured, Parser::value_t& value, const unsigned /*unused*/, States&&... /*unused*/ )
          {
             Form::build( parser, value, captured );
          }
@@ -542,20 +542,20 @@ namespace TAO_PEGTL_NAMESPACE::experimental
       class parser
       {
       public:
-         using value_t = typename Consumer::value_t;
-         using ignored_t = typename Expression::ignored_t;
+         using value_t = Consumer::value_t;
+         using ignored_t = Expression::ignored_t;
 
-         parser( ParseInput& in, States&... states )
+         explicit parser( ParseInput& in, States&... states )
             : m_input( in ),
               m_states( states... )
          {}
 
          [[nodiscard]] std::optional< value_t > parse_expression( const unsigned minimum )
          {
-            using forms_t = typename Expression::forms_t;
+            using forms_t = Expression::forms_t;
             using context_t = construction_context< parser >;
-            using initial_t = typename forms_t::template initial< context_t >;
-            using trailing_t = typename forms_t::template trailing< context_t >;
+            using initial_t = forms_t::template initial< context_t >;
+            using trailing_t = forms_t::template trailing< context_t >;
 
             std::optional< value_t > left;
             if( !match_form< initial_t >( left ) ) {
@@ -598,8 +598,8 @@ namespace TAO_PEGTL_NAMESPACE::experimental
             using rule_t = atom_rule_t< Binding >;
 
             using output_t = atom_output< Consumer, rule_t >;
-            using producer_t = typename binding_t::template producer_t< rule_t >;
-            using selected_action = typename producer_t::template action< output_t >;
+            using producer_t = binding_t::template producer_t< rule_t >;
+            using selected_action = producer_t::template action< output_t >;
             using action_t = TAO_PEGTL_NAMESPACE::internal::single_rule_action< rule_t, selected_action >;
 
             std::optional< value_t > result;
@@ -677,8 +677,8 @@ namespace TAO_PEGTL_NAMESPACE::experimental
       using forms_t = forms< Forms... >;
 
       using recognition_t = internal::recognize_expression< expression >;
-      using rule_t = typename recognition_t::rule_t;
-      using subs_t = typename recognition_t::subs_t;
+      using rule_t = recognition_t::rule_t;
+      using subs_t = recognition_t::subs_t;
 
       template< apply_mode A,
                 rewind_mode M,

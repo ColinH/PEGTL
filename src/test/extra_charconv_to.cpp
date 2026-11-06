@@ -35,6 +35,7 @@ namespace TAO_PEGTL_NAMESPACE
    struct other_state
    {};
 
+#if defined( __cpp_lib_to_chars ) && __cpp_lib_to_chars >= 201611L
    struct floating_target
    {
       float value = 0;
@@ -63,6 +64,7 @@ namespace TAO_PEGTL_NAMESPACE
    struct floating_pair_rule
       : seq< floating_throws_rule, one< ',' >, floating_void_rule, eof >
    {};
+#endif
 
    struct decimal_rule
       : from_chars_nothrow< int >
@@ -116,6 +118,7 @@ namespace TAO_PEGTL_NAMESPACE
                   from_chars_for< hex_rule > >
    {};
 
+#if defined( __cpp_lib_to_chars ) && __cpp_lib_to_chars >= 201611L
    template<>
    struct test_action< floating_rule >
       : from_chars_to< &floating_target::value >
@@ -137,6 +140,7 @@ namespace TAO_PEGTL_NAMESPACE
                   from_chars_for< floating_throws_rule >,
                   from_chars_for< floating_void_rule > >
    {};
+#endif
 
    void test_decimal()
    {
@@ -193,6 +197,7 @@ namespace TAO_PEGTL_NAMESPACE
       TAO_PEGTL_TEST_ASSERT( in.empty() );
    }
 
+#if defined( __cpp_lib_to_chars ) && __cpp_lib_to_chars >= 201611L
    void test_floating()
    {
       other_state other;
@@ -234,6 +239,7 @@ namespace TAO_PEGTL_NAMESPACE
          TAO_PEGTL_TEST_ASSERT( in.empty() );
       }
    }
+#endif
 
    void unit_test()
    {
@@ -242,7 +248,9 @@ namespace TAO_PEGTL_NAMESPACE
       test_local_failure();
       test_global_failure();
       test_for();
+#if defined( __cpp_lib_to_chars ) && __cpp_lib_to_chars >= 201611L
       test_floating();
+#endif
    }
 
 }  // namespace TAO_PEGTL_NAMESPACE

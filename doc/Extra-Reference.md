@@ -68,6 +68,7 @@ The `Base` parameter is passed to `std::from_chars()` as fourth function argumen
 It can be anything between 2 and 36, inclusive.
 
 The `from_fchars` classes support `float` and `double`.
+They and floating-point `from_chars` builders are available when `<charconv>` defines `__cpp_lib_to_chars` as at least `201611L`.
 Their `Format` parameter is passed to the floating-point overload of `std::from_chars()` and must be one of:
 
 | Format | Accepted numeric form |

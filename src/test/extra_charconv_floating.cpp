@@ -2,11 +2,13 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
-#if !defined( __cpp_exceptions )
+#include <charconv>
+
+#if !defined( __cpp_exceptions ) || !defined( __cpp_lib_to_chars ) || __cpp_lib_to_chars < 201611L
 #include <iostream>
 int main()
 {
-   std::cout << "Exception support disabled, skipping test..." << std::endl;
+   std::cout << "Exception support or floating-point from_chars unavailable, skipping test..." << std::endl;
 }
 #else
 

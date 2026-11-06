@@ -29,8 +29,13 @@
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {
+#if defined( __cpp_lib_to_chars ) && __cpp_lib_to_chars >= 201611L
    template< typename T >
    inline constexpr bool is_charconv_floating_v = std::is_same_v< T, float > || std::is_same_v< T, double >;
+#else
+   template< typename T >
+   inline constexpr bool is_charconv_floating_v = false;
+#endif
 
    template< typename Number, auto Format >
    inline constexpr bool is_from_chars_type_v = ( std::is_same_v< decltype( Format ), std::uint8_t > && std::is_integral_v< Number > )

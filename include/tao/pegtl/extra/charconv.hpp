@@ -47,6 +47,7 @@ namespace TAO_PEGTL_NAMESPACE
       : from_chars_nothrow< Integral, 16 >
    {};
 
+#if defined( __cpp_lib_to_chars ) && __cpp_lib_to_chars >= 201611L
    template< typename Floating, std::chars_format Format, overflow_mode Over >
    struct from_fchars_combo
       : internal::from_chars_rule< Floating, Format, Over >,
@@ -64,6 +65,7 @@ namespace TAO_PEGTL_NAMESPACE
    struct from_fchars_nothrow
       : from_fchars_combo< Floating, Format, overflow_mode::local_failure >
    {};
+#endif
 
    template< typename Name, typename Number, auto Format, overflow_mode Over >
    struct analyze_traits< Name, internal::from_chars_rule< Number, Format, Over > >

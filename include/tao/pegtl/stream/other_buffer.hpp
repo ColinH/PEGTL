@@ -11,6 +11,7 @@
 #include <utility>
 
 #include "../config.hpp"
+#include "../system.hpp"
 
 namespace TAO_PEGTL_NAMESPACE::internal
 {

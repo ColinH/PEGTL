@@ -1,3 +1,21 @@
+set(CMAKE_CXX_STANDARD 23)
+include(CheckCXXSourceCompiles)
+check_cxx_source_compiles("
+  #include <charconv>
+  #if !defined(__cpp_lib_to_chars) || __cpp_lib_to_chars < 201611L
+  #error Floating-point from_chars is unavailable
+  #endif
+  int main() { return 0; }
+" PEGTL_HAS_FLOATING_POINT_FROM_CHARS)
+
+set(floating_charconv_sources
+  extra_charconv_floating.cpp
+  extra_charconv_floating_state.cpp
+  extra_charconv_format.cpp
+  extra_charconv_to_floating_family.cpp
+  extra_charconv_to_floating_mismatch.cpp
+)
+
 set(compile_sources
   action_add_guard.cpp
   action_add_state.cpp
@@ -70,6 +88,10 @@ foreach(source IN LISTS compile_sources)
     message(SEND_ERROR "File ${source} is missing from src/compile")
   endif()
   list(REMOVE_ITEM glob_compile_sources ${source})
+
+  if(source IN_LIST floating_charconv_sources AND NOT PEGTL_HAS_FLOATING_POINT_FROM_CHARS)
+    continue()
+  endif()
 
   get_filename_component(name ${source} NAME_WE)
   foreach(mode IN ITEMS accept reject)
