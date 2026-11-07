@@ -5,6 +5,7 @@
 #ifndef TAO_PEGTL_INTERNAL_ASCII_UTILITY_HPP
 #define TAO_PEGTL_INTERNAL_ASCII_UTILITY_HPP
 
+#include <cassert>
 #include <cstring>
 #include <initializer_list>
 #include <type_traits>
@@ -42,6 +43,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
    [[nodiscard]] constexpr bool ascii_string_equal( const void* r ) noexcept
    {
       if constexpr( sizeof...( Cs ) > 0 ) {
+         assert( r != nullptr );  // Shut up a clang-analyze false positive.
          const char* t = static_cast< const char* >( r );
          return ( ascii_char_equal< Cs >( *t++ ) && ... );
       }
