@@ -2,9 +2,9 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
-#include <charconv>
+#include <tao/pegtl/extra/internal/charconv_features.hpp>
 
-#if !defined( __cpp_exceptions ) || !defined( __cpp_lib_to_chars ) || __cpp_lib_to_chars < 201611L
+#if !defined( __cpp_exceptions ) || !defined( TAO_PEGTL_HAS_FLOATING_POINT_FROM_CHARS )
 #include <iostream>
 int main()
 {
@@ -18,8 +18,10 @@ int main()
 #include <cmath>
 #include <limits>
 #include <string>
+#include <string_view>
 #include <type_traits>
 
+#include <tao/pegtl/extra/builders.hpp>
 #include <tao/pegtl/extra/charconv.hpp>
 #include <tao/pegtl/stream.hpp>
 
@@ -161,6 +163,8 @@ namespace TAO_PEGTL_NAMESPACE
       floating_failure< Floating >( "1e9999", true );
       floating_failure< Floating >( "-1e9999", true );
       floating_failure< Floating >( "1e-9999", true );
+      floating_action_failure< Floating, std::chars_format::general, overflow_mode::local_failure, Floating >( "1.25x", false );
+      floating_action_failure< void, std::chars_format::general, overflow_mode::global_failure, Floating >( "1.25x", false );
 
       floating_success< Floating, std::chars_format::fixed >( "1.25e2", Floating( 1.25 ), 2 );
       floating_success< Floating, std::chars_format::fixed >( "inf", std::numeric_limits< Floating >::infinity() );
@@ -212,19 +216,113 @@ namespace TAO_PEGTL_NAMESPACE
          TAO_PEGTL_TEST_ASSERT( in.empty() );
       }
       {
-         view_input in( "1.25x" );
-         Floating state = 42;
-         TAO_PEGTL_TEST_ASSERT( !parse< everything, floating_action< void, std::chars_format::general, overflow_mode::local_failure >::template type >( in, state ) );
-         TAO_PEGTL_TEST_ASSERT( in.size() == 5 );
-         TAO_PEGTL_TEST_ASSERT( state == Floating( 1.25 ) );
-      }
-      {
          alloc_cstring_input< void > in( 16, 1, "1.25" );
          Floating state = 42;
          struct rule : rep< 4, any >
          {};
          TAO_PEGTL_TEST_ASSERT( parse< rule, floating_action< Floating, std::chars_format::general, overflow_mode::local_failure, rule >::template type >( in, state ) );
          TAO_PEGTL_TEST_ASSERT( state == Floating( 1.25 ) );
+      }
+   }
+
+   struct other_state
+   {};
+
+   struct floating_target
+   {
+      float value = 0;
+      double first = 0;
+      float second = 0;
+
+      void set_pair( const double in_first, const float in_second ) noexcept
+      {
+         first = in_first;
+         second = in_second;
+      }
+   };
+
+   struct floating_rule
+      : from_fchars_nothrow< float >
+   {};
+
+   struct floating_void_rule
+      : from_fchars_nothrow< void, std::chars_format::scientific >
+   {};
+
+   struct floating_throws_rule
+      : from_fchars_throws< double >
+   {};
+
+   struct floating_pair_rule
+      : seq< floating_throws_rule, one< ',' >, floating_void_rule, eof >
+   {};
+
+   template< typename Rule >
+   struct floating_builder_action
+      : nothing< Rule >
+   {};
+
+   template<>
+   struct floating_builder_action< floating_rule >
+      : from_chars_to< &floating_target::value >
+   {};
+
+   template<>
+   struct floating_builder_action< floating_void_rule >
+      : from_chars_to< &floating_target::value >
+   {};
+
+   template<>
+   struct floating_builder_action< floating_throws_rule >
+      : from_chars_to< &floating_target::first >
+   {};
+
+   template<>
+   struct floating_builder_action< floating_pair_rule >
+      : multi_to< &floating_target::set_pair,
+                  from_chars_for< floating_throws_rule >,
+                  from_chars_for< floating_void_rule > >
+   {};
+
+   void test_floating_builders()
+   {
+      other_state other;
+      floating_target target;
+      {
+         view_input in( "1.25" );
+         TAO_PEGTL_TEST_ASSERT( parse< floating_rule, floating_builder_action >( in, other, target ) );
+         TAO_PEGTL_TEST_ASSERT( target.value == 1.25F );
+         TAO_PEGTL_TEST_ASSERT( in.empty() );
+      }
+      {
+         view_input in( "25e-2" );
+         TAO_PEGTL_TEST_ASSERT( parse< floating_void_rule, floating_builder_action >( in, other, target ) );
+         TAO_PEGTL_TEST_ASSERT( target.value == 0.25F );
+         TAO_PEGTL_TEST_ASSERT( in.empty() );
+      }
+      {
+         view_input in( "1.25,25e-2" );
+         TAO_PEGTL_TEST_ASSERT( parse< floating_pair_rule, floating_builder_action >( in, other, target ) );
+         TAO_PEGTL_TEST_ASSERT( target.first == 1.25 );
+         TAO_PEGTL_TEST_ASSERT( target.second == 0.25F );
+         TAO_PEGTL_TEST_ASSERT( in.empty() );
+      }
+      for( const auto* input : { "invalid", "1e9999", "1e-9999" } ) {
+         view_input in( std::string_view{ input } );
+         TAO_PEGTL_TEST_ASSERT( !parse< floating_rule, floating_builder_action >( in, other, target ) );
+         TAO_PEGTL_TEST_ASSERT( target.value == 0.25F );
+         TAO_PEGTL_TEST_ASSERT( in.current() == input );
+      }
+      {
+         view_input in( "1e9999" );
+         TAO_PEGTL_TEST_THROWS( parse< floating_throws_rule, floating_builder_action >( in, other, target ) );
+         TAO_PEGTL_TEST_ASSERT( target.first == 1.25 );
+      }
+      {
+         view_input in( "2.5" );
+         TAO_PEGTL_TEST_ASSERT( parse< disable< floating_rule >, floating_builder_action >( in, other, target ) );
+         TAO_PEGTL_TEST_ASSERT( target.value == 0.25F );
+         TAO_PEGTL_TEST_ASSERT( in.empty() );
       }
    }
 
@@ -237,6 +335,7 @@ namespace TAO_PEGTL_NAMESPACE
 
       test_floating< float >();
       test_floating< double >();
+      test_floating_builders();
 
       floating_success( "3.4028234663852886e38", ( std::numeric_limits< float >::max )() );
       floating_success( "1.7976931348623157e308", ( std::numeric_limits< double >::max )() );

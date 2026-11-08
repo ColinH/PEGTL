@@ -47,7 +47,7 @@ namespace TAO_PEGTL_NAMESPACE
       : from_chars_nothrow< Integral, 16 >
    {};
 
-#if defined( __cpp_lib_to_chars ) && __cpp_lib_to_chars >= 201611L
+#if defined( TAO_PEGTL_HAS_FLOATING_POINT_FROM_CHARS )
    template< typename Floating, std::chars_format Format, overflow_mode Over >
    struct from_fchars_combo
       : internal::from_chars_rule< Floating, Format, Over >,

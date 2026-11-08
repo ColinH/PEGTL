@@ -12,8 +12,6 @@ int main()
 
 #include "test.hpp"
 
-#include <string_view>
-
 #include <tao/pegtl/extra/builders.hpp>
 #include <tao/pegtl/extra/charconv.hpp>
 
@@ -34,37 +32,6 @@ namespace TAO_PEGTL_NAMESPACE
 
    struct other_state
    {};
-
-#if defined( __cpp_lib_to_chars ) && __cpp_lib_to_chars >= 201611L
-   struct floating_target
-   {
-      float value = 0;
-      double first = 0;
-      float second = 0;
-
-      void set_pair( const double in_first, const float in_second ) noexcept
-      {
-         first = in_first;
-         second = in_second;
-      }
-   };
-
-   struct floating_rule
-      : from_fchars_nothrow< float >
-   {};
-
-   struct floating_void_rule
-      : from_fchars_nothrow< void, std::chars_format::scientific >
-   {};
-
-   struct floating_throws_rule
-      : from_fchars_throws< double >
-   {};
-
-   struct floating_pair_rule
-      : seq< floating_throws_rule, one< ',' >, floating_void_rule, eof >
-   {};
-#endif
 
    struct decimal_rule
       : from_chars_nothrow< int >
@@ -117,30 +84,6 @@ namespace TAO_PEGTL_NAMESPACE
                   from_chars_for< decimal_rule >,
                   from_chars_for< hex_rule > >
    {};
-
-#if defined( __cpp_lib_to_chars ) && __cpp_lib_to_chars >= 201611L
-   template<>
-   struct test_action< floating_rule >
-      : from_chars_to< &floating_target::value >
-   {};
-
-   template<>
-   struct test_action< floating_void_rule >
-      : from_chars_to< &floating_target::value >
-   {};
-
-   template<>
-   struct test_action< floating_throws_rule >
-      : from_chars_to< &floating_target::first >
-   {};
-
-   template<>
-   struct test_action< floating_pair_rule >
-      : multi_to< &floating_target::set_pair,
-                  from_chars_for< floating_throws_rule >,
-                  from_chars_for< floating_void_rule > >
-   {};
-#endif
 
    void test_decimal()
    {
@@ -197,50 +140,6 @@ namespace TAO_PEGTL_NAMESPACE
       TAO_PEGTL_TEST_ASSERT( in.empty() );
    }
 
-#if defined( __cpp_lib_to_chars ) && __cpp_lib_to_chars >= 201611L
-   void test_floating()
-   {
-      other_state other;
-      floating_target target;
-      {
-         view_input in( "1.25" );
-         TAO_PEGTL_TEST_ASSERT( parse< floating_rule, test_action >( in, other, target ) );
-         TAO_PEGTL_TEST_ASSERT( target.value == 1.25F );
-         TAO_PEGTL_TEST_ASSERT( in.empty() );
-      }
-      {
-         view_input in( "25e-2" );
-         TAO_PEGTL_TEST_ASSERT( parse< floating_void_rule, test_action >( in, other, target ) );
-         TAO_PEGTL_TEST_ASSERT( target.value == 0.25F );
-         TAO_PEGTL_TEST_ASSERT( in.empty() );
-      }
-      {
-         view_input in( "1.25,25e-2" );
-         TAO_PEGTL_TEST_ASSERT( parse< floating_pair_rule, test_action >( in, other, target ) );
-         TAO_PEGTL_TEST_ASSERT( target.first == 1.25 );
-         TAO_PEGTL_TEST_ASSERT( target.second == 0.25F );
-         TAO_PEGTL_TEST_ASSERT( in.empty() );
-      }
-      for( const auto* input : { "invalid", "1e9999", "1e-9999" } ) {
-         view_input in( std::string_view{ input } );
-         TAO_PEGTL_TEST_ASSERT( !parse< floating_rule, test_action >( in, other, target ) );
-         TAO_PEGTL_TEST_ASSERT( target.value == 0.25F );
-         TAO_PEGTL_TEST_ASSERT( in.current() == input );
-      }
-      {
-         view_input in( "1e9999" );
-         TAO_PEGTL_TEST_THROWS( parse< floating_throws_rule, test_action >( in, other, target ) );
-         TAO_PEGTL_TEST_ASSERT( target.first == 1.25 );
-      }
-      {
-         view_input in( "2.5" );
-         TAO_PEGTL_TEST_ASSERT( parse< disable< floating_rule >, test_action >( in, other, target ) );
-         TAO_PEGTL_TEST_ASSERT( target.value == 0.25F );
-         TAO_PEGTL_TEST_ASSERT( in.empty() );
-      }
-   }
-#endif
-
    void unit_test()
    {
       test_decimal();
@@ -248,9 +147,6 @@ namespace TAO_PEGTL_NAMESPACE
       test_local_failure();
       test_global_failure();
       test_for();
-#if defined( __cpp_lib_to_chars ) && __cpp_lib_to_chars >= 201611L
-      test_floating();
-#endif
    }
 
 }  // namespace TAO_PEGTL_NAMESPACE

@@ -275,6 +275,14 @@ namespace TAO_PEGTL_NAMESPACE
       from_chars_success( "0r", int( 0 ), 1 );
       from_chars_success( "0s", unsigned( 0 ), 1 );
 
+      {
+         view_input in( "123x" );
+         int state = 42;
+         TAO_PEGTL_TEST_ASSERT( !parse< everything, test_action >( in, state ) );
+         TAO_PEGTL_TEST_ASSERT( state == 42 );
+         TAO_PEGTL_TEST_ASSERT( in.size() == 4 );
+      }
+
       from_chars_success( "0x0", int( 0 ), 2 );
       from_chars_success( "0x0", unsigned( 0 ), 2 );
 

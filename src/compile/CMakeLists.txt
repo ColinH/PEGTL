@@ -1,20 +1,18 @@
 set(CMAKE_CXX_STANDARD 23)
 include(CheckCXXSourceCompiles)
+include(CMakePushCheckState)
+cmake_push_check_state()
+list(APPEND CMAKE_REQUIRED_INCLUDES "${PROJECT_SOURCE_DIR}/include")
+# Availability can change when reconfiguring with a different deployment target.
+unset(PEGTL_HAS_FLOATING_CHARCONV CACHE)
 check_cxx_source_compiles("
-  #include <charconv>
-  #if !defined(__cpp_lib_to_chars) || __cpp_lib_to_chars < 201611L
+  #include <tao/pegtl/extra/internal/charconv_features.hpp>
+  #if !defined(TAO_PEGTL_HAS_FLOATING_POINT_FROM_CHARS)
   #error Floating-point from_chars is unavailable
   #endif
   int main() { return 0; }
-" PEGTL_HAS_FLOATING_POINT_FROM_CHARS)
-
-set(floating_charconv_sources
-  extra_charconv_floating.cpp
-  extra_charconv_floating_state.cpp
-  extra_charconv_format.cpp
-  extra_charconv_to_floating_family.cpp
-  extra_charconv_to_floating_mismatch.cpp
-)
+" PEGTL_HAS_FLOATING_CHARCONV)
+cmake_pop_check_state()
 
 set(compile_sources
   action_add_guard.cpp
@@ -33,11 +31,11 @@ set(compile_sources
   extra_charconv_base_max.cpp
   extra_charconv_base_min.cpp
   extra_charconv_floating.cpp
+  extra_charconv_floating_format.cpp
   extra_charconv_floating_state.cpp
-  extra_charconv_format.cpp
+  extra_charconv_floating_to_family.cpp
+  extra_charconv_floating_to_mismatch.cpp
   extra_charconv_integral.cpp
-  extra_charconv_to_floating_family.cpp
-  extra_charconv_to_floating_mismatch.cpp
   extra_charconv_to_integer.cpp
   extra_charconv_to_mismatch.cpp
   extra_charconv_to_other_rule.cpp
@@ -89,7 +87,7 @@ foreach(source IN LISTS compile_sources)
   endif()
   list(REMOVE_ITEM glob_compile_sources ${source})
 
-  if(source IN_LIST floating_charconv_sources AND NOT PEGTL_HAS_FLOATING_POINT_FROM_CHARS)
+  if(source MATCHES "^extra_charconv_floating" AND NOT PEGTL_HAS_FLOATING_CHARCONV)
     continue()
   endif()
 

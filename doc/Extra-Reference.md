@@ -67,8 +67,8 @@ template< typename Floating, std::chars_format Format = std::chars_format::gener
 The `Base` parameter is passed to `std::from_chars()` as fourth function argument.
 It can be anything between 2 and 36, inclusive.
 
-The `from_fchars` classes support `float` and `double`.
-They and floating-point `from_chars` builders are available when `<charconv>` defines `__cpp_lib_to_chars` as at least `201611L`.
+The `from_fchars` classes support `float` and `double` when the standard library provides those `std::from_chars()` overloads for the deployment target.
+Include `charconv.hpp` and check whether `TAO_PEGTL_HAS_FLOATING_POINT_FROM_CHARS` is defined before using these classes or the floating-point builders in portable code.
 Their `Format` parameter is passed to the floating-point overload of `std::from_chars()` and must be one of:
 
 | Format | Accepted numeric form |
@@ -96,12 +96,12 @@ As rules, they accept arbitrary state arguments.
 * If the first state argument is a mutable reference to the specified numeric type and actions are enabled, it will be assigned the conversion result.
 * If the first state argument is of any other type it will be ignored -- together with any additional states.
 
-As actions, they require the first state to be a mutable reference to the specified numeric type, and conversion must consume the entire matched range to succeed.
+As actions, they require the first state to be a mutable reference to the specified numeric type and assign the result only after converting the entire matched range.
 
 The `_nothrow` suffix selects local failure, i.e. returning `false`, when `std::from_chars()` returns `std::errc::result_out_of_range`.
 The `_throws` suffix selects global failure, i.e. throwing an exception derived from `tao::pegtl::parse_error_base` as described in [Errors and Exceptions](Errors-and-Exceptions.md#failure-modes).
 For floating-point conversion this policy covers both overflow and underflow reported as out of range.
-When `std::from_chars()` reports invalid input or a range error, the destination remains unchanged; rules also leave the input unconsumed in these cases.
+An unsuccessful conversion leaves the destination unchanged. Rules also leave the input unconsumed when conversion fails.
 
 The template parameters `Integral` and `Floating` can also be `void`, which changes the behavior slightly.
 In this case

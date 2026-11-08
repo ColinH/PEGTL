@@ -27,9 +27,11 @@
 
 #include "../overflow_mode.hpp"
 
+#include "charconv_features.hpp"
+
 namespace TAO_PEGTL_NAMESPACE::internal
 {
-#if defined( __cpp_lib_to_chars ) && __cpp_lib_to_chars >= 201611L
+#if defined( TAO_PEGTL_HAS_FLOATING_POINT_FROM_CHARS )
    template< typename T >
    inline constexpr bool is_charconv_floating_v = std::is_same_v< T, float > || std::is_same_v< T, double >;
 #else
@@ -42,25 +44,15 @@ namespace TAO_PEGTL_NAMESPACE::internal
                                                 || ( std::is_same_v< decltype( Format ), std::chars_format > && is_charconv_floating_v< Number > );
 
    template< overflow_mode O, typename Input, typename Number, typename Format >
-   [[nodiscard]] std::ptrdiff_t from_chars_impl( const Input& in, const std::size_t size, Number& out, const Format format )
+   [[nodiscard]] const char* from_chars_end( const Input& in, const char* const begin, const char* const end, Number& value, const Format format )
    {
-      const char* const begin = in.current();
-      Number value;
-      const auto result = std::from_chars( begin, begin + size, value, format );
-      switch( result.ec ) {
-         case std::errc::invalid_argument:
-            return -1;
-         case std::errc::result_out_of_range:
-            if constexpr( O == overflow_mode::global_failure ) {
-               throw_parse_error( "charconv result out of range", in );
-            }
-            else {
-               return -2;
-            }
-         default:
-            out = value;
-            return result.ptr - begin;
+      const auto result = std::from_chars( begin, end, value, format );
+      if constexpr( O == overflow_mode::global_failure ) {
+         if( result.ec == std::errc::result_out_of_range ) {
+            throw_parse_error( "charconv result out of range", in );
+         }
       }
+      return result.ec == std::errc{} ? result.ptr : nullptr;
    }
 
    template< typename Rule, overflow_mode Over, auto Format, typename ParseInput, typename Number >
@@ -75,10 +67,11 @@ namespace TAO_PEGTL_NAMESPACE::internal
             return in.size( available );
          }
       }();
-      const std::ptrdiff_t done = from_chars_impl< Over >( in, size, out, Format );
-
-      if( done > 0 ) {
-         in.template consume< Rule >( done );
+      const char* const begin = in.current();
+      Number value;
+      if( const auto* end = from_chars_end< Over >( in, begin, begin + size, value, Format ) ) {
+         in.template consume< Rule >( end - begin );
+         out = value;
          return true;
       }
       return false;
@@ -140,6 +133,19 @@ namespace TAO_PEGTL_NAMESPACE::internal
    template< typename Number, auto Format, overflow_mode Over >
    inline constexpr bool enable_control< from_chars_rule< Number, Format, Over > > = false;
 
+   template< overflow_mode Over, auto Format, typename ActionInput, typename Number >
+   [[nodiscard]] bool from_chars_apply( const ActionInput& in, Number& out )
+   {
+      const char* const begin = in.current();
+      const char* const end = begin + in.size();
+      Number value;
+      if( const auto* parsed = from_chars_end< Over >( in, begin, end, value, Format ); parsed && parsed == end ) {
+         out = value;
+         return true;
+      }
+      return false;
+   }
+
    template< typename Number, auto Format, overflow_mode Over >
    struct from_chars_action
    {
@@ -148,7 +154,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
       template< typename ActionInput, typename... States >
       [[nodiscard]] static bool apply( const ActionInput& in, Number& out, States&&... /*unused*/ )
       {
-         return from_chars_impl< Over >( in, in.size(), out, Format ) == in.ssize();
+         return from_chars_apply< Over, Format >( in, out );
       }
    };
 
@@ -159,7 +165,7 @@ namespace TAO_PEGTL_NAMESPACE::internal
       [[nodiscard]] static bool apply( const ActionInput& in, Number& out, States&&... /*unused*/ )
          requires is_from_chars_type_v< Number, Format >
       {
-         return from_chars_impl< Over >( in, in.size(), out, Format ) == in.ssize();
+         return from_chars_apply< Over, Format >( in, out );
       }
    };
 

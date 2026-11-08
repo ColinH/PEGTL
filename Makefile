@@ -38,6 +38,14 @@ CXXFLAGS ?= -Wall -Wextra -Wshadow -Werror -O3 $(MINGW_CXXFLAGS)
 LIBRARY_HEADERS := $(shell find include -name '*.hpp')
 COMPILE_SOURCES := $(wildcard src/compile/*.cpp)
 COMPILE_HEADERS := $(wildcard src/compile/*.hpp)
+
+ifneq ($(MAKECMDGOALS),clean)
+FLOATING_CHARCONV := $(shell $(CXX) $(CXXSTD) -Iinclude $(CPPFLAGS) $(CXXFLAGS) -dM -E -x c++ include/tao/pegtl/extra/internal/charconv_features.hpp | grep -c ' TAO_PEGTL_HAS_FLOATING_POINT_FROM_CHARS 1$$')
+ifeq ($(FLOATING_CHARCONV),0)
+COMPILE_SOURCES := $(filter-out src/compile/extra_charconv_floating%,$(COMPILE_SOURCES))
+endif
+endif
+
 NORMAL_SOURCES := $(filter-out src/compile/%,$(shell find src -name '*.cpp'))
 NORMAL_DEPENDS := $(NORMAL_SOURCES:src/%.cpp=build/dep/%.d)
 NORMAL_BINARIES := $(NORMAL_SOURCES:src/%.cpp=build/bin/%)
